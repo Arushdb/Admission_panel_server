@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+        
+<sqlMap namespace="teaching">
+
+ <typeAlias alias="compute" type="in.ac.dei.edrp.admissionsystem.Bean.ReportInfoGetter"/>
+
+ <typeAlias alias="admission" type="in.ac.dei.edrp.admissionsystem.Bean.admissionBean"/>
+
+
+
+<select id="getLectureData" resultClass="admission">
+ 
+
+SELECT td.employee_code as val1,lc.course_name as val2,
+lc.course_code as val3,ld.unit as val4,ld.lectures as val5,ld.path as val6,
+ld.insert_time ,DATE_FORMAT(ld.insert_time, "%d %M %Y  %r %a") as val7,
+DATE_FORMAT(ld.modification_time, "%d %M %Y  %r %a") as val8,ld.discription as val9,td.name as val10
+ FROM student_course_module.lectures_detail ld
+join student_course_module.course_detail lc on ld.course_code=lc.course_code
+join student_course_module.teacher_detail td on
+  td.employee_code=td.employee_code  where ld.course_code=#course_code#;
+
+</select>  
+
+ </sqlMap>

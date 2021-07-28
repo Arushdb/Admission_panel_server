@@ -1,0 +1,2231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+        
+<sqlMap namespace="admStatus">
+
+<typeAlias alias="loginBean_info" type="in.ac.dei.edrp.admissionsystem.Bean.loginBean"/>
+<typeAlias alias="statusBean_info" type="in.ac.dei.edrp.admissionsystem.Bean.statusBean"/>
+
+<select id="getExamCenterCodes" resultClass="loginBean_info">
+
+<!--   
+select  (@examCenter:=@examCenter+1) as serialNo,set1.* from
+(select stt.component_description as  examCenter,av.center_code as exam_center_code
+ from student_registration sr
+join applicant_program_registration apr on apr.registration_number =sr.registration_number
+join student_application_status sas on sas.application_number =apr.application_number
+join admitcard_vanue av on av.program_id=apr.program_id and av.application_number=apr.application_number
+join system_table_two stt on stt.component_code =av.center_code
+where stt.group_code ='CENCOD' and sas.verification_status ='REC' 
+ group by av.center_code order by stt.component_description)set1 ,(select @examCenter:=0)initvars1;
+ -->
+ 
+ select  (@examCenter:=@examCenter+1) as serialNo,set1.* from
+(select stt.component_description as  examCenter,av.center_code as exam_center_code
+ from student_registration sr
+join applicant_program_registration apr on apr.registration_number =sr.registration_number
+join student_application_status sas on sas.application_number =apr.application_number
+join admitcard_1 av on av.program_id=apr.program_id and av.application_number=apr.application_number
+join system_table_two stt on stt.component_code =av.center_code
+where stt.group_code ='CENCOD' and sas.application_status in ('D','A')
+and av.program_id in 
+('0001003',
+'0001090',
+'0001148',
+'0001208',
+'0001110',
+'0001224',
+'0001080',
+'0001242',
+'0001074',
+'0001070',
+'0001261',
+'0001066',
+'0001257',
+'0001258',
+'0001260',
+'0001096',
+'0001076',
+'0001057',
+'0001223',
+'0001198',
+'0001082',
+'0001225',
+'0001086',
+'0001227',
+'0001230',
+'0001239',
+'0001252',
+'0001130',
+'0001107',
+'0001097',
+'0001129',
+'0001083',
+'0001226',
+'0001254',
+'0001255',
+'0001117',
+'0001065',
+'0001229',
+'0001134',
+'0001231',
+'0001119',
+'0001138',
+'0001095',
+'0001100',
+'0001118',
+'0001087',
+'0001121',
+'0001125',
+'0001126',
+'0001127',
+'0001137',
+'0001136',
+'0001135',
+'0001131',
+'0001234',
+'0001259',
+'0001102',
+'0001094',
+'0001222',
+'0001122',
+'0001120',
+'0001238',
+'0001237',
+'0001132',
+'0001009',
+'0001236',
+'0001067')
+ group by av.center_code order by stt.component_description)set1 ,(select @examCenter:=0)initvars1;
+</select>
+
+
+<select id="checkETMarks" resultClass="statusBean_info">
+  
+select test_number as application_number,marks from comp_marks where program_id =#program_id# and test_number=#application_number#;
+
+<!-- 
+select test_number as application_number,marks from MBA_GD_1 where program_id =#program_id# and test_number=#application_number#;
+ -->
+</select>
+
+<select id="getETCount" resultClass="statusBean_info">
+select count(*) as count from comp_marks where program_id=#program_id# group by program_id;
+</select>
+
+<select id="checkETMarksClone" resultClass="statusBean_info">
+select test_number as application_number,marks from comp_marks_clone where program_id =#program_id# and test_number=#application_number#;
+</select>
+
+
+<update id="updateETMarks">
+update comp_marks set marks=#marks# where test_number=#application_number# and program_id=#program_id#;
+</update>
+
+<update id="updateETworngNumber">
+
+ 
+update comp_marks cm
+left join applicant_program_registration apr on apr.application_number =cm.test_number and
+apr.program_id=cm.program_id
+set extra ='wrongNumber'
+where cm.program_id =#program_id#  and apr.application_number is null ;
+
+<!--  
+update MBA_GD_1 cm
+left join applicant_program_registration apr on apr.application_number =cm.test_number and
+apr.program_id=cm.program_id
+set extra ='wrongNumber'
+where cm.program_id =#program_id#  and apr.application_number is null ;
+-->
+
+</update>
+
+<select id="getCenterSlNo" resultClass="loginBean_info">
+select * from
+(
+select  (@examCenter:=@examCenter+1) as serialNo,set1.* from
+(select stt.component_description as  examCenter,sr.exam_center1 as exam_center_code
+ from student_registration sr
+join system_table_two stt on stt.component_code =sr.exam_center1
+where stt.group_code ='CENCOD'
+ group by sr.exam_center1 order by stt.component_description)set1 ,(select @examCenter:=0)initvars1 )set2
+ where set2.exam_center_code=#exam_center_code#;
+</select>
+
+<select id ="getUniqueEmialList" resultClass="statusBean_info">
+
+select * from
+(
+
+select set1.* from
+(
+
+select pm.program_id,pm.program_name,apr.application_number,sas.email_id from
+applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join program_master pm on pm.program_id=apr.program_id
+ where apr.program_id = #program_id#
+
+ ) set1
+
+left join
+(
+
+select pm.program_id,pm.program_name,apr.application_number,sas.email_id from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'and
+apr.is_duplicate = '0' and sr.program_id =#program_id#
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number
+
+)set2
+
+on set1.application_number=set2.application_number where set2.application_number is null)T1 group by T1.email_id;
+
+</select>
+<insert id ="insertUniqueRecord">
+insert into duplicate_table (program_id, program_name, appNo, email_id) values
+(#program_id#,#program_name#,#application_number#,#email_id#);
+</insert>
+
+
+<select id ="getUnduplicateEmialList" resultClass="statusBean_info">
+select * from
+(
+select pm.program_id,pm.program_name,apr.application_number,sas.email_id from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'and
+apr.is_duplicate = '0' and sr.program_id =#program_id#
+group by sas.email_id
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number )T1 where T1.email_id =#email_id#
+	</select>
+
+<select id="TotalCount" resultClass="loginBean_info"> 
+select count(*) as count,stt.component_description as examCenter,pm.program_name,
+apr.application_number,es.first_name as
+candidateName,es.father_first_name as fatherName,es.category_code,es.gender,aam.home_phone
+from student_application_status sas
+join applicant_program_registration apr
+on sas.application_number =apr.application_number
+join student_registration sr
+on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join admission_addresses_master aam on aam.user_id =es.student_id
+join system_table_two stt on stt.component_code =sr.exam_center1
+where sas.application_status='D' <!-- and sas.verification_status ='REC'  --> and aam.address_key='PER' and
+apr.is_duplicate = '0' and sr.program_id =#program_id#
+and stt.group_code ='CENCOD' ;
+</select>
+
+<select id="GetCenterWiseCount" resultClass="loginBean_info">
+<!--  
+select count(*) as count,stt.component_description as examCenter,pm.program_name,apr.application_number,es.first_name as
+candidateName,es.father_first_name as fatherName,es.category_code,es.gender,aam.home_phone
+from student_application_status sas
+join applicant_program_registration apr
+on sas.application_number =apr.application_number
+join student_registration sr
+on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join admission_addresses_master aam on aam.user_id =es.student_id
+join system_table_two stt on stt.component_code =sr.exam_center1
+where sas.verification_status='REC' and sas.application_status ='D' and aam.address_key='PER' and
+apr.is_duplicate = '0' and sr.program_id =#program_id# and sr.exam_center1 =#exam_center_code#
+and stt.group_code ='CENCOD' group by sr.exam_center1;
+-->
+
+
+select count(*) as count,stt.component_description as examCenter,pm.program_name,
+apr.application_number
+from student_application_status sas
+join applicant_program_registration apr
+on sas.application_number =apr.application_number
+join student_registration sr
+on sr.registration_number = apr.registration_number
+join program_master pm on pm.program_id =sr.program_id
+join admitcard_1 av on av.application_number =apr.application_number
+and av.program_id=apr.program_id
+join system_table_two stt on stt.component_code =av.center_code
+where sas.application_status in ('D','A') and <!--  sas.verification_status ='REC'  and-->
+apr.is_duplicate = '0' and sr.program_id =#program_id# and av.center_code=#exam_center_code#
+and stt.group_code ='CENCOD' and av.ext!='X';
+</select>
+
+
+
+
+ <select id="m1" resultClass="statusBean_info">
+select * from program_master;
+</select>
+
+<select id="ThoseAppearedInET" resultClass="statusBean_info">
+
+select set1.program_id,set1.program_name,set1.application_number,set1.first_name,set1.father_name,
+set1.category,set1.gender," " as Interview_marks from
+(
+select pm.program_id,pm.program_name,apr.application_number,es.first_name,es.father_first_name as father_name,
+es.category_code as category,es.gender," " as Interview_marks,cm.marks,
+case when es.category_code ='BC' and cm.marks <![CDATA[>=]]>36 then 'Y' else 'N' end as BC,
+case when es.category_code ='GN' and cm.marks <![CDATA[>=]]>36 then 'Y' else 'N' end as GN,
+case when es.category_code ='SC' and cm.marks <![CDATA[>=]]>1 then 'Y' else 'N' end as SC,
+case when es.category_code ='ST' and cm.marks <![CDATA[>=]]>1 then 'Y' else 'N' end as ST
+from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join comp_marks cm on cm.program_id=apr.program_id and cm.test_number =apr.application_number
+where sas.verification_status='REC'and apr.program_id in (#program_id#) and
+apr.is_duplicate = '0'
+order by es.category_code,apr.application_number)set1
+where set1.GN='Y' or set1.BC='Y' or set1.SC='Y'
+or set1.ST='Y';
+
+ </select>
+
+
+<select id="CCAMarksHasSUB" resultClass="statusBean_info">
+
+select * from
+(
+select set1.program_id,set1.program_name,set1.application_number,set1.first_name,set1.father_name,
+set1.category,set1.gender," " as Interview_marks from
+(
+select pm.program_id,pm.program_name,apr.application_number,es.first_name,es.father_first_name as father_name,
+es.category_code as category,es.gender," " as Interview_marks,cm.marks,
+case when es.category_code ='BC' and cm.marks <![CDATA[>=]]>36 then 'Y' else 'N' end as BC,
+case when es.category_code ='GN' and cm.marks <![CDATA[>=]]>36 then 'Y' else 'N' end as GN,
+case when es.category_code ='SC' and cm.marks <![CDATA[>=]]>1 then 'Y' else 'N' end as SC,
+case when es.category_code ='ST' and cm.marks <![CDATA[>=]]>1 then 'Y' else 'N' end as ST
+from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join comp_marks cm on cm.program_id=apr.program_id and cm.test_number =apr.application_number
+where sas.verification_status='REC'and apr.program_id in (#program_id#) and
+apr.is_duplicate = '0'
+order by es.category_code,apr.application_number)set1
+where set1.GN='Y' or set1.BC='Y' or set1.SC='Y'
+or set1.ST='Y') T2
+
+join
+
+(
+select set1.rollno,set1.marks as CAmarks,set1.attended as CCA_status from
+(
+select rollno,marks,attended,registration_number from student_final_marks
+where program_id =#program_id# and evaluation_component='CA')set1
+)T1
+on T2.application_number=T1.rollno and T1.CCA_status='P';
+
+ </select>
+ 
+ <select id="InterviewMarksHasSub" resultClass="statusBean_info">
+
+select * from
+(
+select set1.program_id,set1.program_name,set1.application_number,set1.first_name,set1.father_name,
+set1.category,set1.gender," " as Interview_marks from
+(
+select pm.program_id,pm.program_name,apr.application_number,es.first_name,es.father_first_name as father_name,
+es.category_code as category,es.gender," " as Interview_marks,cm.marks,
+case when es.category_code ='BC' and cm.marks <![CDATA[>=]]>36 then 'Y' else 'N' end as BC,
+case when es.category_code ='GN' and cm.marks <![CDATA[>=]]>36 then 'Y' else 'N' end as GN,
+case when es.category_code ='SC' and cm.marks <![CDATA[>=]]>1 then 'Y' else 'N' end as SC,
+case when es.category_code ='ST' and cm.marks <![CDATA[>=]]>1 then 'Y' else 'N' end as ST
+from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join comp_marks cm on cm.program_id=apr.program_id and cm.test_number =apr.application_number
+where sas.verification_status='REC'and apr.program_id in (#program_id#) and
+apr.is_duplicate = '0'
+order by es.category_code,apr.application_number)set1
+where set1.GN='Y' or set1.BC='Y' or set1.SC='Y'
+or set1.ST='Y') T2
+
+ join
+
+(
+select set1.rollno,set1.marks as Intmarks,set1.attended as INT_status from
+(
+select rollno,marks,attended,registration_number from student_final_marks
+where program_id =#program_id# and evaluation_component='PW')set1
+)T1
+on T2.application_number=T1.rollno and T1.INT_status='P' ;
+
+ </select>
+ 
+
+<select id ="totalApp" resultClass="statusBean_info">
+select pm.program_id,pm.program_name,count(*) as all_application from 
+applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join program_master pm on pm.program_id=apr.program_id
+ where apr.program_id = #program_id#  <!--  and sas.application_status ='D'--> group by program_id;
+</select>
+
+<select id ="verifiedApp" resultClass="statusBean_info">
+
+<!--  
+select pm.program_id,pm.program_name,count(*) as verified_application from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'and
+apr.is_duplicate = '0' and sr.program_id =#program_id# and sas.application_status in ('D')
+group by pm.program_id
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number ;
+-->
+
+select count(*) as verified_application from
+(
+select stn.program_id,scl.marks_percentage,sfm.marks,sfm.score from student_call_list scl
+join student_test_number stn on stn.registration_number=scl.registration_number
+join applicant_program_registration apr on apr.registration_number=stn.registration_number
+join student_final_marks sfm on sfm.registration_number =apr.registration_number
+where scl.program_id in (#program_id#) and scl.component_id ='UG'
+and apr.admit_card_available='X' and sfm.evaluation_component='ET'
+and scl.marks_percentage <![CDATA[<=]]>50)set2
+ ;
+
+</select>
+
+
+
+<select id ="completeApplication" resultClass="statusBean_info">
+
+<!-- 
+select pm.program_id,pm.program_name,count(*) as complete_application from
+applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join program_master pm on pm.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+and sr.program_id=apr.program_id
+ where sas.application_status in ('D')
+ and apr.program_id =#program_id#;
+  -->
+  
+  <!-- 
+  select set1.program_name,set1.program_id,count(*) as complete_application from
+(
+select pm.program_name,pm.program_id,set1.category_code from
+(
+select apr.program_id,apr.application_number ,es.category_code ,marks,es.gender  from comp_marks cm
+left join applicant_program_registration apr on apr.application_number =cm.test_number and
+apr.program_id=cm.program_id
+left join entity_student es on es.application_number=apr.application_number
+where cm.program_id =#program_id# and apr.application_number
+is  not null order by es.category_code,apr.application_number)set1
+join program_master pm on pm.program_id =set1.program_id)set1 group by set1.program_id;
+  -->
+  
+  select count(*) as complete_application from
+(
+select stn.program_id,scl.marks_percentage,sfm.marks,sfm.score from student_call_list scl
+join student_test_number stn on stn.registration_number=scl.registration_number
+join applicant_program_registration apr on apr.registration_number=stn.registration_number
+join student_final_marks sfm on sfm.registration_number =apr.registration_number
+ where scl.program_id in (#program_id#) and scl.component_id ='UG'
+ and apr.admit_card_available='X' and sfm.evaluation_component='ET') set1
+  
+ 
+
+</select>
+
+
+<update id ="updateETMarks001">
+update comp_marks set test_number =#application_number#, marks=#marks#,extra='COR'
+where program_id =#program_id# and test_number =#wrongAppNo#;
+</update>
+
+<insert id="insertETMarks001">
+insert into comp_marks
+values (#program_id#, #application_number#, #marks#, 'MANUAL', null, null);
+</insert>
+
+<select id="viewETmarks" resultClass="statusBean_info">
+select pm.program_name,apr.application_number,cm.marks,cm.extra as flag from comp_marks cm
+join applicant_program_registration apr on
+apr.application_number=cm.test_number
+and apr.program_id=cm.program_id
+join program_master pm on pm.program_id=apr.program_id
+where cm.test_number=#application_number# ;
+
+</select>
+
+<select id ="completeApplicationOutSideCenter" resultClass="statusBean_info">
+
+select pm.program_id,pm.program_name,count(*) as complete_application from
+applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join program_master pm on pm.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+and sr.program_id=apr.program_id
+ where sas.application_status in ('D') and sr.exam_center1 not in ('AG') and sas.verification_status ='REC'
+ and apr.program_id =#program_id#;
+
+</select>
+
+
+<select id ="completeApplicationMale" resultClass="statusBean_info">
+
+select pm.program_id,pm.program_name,count(*) as complete_application from
+applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join program_master pm on pm.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.application_number=apr.application_number
+and sr.program_id=apr.program_id
+ where sas.application_status in ('D') <!--  and sr.exam_center1 ='AG'--> and es.gender='M' and sas.verification_status ='REC'
+ and apr.program_id =#program_id#;
+
+</select>
+
+<select id ="completeApplicationFeMale" resultClass="statusBean_info">
+
+select pm.program_id,pm.program_name,count(*) as complete_application from
+applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join program_master pm on pm.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.application_number=apr.application_number
+and sr.program_id=apr.program_id
+ where sas.application_status in ('D') <!--  and sr.exam_center1 ='AG'--> and es.gender='F' and sas.verification_status ='REC'
+ and apr.program_id =#program_id#;
+
+</select>
+	
+	<select id="uniqueMale" resultClass="statusBean_info">
+	<!--  
+	select program_id,count(*) all_application
+from admitcard_1 where ext !='X'
+and program_id=#program_id# and gender ='M' and center_code in ('REI',
+'WPT','PV','SOCSC','FSC','FAR','FCM','FED',
+'MM','TCC','FEN','TAN','SBH','ISH','FIM','AG'
+,'JBH','GH1','GH2','USI')
+group by program_id;
+-->
+
+select at.program_id,count(*) all_application
+from admitcard_vanue at
+join student_application_status sas
+on sas.application_number =at.application_number
+where  at.program_id=#program_id#
+and at.gender ='M' and sas.verification_status ='REC'
+group by at.program_id;
+	
+	</select>
+	
+	<select id="uniqueFeMale" resultClass="statusBean_info">
+	
+	<!--  
+	select program_id,count(*) all_application
+from admitcard_1 where ext !='X'
+and program_id=#program_id# and gender ='F' and center_code in ('REI',
+'WPT','PV','SOCSC','FSC','FAR','FCM','FED',
+'MM','TCC','FEN','TAN','SBH','ISH','FIM','AG'
+,'JBH','GH1','GH2','USI')
+group by program_id;
+	
+	-->
+	
+	select at.program_id,count(*) all_application
+from admitcard_vanue at
+join student_application_status sas
+on sas.application_number =at.application_number
+where  at.program_id=#program_id#
+and at.gender ='F' and sas.verification_status ='REC'
+group by at.program_id;
+	</select>
+	
+	<select id ="GetCenterList" resultClass="statusBean_info">
+select sr.exam_center1 as exam_cen1 from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where 
+sas.application_status='D'
+<!--  sas.verification_status='REC'-->and
+apr.is_duplicate = '0' and apr.program_id =#program_id# group by sr.exam_center1;
+	</select>
+	
+	<select id ="PartiallyVerified" resultClass="statusBean_info">
+<!--  
+select pm.program_id,pm.program_name,count(*) as partialApplication from
+applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join program_master pm on pm.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+and sr.program_id=apr.program_id
+ where sas.application_status ='A'  and  sas.verification_status is null  and apr.program_id =#program_id#
+-->
+
+
+select count(*) as partialApplication from
+(
+select stn.program_id,scl.marks_percentage,sfm.marks,sfm.score from student_call_list scl
+join student_test_number stn on stn.registration_number=scl.registration_number
+join applicant_program_registration apr on apr.registration_number=stn.registration_number
+join student_final_marks sfm on sfm.registration_number =apr.registration_number
+ where scl.program_id in (#program_id#) and scl.component_id ='IN'
+ and apr.admit_card_available='X' and sfm.evaluation_component='ET'
+
+and scl.marks_percentage <![CDATA[<=]]> 50 and sfm.score <![CDATA[>=]]>18)set1
+
+</select>
+
+
+<select id="ListofProgram" resultClass="statusBean_info">
+<!--  
+select pm.program_id,pm.program_name from
+applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join program_master pm on pm.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+and sr.program_id=apr.program_id
+ where apr.program_id !='0001179' group by apr.program_id;
+ -->
+   
+ <!--  
+select at.date as date1,pm.program_id,pm.program_name from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+where at.date between '2019-06-17'
+and '2019-06-25' order by at.date ;
+-->
+<!--  
+select at.date as date1,pm.program_id,pm.program_name,pt.seats,pg.gender from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+join program_total_seats pt on pt.program_id=at.program_id
+join program_gender_eligibility pg on pg.program_id=pt.program_id
+where at.date between '2019-06-17'
+and '2019-06-24' 
+    and at.program_id in ('0001009','0001095','0001083')
+order by at.date ;
+  -->
+  
+  <!--  
+  select at.date as date1,pm.program_id,pm.program_name from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+where at.date between '2019-07-16'
+and '2019-07-17'
+order by at.date ;
+  -->
+  
+  select * from
+(
+select at.date,at.program_id,pm.program_name,pm.ug_pg
+from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+where date between '2019-06-17'
+and '2019-06-25' and pm.ug_pg='P' order by date)set1 ;
+  
+  
+  
+ <!--  
+ select pm.program_id,pm.program_name,at.date as spec  from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+where at.date between '2018-06-15'
+and '2018-07-02'  order by at.date,pm.program_name;
+ -->
+
+ <!--  
+ select pm.program_id,pm.program_name,at.date as spec  from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+where pm.program_id in ('0001252','0001251','0001250','0001249','0001248','0001247','0001246','0001245','0001244','0001243');
+-->
+
+
+   
+ <!--   
+ select pm.program_id,pm.program_name from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+where at.date between '2017-07-04'
+and '2017-07-06' and at.program_id not in ('0001179') order by at.date;
+--> 
+
+</select>
+	
+	
+	<select id="ListofProgram1" resultClass="statusBean_info">
+	 
+	<!-- 
+	select at.date as date1,pm.program_id,pm.program_name,pg.gender from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+join program_gender_eligibility pg on pg.program_id=at.program_id
+where at.date between '2019-06-16'
+and '2019-06-24' order by at.date ;
+ -->
+ 
+	select at.date as date1,pm.program_id,pm.program_name,pg.gender from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+join program_gender_eligibility pg on pg.program_id=at.program_id
+where at.date between '2019-07-16'
+and '2019-07-17' order by at.date ;
+
+
+	</select>
+	
+	<select id="ListofProgramCMS" resultClass="statusBean_info">
+	
+	select set1.program_id,set1.program_name from
+(
+select sm.student_first_name,sm.category_code,sm.religion,sm.minority,physically_handicapped,sm.gender,em.entity_name,pm.program_name,
+sp.enrollment_number,pr.session_start_date,
+pch.semester_code,pch.branch_id,pch.specialization_id,
+srsh.roll_number,srsh.status as status_srsh,srsh.sgpa,
+pm.program_id,srsh.entity_id,
+srsh.program_course_key,'2019-2020' as session_year
+from program_registration pr
+join  student_registration_semester_header srsh
+on pr.program_course_key =srsh.program_course_key
+and pr.semester_end_date=srsh.session_end_date
+and pr.semester_start_date=srsh.session_start_date
+and srsh.entity_id=pr.entity_id
+join program_course_header pch
+on pch.program_course_key =srsh.program_course_key
+join entity_master em on em.entity_id=srsh.entity_id
+join student_program sp
+ on sp.roll_number =srsh.roll_number
+and sp.program_id =pch.program_id
+and sp.branch_id=pch.branch_id
+and sp.specialization_id=pch.specialization_id
+and sp.entity_id=srsh.entity_id
+join student_master sm on sm.enrollment_number=sp.enrollment_number
+join program_master pm on pm.program_id=pch.program_id
+where
+srsh.status = 'REG' and sp.program_status  in ('ACT','SWT')
+and
+pch.program_id not in ('0001026','0001024')
+ <!--  and pch.program_id in ('0001293','0001292')--> 
+and pr.session_start_date ='2019-07-01'
+and pr.session_end_date='2020-06-30'
+and sm.gender in ('F','M') group by srsh.roll_number) set1
+group by set1.program_id;
+	</select>
+	
+	<select id ="EligibelForInterview" resultClass="statusBean_info">
+select pm.program_id,pm.program_name,count(*) as EligibleForInterview from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join student_test_number stn on stn.program_id =sr.program_id and stn.registration_number =sr.registration_number
+where sas.verification_status='REC'and
+apr.is_duplicate = '0' and sr.program_id =#program_id# and stn.called ='Y'
+group by pm.program_id
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number ;
+
+</select>
+	
+	
+	
+	
+	
+<select id ="EligibelForInterviewProgramWise" resultClass="statusBean_info">
+select pm.program_id,pm.program_name,count(*) as EligibleForInterview from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join student_test_number stn on stn.program_id =sr.program_id and stn.registration_number =sr.registration_number
+join called_for_interview cfi on cfi.program_id =stn.program_id and stn.test_number=cfi.application_number
+where sas.verification_status='REC'and
+apr.is_duplicate = '0' and sr.program_id =#program_id# and stn.called ='Y'
+group by pm.program_id
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number ;
+
+</select>
+	
+	
+	
+	
+	
+	
+<select id ="examCenter" resultClass="statusBean_info">
+  
+select pm.program_id,sr.exam_center1 as exam_cen1,count(*) as verified_application from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'and
+apr.is_duplicate = '0' and sr.program_id =#program_id#
+group by sr.exam_center1 order by sr.exam_center1;
+
+<!--  
+select program_id,center_code as exam_cen1,count(*) as
+verified_application from admitcard_vanue where program_id =#program_id# group by center_code;
+-->
+</select>
+
+
+<select id ="getCandidateList" resultClass="statusBean_info">
+
+<!--  select program_id,test_number as application_number,marks  from comp_marks where program_id =#program_id# and extra != 'wrongNumber'   and flag1 is null-->
+
+  
+select cm.program_id,cm.test_number as application_number,cm.marks,
+at.address_path as component_id
+ from comp_marks cm
+join admitcard_table at on at.program_id=cm.program_id
+ where cm.program_id =#program_id# and cm.extra != 'wrongNumber' 
+ order by cm.test_number 
+ 
+ 
+ <!--  
+ select cm.program_id,cm.test_number as application_number,cm.marks,
+at.address_path as component_id
+ from MBA_GD_1 cm
+join admitcard_table at on at.program_id=cm.program_id
+ where cm.program_id =#program_id# and cm.extra != 'wrongNumber' 
+ order by cm.test_number 
+ -->
+<!--   and cm.test_number ='119102'--> ;
+
+</select>
+
+<select id="getRecordToMaxUpdate" resultClass="statusBean_info">
+
+  
+select program_id,test_number as application_number,marks from comp_marks cm
+join student_application_status sas on cm.test_number =sas.application_number
+where sas.binded_application_number in
+(select binded_application_number from student_application_status
+ where application_number in(#application_number#)) and
+cm.program_id in (select program_id from admitcard_table where address_path=#component_id#);
+
+
+<!--  
+select program_id,test_number as application_number,marks from MBA_GD_1 cm
+join student_application_status sas on cm.test_number =sas.application_number
+where sas.binded_application_number in
+(select binded_application_number from student_application_status
+ where application_number in(#application_number#)) and
+cm.program_id in (select program_id from admitcard_table where address_path=#component_id#);
+-->
+</select>
+
+
+<select id="getRecordToMaxMarks" resultClass="statusBean_info">
+select max(set1.marks) as marks from
+(
+select program_id,test_number as application_number,marks from comp_marks cm
+join student_application_status sas on cm.test_number =sas.application_number
+where sas.binded_application_number in
+(select binded_application_number from student_application_status
+ where application_number in(#application_number#)) and
+cm.program_id in (select program_id from admitcard_table where address_path=#component_id#))set1;
+
+</select>
+
+<update id ="updateCompMAX_Marks">
+update comp_marks set marks =#marks#,flag1='MTF' where  test_number =#application_number# and program_id =#program_id#;
+</update>
+
+
+
+<select id ="getGenderWiseCount" resultClass="statusBean_info">
+<!--  
+select es.gender,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+ where apr.program_id = #program_id#  and sas.application_status ='D' and sas.verification_status='REC' group by es.gender;
+ -->
+ 
+  
+ select es.gender,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+join student_test_number stn on stn.program_id =apr.program_id and stn.registration_number =apr.registration_number
+ where apr.program_id = #program_id#  and sas.application_status ='D'
+ and stn.called ='Y'and sas.verification_status='REC' group by es.gender;
+ 
+ 
+ <!-- 
+ select es.gender,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+join student_test_number stn on stn.program_id =apr.program_id and stn.registration_number =apr.registration_number
+join called_for_interview cfi on cfi.program_id =stn.program_id and stn.test_number=cfi.application_number
+ where apr.program_id = #program_id#  and sas.application_status ='D'
+ and stn.called ='Y'and sas.verification_status='REC' group by es.gender;
+  -->
+
+</select>
+	
+	<select id ="getWeightage" resultClass="statusBean_info">
+	select total_marks*0.30 as component_weightage from final_merit_components
+       where program_id=#program_id# and component_id='ET';
+	</select>
+	
+<select id ="getCategoryMale" resultClass="statusBean_info">
+	
+<!--  
+	select es.category_code as male,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+ where apr.program_id = #program_id#  and sas.application_status ='D' and sas.verification_status='REC'
+  and es.gender='M' group by es.category_code;
+  -->	
+ 
+   <!--  
+  select es.category_code as male,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+join student_test_number stn on stn.program_id =apr.program_id and stn.registration_number =apr.registration_number
+ where apr.program_id =#program_id#  and sas.application_status ='D' and sas.verification_status='REC' and stn.called='Y'
+  and es.gender='M' group by es.category_code;
+   -->
+   
+   <!--  
+   select es.category_code as male,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+join student_test_number stn on stn.program_id =apr.program_id and stn.registration_number =apr.registration_number
+join admitcard_vanue av on av.application_number =apr.application_number and av.program_id=apr.program_id
+where apr.program_id =#program_id#  and sas.application_status ='D' and sas.verification_status='REC' and stn.called='Y'
+and es.gender='M' group by es.category_code;
+  
+  -->
+  
+  
+  select tt1.program_id,tt1.category as male,count(*) as verified_application from
+(
+select set1.program_id,set1.home_phone,set1.marks as WrittenMarks,set1.program_name,set1.application_number,set1.first_name,set1.father_name,
+set1.category,set1.gender," " as Interview_marks from
+(
+select apr.program_id,aam.home_phone,pm.program_name,apr.application_number,es.first_name,es.father_first_name as father_name,
+es.category_code as category,es.gender," " as Interview_marks,cm.marks,
+case when es.category_code ='BC' and cm.marks <![CDATA[>=]]>#component_weightage# then 'Y' else 'N' end as BC,
+case when es.category_code ='GN' and cm.marks <![CDATA[>=]]>#component_weightage# then 'Y' else 'N' end as GN,
+case when es.category_code ='SC' and cm.marks <![CDATA[>=]]>1 then 'Y' else 'N' end as SC,
+case when es.category_code ='ST' and cm.marks <![CDATA[>=]]>1 then 'Y' else 'N' end as ST
+from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join admission_addresses_master aam on aam.user_id =es.student_id
+join comp_marks cm on cm.program_id=apr.program_id and cm.test_number =apr.application_number
+where  apr.program_id in (#program_id#) and
+apr.is_duplicate = '0' and aam.address_key='PER'
+order by es.category_code,apr.application_number)set1
+where set1.GN='Y' or set1.BC='Y' or set1.SC='Y'
+or set1.ST='Y')tt1 group by tt1.category;
+  
+  
+   <!--  
+	select es.category_code as male,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+join student_test_number stn on stn.program_id =apr.program_id and stn.registration_number =apr.registration_number
+join called_for_interview cfi on cfi.program_id =stn.program_id and stn.test_number=cfi.application_number
+ where apr.program_id =#program_id# and sas.application_status ='D' and sas.verification_status='REC' and stn.called='Y'
+  and es.gender='M' group by es.category_code;
+ -->
+  
+  
+</select>
+	
+<select id ="getCategoryFemale" resultClass="statusBean_info">
+
+<!--  
+	select es.category_code as female,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+ where apr.program_id = #program_id#  and sas.application_status ='D' and sas.verification_status='REC'
+  and es.gender='F' group by es.category_code;
+  -->
+  
+   <!--  
+  select es.category_code as female,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+join student_test_number stn on stn.program_id =apr.program_id and stn.registration_number =apr.registration_number
+ where apr.program_id = #program_id#  and sas.application_status ='D' and sas.verification_status='REC' and stn.called='Y'
+  and es.gender='F' group by es.category_code;
+  -->
+  
+  select es.category_code as female,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+join student_test_number stn on stn.program_id =apr.program_id and stn.registration_number =apr.registration_number
+join admitcard_vanue av on av.application_number =apr.application_number and av.program_id=apr.program_id
+where apr.program_id =#program_id#  and sas.application_status ='D' and sas.verification_status='REC' and stn.called='Y'
+and es.gender='F' group by es.category_code;
+  
+  <!-- 
+  select es.category_code as female,count(*) as verified_application from applicant_program_registration apr
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+join student_test_number stn on stn.program_id =apr.program_id and stn.registration_number =apr.registration_number
+join called_for_interview cfi on cfi.program_id =stn.program_id and stn.test_number=cfi.application_number
+ where apr.program_id = #program_id#  and sas.application_status ='D' and sas.verification_status='REC' and stn.called='Y'
+  and es.gender='F' group by es.category_code;
+   -->
+   
+</select>	
+
+
+
+
+<select id ="getProgramName" resultClass="statusBean_info">
+select program_name,program_id from program_master where program_id =#program_id#;
+</select>	
+
+
+<select id ="getStudentList" resultClass="statusBean_info">
+<!--  
+select pm.program_name,concat(pm.program_code,'-',apr.application_number,'-16') as test_number,es.first_name,
+es.gender,es.category_code as category from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'and
+apr.is_duplicate = '0' and sr.program_id =#program_id# and sr.exam_center1=#exam_center#
+order by es.gender,es.category_code,
+apr.application_number  ;
+-->
+
+ <!--  
+select pm.program_name,concat(pm.program_code,'-',apr.application_number,'-16') as test_number,es.first_name,es.father_first_name as father_Name,
+es.gender,es.category_code as category  from admitcard_vanue av
+join applicant_program_registration apr on av.application_number =apr.application_number and av.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+where av.program_id =#program_id# and av.center_code =#building_code#
+order by es.gender,es.category_code,
+apr.application_number;
+--> 
+
+<!-- 
+select pm.program_name,concat(pm.program_code,'-',apr.application_number,'-19') as test_number,es.first_name,es.father_first_name as father_Name,
+es.gender,es.category_code as category ,aam.home_phone from admitcard_vanue av
+join applicant_program_registration apr on av.application_number =apr.application_number and av.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join admission_addresses_master aam on aam.user_id=es.student_id
+join program_master pm on pm.program_id =sr.program_id
+where av.program_id =#program_id# and av.center_code =#building_code# and aam.address_key='PER'
+and substring(av.Insert_time,1,10)='2017-05-20'
+order by es.gender,es.category_code,
+apr.application_number;
+ -->
+ 
+ 
+ <!--  
+select pm.program_name,apr.application_number as test_number,es.first_name,es.father_first_name as father_Name,
+es.gender,es.category_code as category ,aam.home_phone from admitcard_1 av
+join applicant_program_registration apr on av.application_number =apr.application_number and av.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join admission_addresses_master aam on aam.user_id=es.student_id
+join program_master pm on pm.program_id =sr.program_id
+where av.program_id =#program_id# and av.center_code =#exam_center# and aam.address_key='PER' and ext!='X' and es.gender='M'
+order by 
+apr.application_number;
+ -->
+ 
+ <!--  
+select pm.program_name,apr.application_number as test_number,es.first_name,es.father_first_name as father_Name,
+es.gender,es.category_code as category ,aam.home_phone from admitcard_vanue av
+join applicant_program_registration apr on av.application_number =apr.application_number and av.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join admission_addresses_master aam on aam.user_id=es.student_id
+join program_master pm on pm.program_id =sr.program_id
+join program_form pf on pf.program_id=apr.program_id
+where   av.center_code =#exam_center# and aam.address_key='PER'
+and pf.available='Y'
+order by apr.application_number;
+ -->
+ <!--  
+ select pm.program_name,apr.application_number as test_number,es.first_name,es.father_first_name as father_Name,
+es.gender,es.category_code as category ,aam.home_phone from admitcard_1 av
+join applicant_program_registration apr on av.application_number =apr.application_number and av.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join admission_addresses_master aam on aam.user_id=es.student_id
+join program_master pm on pm.program_id =sr.program_id
+where av.program_id =#program_id# and av.center_code =#exam_center# and aam.address_key='PER' and ext!='X' 
+order by 
+es.gender,apr.application_number;
+ -->
+ 
+ <!--  
+
+select pm.program_name,concat(pm.program_code,'-',apr.application_number,'-19') as test_number,es.first_name,es.father_first_name as father_Name,
+es.gender,(select component_description from system_table_two stt where stt.group_code='CENCOD' and stt.component_code=sr.exam_center1)centerName,
+sr.exam_center1,es.category_code as category ,aam.home_phone,(select component_description from system_table_two
+where group_code ='PAPCOD' and component_code = paper_code ) as paperOption from admitcard_vanue av
+join applicant_program_registration apr on av.application_number =apr.application_number and av.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join student_application_status sas on sas.application_number =apr.application_number
+join admission_addresses_master aam on aam.user_id=es.student_id
+join program_master pm on pm.program_id =sr.program_id
+join student_paper sp on sp.registration_number =sr.registration_number
+where av.program_id =#program_id#  and aam.address_key='PER'
+and sp.paper_code not in ('36','37','38','39')
+and sas.verification_status='REC' and sr.exam_center1 =#exam_center#
+order by sp.paper_code,es.gender,es.category_code;
+-->
+
+
+select pm.program_name,concat(pm.program_code,'-',apr.application_number,'-19') as test_number,es.first_name,es.father_first_name as father_Name,
+es.gender,(select component_description from system_table_two stt where stt.group_code='CENCOD' and stt.component_code=sr.exam_center1)centerName,
+sr.exam_center1,es.category_code as category ,aam.home_phone,(select component_description from system_table_two
+where group_code ='PAPCOD' and component_code = paper_code ) as paperOption from admitcard_vanue av
+join applicant_program_registration apr on av.application_number =apr.application_number and av.program_id=apr.program_id
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join student_application_status sas on sas.application_number =apr.application_number
+join admission_addresses_master aam on aam.user_id=es.student_id
+join program_master pm on pm.program_id =sr.program_id
+join student_paper sp on sp.registration_number =sr.registration_number
+where av.program_id =#program_id#  and aam.address_key='PER'
+and sp.paper_code not in ('82','83')
+and sas.verification_status='REC' and sr.exam_center1 =#exam_center#
+order by sp.paper_code,es.gender,es.category_code;
+
+</select>	
+
+	
+	<select id ="getStudentListforInterview" resultClass="statusBean_info">
+	 
+	select pm.program_name,stn.test_number as application_number,es.first_name,es.gender,es.category_code as category,'0' as CCA,'0'as Interview,
+	'A' as PresentStatus from student_test_number stn
+join entity_student es on es.application_number =stn.test_number
+join program_master pm on pm.program_id =stn.program_id
+where stn.program_id =#program_id# and stn.called ='Y' order by es.gender,es.application_number;
+	
+	
+	<!--  
+select set1.* ,set2.ceterDescription from
+(
+  select pm.program_name,stn.test_number as application_number,es.first_name,es.gender,es.category_code as category ,'0' as CCA,'0'as Interview,
+	'A' as PresentStatus,av.center_code as exam_cen1,aam.home_phone from student_test_number stn
+join entity_student es on es.application_number =stn.test_number
+join admission_addresses_master aam on aam.user_id=es.student_id
+join student_registration sr on sr.registration_number =stn.registration_number
+join program_master pm on pm.program_id =stn.program_id
+join admitcard_vanue av on av.application_number =stn.test_number and av.program_id =stn.program_id
+where stn.program_id =#program_id# and stn.called ='Y'
+and aam.address_key ='PER'  and av.center_code not in ('DB001') )set1
+join
+(select bc.building_code,stt.component_code as exam_center,stt.component_description as ceterDescription from building_codes bc
+join system_table_two stt
+on stt.component_code=bc.center_code where bc.center_code in
+('AG',
+'AM',
+'BE',
+'MT',
+'MU',
+'ND',
+'TI',
+'VI') and bc.building_code in ('DB001',
+'AM302',
+'BE307',
+'MT305',
+'MU303',
+'ND301',
+'TI306',
+'VI304') and stt.group_code ='CENCOD')set2
+on set1.exam_cen1 = set2.building_code  order by  set2.ceterDescription,set1.gender,set1.application_number;
+	-->
+	</select>	
+	
+	
+	
+	
+	 <select id ="ProgramList" resultClass="statusBean_info">
+	 <!--  
+ select pm.program_id,pm.program_name from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC' and
+apr.is_duplicate = '0'  and apr.program_id in ('0001132',
+'0001082',
+'0001231',
+'0001095',
+'0001102',
+'0001121',
+'0001134',
+'0001122',
+'0001198',
+'0001100',
+'0001131',
+'0001096',
+'0001094',
+'0001130',
+'0001129',
+'0001126',
+'0001127',
+'0001226',
+'0001117',
+'0001120',
+'0001135',
+'0001009',
+'0001074',
+'0001222',
+'0001136',
+'0001234',
+'0001066',
+'0001119',
+'0001138',
+'0001224',
+'0001107',
+'0001223',
+'0001225',
+'0001110',
+'0001227',
+'0001118',
+'0001137',
+'0001125',
+'0001065',
+'0001208',
+'0001236') group by program_id;
+-->
+
+select pm.program_id,pm.program_name from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.application_status='D' and
+apr.is_duplicate = '0'  and apr.program_id  in ('0001107') group by program_id;
+
+ </select>
+ 
+ 
+ <insert id ="AdmitCardClone">
+ 
+insert into admitcard_1
+select * from
+(
+
+select set2.program_id,set2.application_number,set2.gender,set2.center_code,'',set2.date,null from
+(
+select * from admitcard_1 av
+
+where av.program_id =#program_id#)set1
+right join
+(
+select at.date,apr.program_id,apr.application_number,es.gender,if(sr.exam_center1 is null,'AG',sr.exam_center1) as center_code,'',now() from applicant_program_registration
+apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+join admitcard_table at on at.program_id=apr.program_id
+where apr.program_id =#program_id# and sas.application_status in ('D')        <!--   and sas.verification_status ='REC' -->
+group by apr.application_number,apr.program_id)set2
+on set1.application_number =set2.application_number
+and set1.program_id =set2.program_id where set1.application_number is null
+
+)set3
+
+where not exists
+
+(
+select * from admitcard_1 where application_number=set3.application_number
+and set3.date=shift_time
+ );
+ 
+ 
+ </insert>
+ 
+ 
+ <select id ="getRecordFromadmitcard_1" resultClass="statusBean_info">
+select at.program_id,at.application_number from admitcard_1 at
+join student_application_status sas on sas.application_number =at.application_number
+where sas.verification_status ='REC' 
+ </select>
+ 
+ <update id="updaterecordinadmitcard_1">
+ 
+ update  admitcard_1 a1
+join
+
+(
+select apr.program_id,sas.application_number,sas.verification_status
+from student_application_status sas
+join applicant_program_registration apr
+on apr.application_number=sas.application_number
+where sas.binded_application_number in
+(select binded_application_number from student_application_status
+where application_number in(#application_number#))
+)set1
+on set1.application_number=a1.application_number
+and set1.program_id=a1.program_id
+set a1.ext='X'
+where set1.program_id=#program_id# and set1.verification_status is null;
+ 
+ </update>
+ 
+ 
+ <insert id="Agra">
+ <!-- 
+insert into admitcard_vanue
+select pm.program_id,apr.Application_Number,
+es.Gender, 'DB001','',now() from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'
+and apr.is_duplicate = '0' and sr.program_id =#program_id# and sr.exam_center1='AG'
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number;
+ -->
+ 
+ insert into  admitcard_vanue
+select set2.program_id,set2.application_number,set2.gender,set2.center_code,'',now() from
+(
+select * from admitcard_vanue where program_id =#program_id#)set1
+right join
+(
+select apr.program_id,apr.application_number,es.gender,sr.exam_center1 as center_code,'',now() from applicant_program_registration 
+apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+where apr.program_id =#program_id# and sas.application_status='D' and sas.verification_status ='REC'
+group by apr.application_number,apr.program_id)set2
+on set1.application_number =set2.application_number and set1.program_id =set2.program_id where set1.application_number is null
+and set2.center_code=#exam_cen1#;
+ 
+ </insert>
+ 
+ <insert id="InsertETMarks">
+
+ insert into comp_marks (program_id, test_number, marks, extra) values (#program_id#,#application_number#,#marks#,#exam_center#);
+  
+ <!--  
+ insert into MBA_GD_1 (program_id, test_number, marks, extra) values (#program_id#,#application_number#,#marks#,#exam_center#);
+ -->
+ </insert>
+ 
+ 
+ <insert id="InsertDistributedETmarks">
+  
+insert into comp_marks
+select * from
+(
+select stn.program_id,sas.application_number ,
+#marks# as marks,concat('MTF_',#program_id#,'_APP_',#application_number#) as  spec,'P',null
+from student_application_status sas
+join student_test_number stn on sas.application_number=stn.test_number
+join program_master pm on pm.program_id =stn.program_id
+where sas.binded_application_number in (select binded_application_number from student_application_status
+ where application_number in(#application_number#)) and stn.called in ('Y','N') and pm.program_id in (select program_id from admitcard_table where address_path=#component_id#))set1
+ WHERE NOT EXISTS (select cm.program_id,cm.test_number as application_number,cm.marks,cm.extra  as spec from comp_marks as cm where cm.program_id =set1.program_id and cm.test_number=set1.application_number);
+
+
+<!--  
+insert into MBA_GD_1
+select * from
+(
+select stn.program_id,sas.application_number ,
+#marks# as marks,concat('MTF_',#program_id#,'_APP_',#application_number#) as  spec,'P',null
+from student_application_status sas
+join student_test_number stn on sas.application_number=stn.test_number
+join program_master pm on pm.program_id =stn.program_id
+where sas.binded_application_number in (select binded_application_number from student_application_status
+ where application_number in(#application_number#)) and stn.called in ('Y','N') and pm.program_id in (select program_id from admitcard_table where address_path=#component_id#))set1
+ WHERE NOT EXISTS (select cm.program_id,cm.test_number as application_number,cm.marks,cm.extra  as spec from MBA_GD_1 as cm where cm.program_id =set1.program_id and cm.test_number=set1.application_number);
+-->
+ </insert>
+ 
+ 
+  <insert id="InsertETMarksClone">
+ insert into comp_marks_clone (program_id, test_number, marks, extra,userid,center,extra1) values (#program_id#,#application_number#,#marks#,'DPL','user','MAIN',null);
+ </insert>
+ 
+<insert id="Amritsar">
+<!-- 
+insert into admitcard_vanue
+select pm.program_id,apr.Application_Number,
+es.Gender, 'AM302','',now() from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'
+and apr.is_duplicate = '0' and sr.program_id =#program_id# and sr.exam_center1='AM'
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number;
+
+ -->
+ 
+ insert into  admitcard_vanue
+ select set2.program_id,set2.application_number,set2.gender,'AM302','',now() from
+(
+select * from admitcard_vanue where program_id =#program_id#)set1
+right join
+(
+select apr.program_id,apr.application_number,es.gender,sr.exam_center1 as center_code,'',now() from applicant_program_registration apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+where apr.program_id =#program_id# and sas.verification_status ='REC')set2
+on set1.application_number =set2.application_number and set1.program_id =set2.program_id where set1.application_number is null
+and set2.center_code='AM';
+ </insert>
+ 
+ 
+  <insert id="Bengaluru">
+  <!--  
+ insert into admitcard_vanue
+select pm.program_id,apr.Application_Number,
+es.Gender, 'BE307','',now() from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'
+and apr.is_duplicate = '0' and sr.program_id =#program_id# and sr.exam_center1='BE'
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number;
+-->
+
+ insert into  admitcard_vanue
+ select set2.program_id,set2.application_number,set2.gender,'BE307','',now() from
+(
+select * from admitcard_vanue where program_id =#program_id#)set1
+right join
+(
+select apr.program_id,apr.application_number,es.gender,sr.exam_center1 as center_code,'',now() from applicant_program_registration apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+where apr.program_id =#program_id# and sas.verification_status ='REC')set2
+on set1.application_number =set2.application_number and set1.program_id =set2.program_id where set1.application_number is null
+and set2.center_code='BE';
+
+ </insert>
+ 
+  <insert id="MTVpuram">
+  <!--  
+ insert into admitcard_vanue
+select pm.program_id,apr.Application_Number,
+es.Gender, 'MT305','',now() from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'
+and apr.is_duplicate = '0' and sr.program_id =#program_id# and sr.exam_center1='MT'
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number;
+-->
+ insert into  admitcard_vanue
+ select set2.program_id,set2.application_number,set2.gender,'MT305','',now() from
+(
+select * from admitcard_vanue where program_id =#program_id#)set1
+right join
+(
+select apr.program_id,apr.application_number,es.gender,sr.exam_center1 as center_code,'',now() from applicant_program_registration apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+where apr.program_id =#program_id# and sas.verification_status ='REC')set2
+on set1.application_number =set2.application_number and set1.program_id =set2.program_id where set1.application_number is null
+and set2.center_code='MT';
+
+
+
+ </insert>
+ 
+ 
+  <insert id="Murar">
+ <!--  
+insert into admitcard_vanue
+select pm.program_id,apr.Application_Number,
+es.Gender, 'MU303','',now() from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'
+and apr.is_duplicate = '0' and sr.program_id =#program_id# and sr.exam_center1='MU'
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number;
+-->
+
+ insert into  admitcard_vanue
+ select set2.program_id,set2.application_number,set2.gender,'MU303','',now() from
+(
+select * from admitcard_vanue where program_id =#program_id#)set1
+right join
+(
+select apr.program_id,apr.application_number,es.gender,sr.exam_center1 as center_code,'',now() from applicant_program_registration apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+where apr.program_id =#program_id# and sas.verification_status ='REC')set2
+on set1.application_number =set2.application_number and set1.program_id =set2.program_id where set1.application_number is null
+and set2.center_code='MU';
+
+ </insert>
+ <select id="getEntityId" resultClass="statusBean_info">
+ select offered_by as entityId from program_form where program_id =#program_id#;
+ </select>
+ 
+ <select id="getCompList" resultClass="statusBean_info">
+ select component_id
+from final_merit_components
+where program_id =#program_id# and offered_by =#entityId#
+and component_id in ('CA','PW','ET','GD');
+ </select>
+ 
+ 
+  <select id="getEntrancetestScore" resultClass="statusBean_info">
+ select apr.application_number ,es.category_code as category,marks  from comp_marks cm
+left join applicant_program_registration apr on apr.application_number =cm.test_number and
+apr.program_id=cm.program_id
+left join entity_student es on es.application_number=apr.application_number
+where cm.program_id =#program_id# and apr.application_number
+is  not null order by es.category_code,apr.application_number ;
+
+ </select>
+ 
+ <insert id="Insert_into_SFM">
+ <!--  
+insert into
+student_final_marks
+select set1.program_id,set1.entity_id,set1.registration_number,#component_id#,0,null,
+'A','2017-07-01','2018-06-30',now(),null,'atul',null,null,null,set1.test_number,null from
+(
+select apr.program_id,stn.entity_id,sr.registration_number,stn.test_number,null
+from applicant_program_registration apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id=apr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join student_test_number stn on stn.program_id =sr.program_id
+and stn.registration_number = sr.registration_number
+join entity_student es on es.application_number =apr.application_number
+where apr.program_id =#program_id# and sas.verification_status ='REC' and apr.is_duplicate='0')set1
+where not exists (select * from student_final_marks where registration_number =set1.registration_number
+and program_id =set1.program_id and entity_id=set1.entity_id and evaluation_component=set1);
+-->
+
+insert into student_final_marks
+select * from
+(
+select set1.program_id,set1.entity_id,set1.registration_number,#component_id# as evaluation_component,0 as marks,null as branch_code,
+'A' as attended,'2019-07-01','2020-06-30',now(),null as modification_time,'atul',null as modifier_id, null as specialization_code,
+null as testid,set1.test_number,null as score,null as sub_status from
+(select apr.program_id,stn.entity_id,sr.registration_number,stn.test_number,null
+from applicant_program_registration apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id=apr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join student_test_number stn on stn.program_id =sr.program_id
+and stn.registration_number = sr.registration_number
+join entity_student es on es.application_number =apr.application_number
+where apr.program_id =#program_id# <!--  and sas.verification_status ='REC'--> and apr.is_duplicate='0')set1)T1
+
+where not exists (
+select * from student_final_marks where registration_number =T1.registration_number
+and program_id =T1.program_id and entity_id=T1.entity_id and evaluation_component=#component_id#);
+ </insert>
+ 
+ <update id="updateSFMtoCOMP">
+ update student_final_marks sfm join comp_marks cm on cm.program_id=sfm.program_id and
+cm.test_number=sfm.rollno and cm.program_id=#program_id# and evaluation_component in ('ET') 
+set sfm.marks=cm.marks,attended='P';
+ </update>
+ 
+  <update id="updateWeightages">
+ update student_final_marks sfm
+join final_merit_components fmc on sfm.program_id=fmc.program_id
+and fmc.component_id=sfm.evaluation_component and sfm.entity_id=fmc.offered_by
+ set score=((sfm.marks*weightage_percentage)/fmc.total_marks)
+where sfm.program_id=#program_id# and component_id='ET';
+ </update>
+ 
+   <update id="updateETflag1">
+update comp_marks set flag1 ='P' where program_id =#program_id# and test_number =#application_number#;
+ </update>
+ 
+ 
+  <insert id="NewDelhi">
+  
+  <!--  
+ insert into admitcard_vanue
+select pm.program_id,apr.Application_Number,
+es.Gender, 'ND301','',now() from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'
+and apr.is_duplicate = '0' and sr.program_id =#program_id# and sr.exam_center1='ND'
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number;
+-->
+
+
+ insert into  admitcard_vanue
+ select set2.program_id,set2.application_number,set2.gender,'ND301','',now() from
+(
+select * from admitcard_vanue where program_id =#program_id#)set1
+right join
+(
+select apr.program_id,apr.application_number,es.gender,sr.exam_center1 as center_code,'',now() from applicant_program_registration apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+where apr.program_id =#program_id# and sas.verification_status ='REC')set2
+on set1.application_number =set2.application_number and set1.program_id =set2.program_id where set1.application_number is null
+and set2.center_code='ND';
+ </insert>
+ 
+  <insert id="Timarni">
+  <!--  
+ insert into admitcard_vanue
+select pm.program_id,apr.Application_Number,
+es.Gender, 'TI306','',now() from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'
+and apr.is_duplicate = '0' and sr.program_id =#program_id# and sr.exam_center1='TI'
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number;
+-->
+
+ insert into  admitcard_vanue
+ select set2.program_id,set2.application_number,set2.gender,'TI306','',now() from
+(
+select * from admitcard_vanue where program_id =#program_id#)set1
+right join
+(
+select apr.program_id,apr.application_number,es.gender,sr.exam_center1 as center_code,'',now() from applicant_program_registration apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+where apr.program_id =#program_id# and sas.verification_status ='REC')set2
+on set1.application_number =set2.application_number and set1.program_id =set2.program_id where set1.application_number is null
+and set2.center_code='TI';
+
+ </insert>
+ 
+ 
+<insert id="Vishakha">
+<!--  
+insert into admitcard_vanue
+select pm.program_id,apr.Application_Number,
+es.Gender, 'VI304','',now() from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where sas.verification_status='REC'
+and apr.is_duplicate = '0' and sr.program_id =#program_id# and sr.exam_center1='VI'
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number;
+-->
+
+ insert into  admitcard_vanue
+ select set2.program_id,set2.application_number,set2.gender,'VI304','',now() from
+(
+select * from admitcard_vanue where program_id =#program_id#)set1
+right join
+(
+select apr.program_id,apr.application_number,es.gender,sr.exam_center1 as center_code,'',now() from applicant_program_registration apr join student_registration sr
+on sr.registration_number =apr.registration_number and sr.program_id
+join student_application_status sas on sas.application_number =apr.application_number
+join entity_student es on es.application_number =apr.application_number
+where apr.program_id =#program_id# and sas.verification_status ='REC')set2
+on set1.application_number =set2.application_number and set1.program_id =set2.program_id where set1.application_number is null
+and set2.center_code='VI';
+
+ </insert>
+	
+	
+	
+	
+	
+	
+	
+
+	
+		 <select id ="GetCMSList" resultClass="statusBean_info">
+select set2.program_name ,(select component_description
+from system_table_two where group_code ='BRNCOD' and
+component_code=set2.branch_id) as brach,set2.roll_number,
+(select component_description
+from system_table_two where group_code ='SPCLCD' and
+component_code=set2.specialization_id) as spec,
+set2.student_first_name,set2.category_code,set2.enrollment_number,set2.program_name,set2.current_semester from
+(
+
+select sc.* from student_course sc
+join program_course_header pch on pch.program_course_key =sc.program_course_key
+where (sc.semester_start_date between '2015-07-01' and '2016-06-30')
+and pch.semester_code in ('SM8','SM6') group by sc.roll_number
+
+)set1
+join
+(select sp.*,sm.student_first_name,sm.category_code,pm.program_name from student_program  sp
+join student_master sm on sm.enrollment_number =sp.enrollment_number
+join program_master pm on sp.program_id =pm.program_id
+where sp.current_semester in ('SM6','SM8') )set2
+on set1.roll_number =set2.roll_number order by set2.roll_number ;
+ 
+ </select>
+	
+	
+	
+	
+	
+	
+		
+<select id ="getCourseList" resultClass="statusBean_info">
+select sc.course_code as course from student_course sc
+join program_course_header pch on pch.program_course_key =sc.program_course_key
+where (sc.semester_start_date between '2015-07-01' and '2016-06-30')
+and pch.semester_code in ('SM8','SM6') and sc.roll_number =#roll_number#
+ 
+ </select>
+ 
+ 
+ <select id ="getCoponentIdforDefaulterStudent" resultClass="statusBean_info">
+ <!-- 
+select set1.component_id from
+(
+select program_id,component_id,component_weightage,weightage_flag,component_criteria_flag
+from program_components where program_id in (#program_id#) and component_criteria_flag='Y'  group by component_id )set1
+join component_description cd on
+cd.component_id=set1.component_id
+ -->
+ <!--  
+   select set1.component_id from
+(
+select program_id,component_id,component_weightage,weightage_flag,component_criteria_flag
+from program_components where program_id in (#program_id#)  group by component_id )set1
+join component_description cd on
+cd.component_id=set1.component_id;
+   -->
+   
+select * from
+(
+select T1.* from
+(
+select program_id,component_id,component_weightage,weightage_flag,component_criteria_flag
+from program_components where program_id in (#program_id#) and weightage_flag='Y' )T1
+
+left join
+(
+select program_id,component_id,component_weightage,weightage_flag,component_criteria_flag
+from program_components where program_id in (#program_id#) and component_criteria_flag='Y' )T2
+on
+T1.program_id=T2.program_id) set1 group by set1.component_id;
+ </select>
+ 
+ 
+ <select id ="getCoponentIdForCheckingList" resultClass="statusBean_info">
+ select cd.description as component_description,set1.* from
+(
+select program_id,component_id,component_weightage,weightage_flag,component_criteria_flag
+from program_components where program_id in (#program_id#)  group by component_id )set1
+join component_description cd on
+cd.component_id=set1.component_id;
+ </select>
+ 
+ 
+ <select id ="getDefaultStudent" resultClass="statusBean_info">
+ select * from
+(
+select apr.program_id,apr.application_number,aam.home_phone,sr.registration_number from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join admission_addresses_master aam on aam.user_id=es.student_id
+join student_call_list scl on scl.registration_number =sr.registration_number
+ where sas.verification_status='REC' and 
+  <dynamic prepend="scl.component_id  IN">
+<iterate property="compId" open="(" close=")" conjunction=",">
+#compId[]#
+</iterate>
+</dynamic>
+ and marks_percentage=0
+and apr.is_duplicate = 0 and sr.program_id =#program_id# and aam.address_key='PER'
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number)set1 group by set1.registration_number;
+ 
+ </select>
+ 
+ <select id="getExamCenterList" resultClass="statusBean_info">
+  <!--  
+select bc.building_code,stt.component_code as exam_center,stt.component_description as ceterDescription from building_codes bc
+join system_table_two stt
+on stt.component_code=bc.center_code where bc.center_code in 
+('AG',
+'AM',
+'BE',
+'MT',
+'MU',
+'ND',
+'TI',
+'VI') and bc.building_code in ('DB001',
+'AM302',
+'BE307',
+'MT305',
+'MU303',
+'ND301',
+'TI306',
+'VI304') and stt.group_code ='CENCOD';
+-->
+
+<!--  
+select em.entity_id as building_code,em.entity_name as exam_center,em.entity_name as ceterDescription from entity_master em
+join program_offered_by pob on
+pob.offered_by =em.entity_id
+join admitcard_vanue av on av.center_code =em.entity_id where
+pob.offering_mode ='DIS' group by av.center_code;
+-->
+<!--  
+select set1.center_code as building_code,em.entity_name as ceterDescription from
+(select * from admitcard_vanue where LENGTH(center_code)=8  group by center_code)set1
+join entity_master em on em.entity_id=set1.center_code;
+-->
+
+<!-- 
+select center_code as building_code,stt.component_description  as ceterDescription
+from admitcard_vanue av
+join system_table_two stt on stt.component_code =av.center_code
+where stt.group_code ='CENCOD' and av.program_id in ('0001080') and av.center_code='AG'
+group by av.center_code;
+ -->
+
+<!--  
+select av.center_code as exam_center,stt.building_name  as ceterDescription
+from admitcard_1 av
+join building_codes stt on stt.building_code =av.center_code
+where  av.center_code
+in ('REI',
+'WPT','PV','SOCSC','FSC','FAR','FCM','FED',
+'MM','TCC','FEN','TAN','SBH','ISH','FIM'
+,'JBH','GH1','GH2','AG','USI') and av.ext !='X' 
+group by av.center_code;
+-->
+
+<!--  
+ select  (@examCenter:=@examCenter+1) as serialNo,set1.* from
+(select stt.component_description as  ceterDescription,av.center_code as exam_center
+ from student_registration sr
+join applicant_program_registration apr on apr.registration_number =sr.registration_number
+join student_application_status sas on sas.application_number =apr.application_number
+join admitcard_1 av on av.program_id=apr.program_id and av.application_number=apr.application_number
+join system_table_two stt on stt.component_code =av.center_code
+where stt.group_code ='CENCOD' and sas.application_status in ('D','A')
+and av.program_id in
+(select program_id from program_form where available='Y') and av.center_code not in('REI',
+'WPT','PV','SOCSC','FSC','FAR','FCM','FED',
+'MM','TCC','FEN','TAN','SBH','ISH','FIM'
+,'JBH','GH1','GH2','AG','USI')
+ group by av.center_code order by stt.component_description)set1 ,(select @examCenter:=0)initvars1;
+-->
+
+ select  (@examCenter:=@examCenter+1) as serialNo,set1.* from
+(select stt.component_description as  ceterDescription,av.center_code as exam_center
+ from student_registration sr
+join applicant_program_registration apr on apr.registration_number =sr.registration_number
+join student_application_status sas on sas.application_number =apr.application_number
+join admitcard_vanue av on av.program_id=apr.program_id and av.application_number=apr.application_number
+join system_table_two stt on stt.component_code =av.center_code
+where stt.group_code ='CENCOD' and sas.application_status in ('D','A')
+and av.program_id in
+('0001235') and av.center_code not in('REI',
+'WPT','PV','SOCSC','FSC','FAR','FCM','FED',
+'MM','TCC','FEN','TAN','SBH','ISH','FIM'
+,'JBH','GH1','GH2','USI')
+ group by av.center_code order by stt.component_description)set1 ,(select @examCenter:=0)initvars1;
+
+
+
+
+<!--  
+ select  (@examCenter:=@examCenter+1) as serialNo,set1.* from
+(select stt.component_description as  ceterDescription,av.center_code as exam_center
+ from student_registration sr
+join applicant_program_registration apr on apr.registration_number =sr.registration_number
+join student_application_status sas on sas.application_number =apr.application_number
+join admitcard_1 av on av.program_id=apr.program_id and av.application_number=apr.application_number
+join system_table_two stt on stt.component_code =av.center_code
+where stt.group_code ='CENCOD' and sas.application_status in ('D','A')
+and av.program_id in 
+('0001003',
+'0001090',
+'0001148',
+'0001208',
+'0001110',
+'0001224',
+'0001080',
+'0001242',
+'0001074',
+'0001070',
+'0001261',
+'0001066',
+'0001257',
+'0001258',
+'0001260',
+'0001096',
+'0001076',
+'0001057',
+'0001223',
+'0001198',
+'0001082',
+'0001225',
+'0001086',
+'0001227',
+'0001230',
+'0001239',
+'0001252',
+'0001130',
+'0001107',
+'0001097',
+'0001129',
+'0001083',
+'0001226',
+'0001254',
+'0001255',
+'0001117',
+'0001065',
+'0001229',
+'0001134',
+'0001231',
+'0001119',
+'0001138',
+'0001095',
+'0001100',
+'0001118',
+'0001087',
+'0001121',
+'0001125',
+'0001126',
+'0001127',
+'0001137',
+'0001136',
+'0001135',
+'0001131',
+'0001234',
+'0001259',
+'0001102',
+'0001094',
+'0001222',
+'0001122',
+'0001120',
+'0001238',
+'0001237',
+'0001132',
+'0001009',
+'0001236',
+'0001067') and av.center_code not in('AG')
+ group by av.center_code order by stt.component_description)set1 ,(select @examCenter:=0)initvars1;
+-->
+
+
+ </select>
+ 
+ 
+
+<select id ="getAdmitCardIssuedMale" resultClass="statusBean_info">
+select pm.program_id,es.category_code as male,es.gender,pm.program_name,count(*) as verified_application
+ from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join student_test_number stn on stn.program_id=sr.program_id and stn.registration_number =sr.registration_number
+join admitcard_vanue at on at.application_number =stn.test_number and at.program_id =stn.program_id
+where sas.verification_status='REC'and
+apr.is_duplicate = '0' and sr.program_id =#program_id# and es.gender='M'
+group by es.gender,es.category_code;
+</select>
+
+ <select id ="getAdmitCardIssuedFemale" resultClass="statusBean_info">
+select pm.program_id,es.category_code as female,es.gender,pm.program_name,count(*) as verified_application
+ from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join student_test_number stn on stn.program_id=sr.program_id and stn.registration_number =sr.registration_number
+join admitcard_vanue at on at.application_number =stn.test_number and at.program_id =stn.program_id
+where sas.verification_status='REC'and
+apr.is_duplicate = '0' and sr.program_id =#program_id# and es.gender='F'
+group by es.gender,es.category_code;
+</select>
+
+
+
+ <select id ="getETMale" resultClass="statusBean_info">
+select es.gender,es.category_code as male,count(*)as verified_application from comp_marks cm
+join entity_student es on es.application_number =cm.test_number
+where cm.program_id =#program_id#   and es.gender='M' group by es.gender,es.category_code;
+</select>
+
+ <select id ="getETFemale" resultClass="statusBean_info">
+select es.gender,es.category_code as female,count(*)as verified_application from comp_marks cm
+join entity_student es on es.application_number =cm.test_number
+where cm.program_id =#program_id#   and es.gender='F' group by es.gender,es.category_code;
+</select>
+
+
+
+ <select id ="getRejected_A_Male" resultClass="statusBean_info">
+select set1.category_code as male,set1.gender,count(*) as verified_application from
+(
+select es.category_code,es.gender,stn.test_number,stn.registration_number,stn.called,stn.status,stn.sum_computed_marks,stn.reason_code
+from student_test_number stn
+join entity_student es on es.application_number = stn.test_number where stn.program_id =#program_id#  and  stn.reason_code
+not in ('EnterenceTestEligibility','CutOffEligibility','You are Eligible','E','Eligible') and es.gender='M')set1 group by set1.gender,set1.category_code;
+</select>
+
+
+
+ <select id ="getRejected_A_Female" resultClass="statusBean_info">
+
+select set1.category_code as female,set1.gender,count(*) as verified_application from
+(
+select es.category_code,es.gender,stn.test_number,stn.registration_number,stn.called,stn.status,stn.sum_computed_marks,stn.reason_code
+from student_test_number stn
+join entity_student es on es.application_number = stn.test_number where stn.program_id =#program_id#  and  stn.reason_code
+not in ('EnterenceTestEligibility','CutOffEligibility','You are Eligible','E','Eligible') and es.gender='F')set1 group by set1.gender,set1.category_code;
+
+</select>
+
+
+ <select id ="getRejected_B_Male" resultClass="statusBean_info">
+
+select set1.category_code as male,set1.gender,count(*) as verified_application from
+(
+select es.category_code,es.gender,stn.test_number,stn.registration_number,stn.called,stn.status,stn.sum_computed_marks,stn.reason_code
+from student_test_number stn
+join entity_student es on es.application_number = stn.test_number where stn.program_id =#program_id#  and  stn.reason_code
+in ('EnterenceTestEligibility') and es.gender='M')set1 group by set1.gender,set1.category_code;
+
+</select>
+
+ <select id ="getRejected_B_Female" resultClass="statusBean_info">
+
+select set1.category_code as female,set1.gender,count(*) as verified_application from
+(
+select es.category_code,es.gender,stn.test_number,stn.registration_number,stn.called,stn.status,stn.sum_computed_marks,stn.reason_code
+from student_test_number stn
+join entity_student es on es.application_number = stn.test_number where stn.program_id =#program_id#  and  stn.reason_code
+in ('EnterenceTestEligibility') and es.gender='F')set1 group by set1.gender,set1.category_code;
+
+
+</select>
+
+
+ <select id ="getRejected_C_Male" resultClass="statusBean_info">
+select set1.category_code as male,set1.gender,count(*) as verified_application from
+(
+select es.category_code,es.gender,stn.test_number,stn.registration_number,stn.called,stn.status,stn.sum_computed_marks,stn.reason_code
+from student_test_number stn
+join entity_student es on es.application_number = stn.test_number where stn.program_id =#program_id#  and  stn.reason_code
+in ('CutOffEligibility') and es.gender='M' )set1 group by set1.gender,set1.category_code;
+
+</select>
+
+ <select id ="getRejected_C_Female" resultClass="statusBean_info">
+
+select set1.category_code as female,set1.gender,count(*) as verified_application from
+(
+select es.category_code,es.gender,stn.test_number,stn.registration_number,stn.called,stn.status,stn.sum_computed_marks,stn.reason_code
+from student_test_number stn
+join entity_student es on es.application_number = stn.test_number where stn.program_id =#program_id#  and  stn.reason_code
+in ('CutOffEligibility') and es.gender='F' )set1 group by set1.gender,set1.category_code;
+
+</select>
+
+
+
+
+ <select id ="getAccepted_Male" resultClass="statusBean_info">
+
+
+select set1.category_code as male,set1.gender,count(*) as verified_application from
+(
+select es.category_code,es.gender,stn.test_number,stn.registration_number,stn.called,stn.status,stn.sum_computed_marks,stn.reason_code
+from student_test_number stn
+join entity_student es on es.application_number = stn.test_number where stn.program_id =#program_id#  and  stn.called
+in ('Y') and es.gender='M'  )set1 group by set1.gender,set1.category_code;
+
+</select>
+
+ <select id ="getAccepted_Female" resultClass="statusBean_info">
+
+select set1.category_code as female,set1.gender,count(*) as verified_application from
+(
+select es.category_code,es.gender,stn.test_number,stn.registration_number,stn.called,stn.status,stn.sum_computed_marks,stn.reason_code
+from student_test_number stn
+join entity_student es on es.application_number = stn.test_number where stn.program_id =#program_id#  and  stn.called
+in ('Y') and es.gender='F'  )set1 group by set1.gender,set1.category_code;
+</select>
+
+ <select id ="getInterviewProgramList" resultClass="statusBean_info">
+ <!--  
+select pm.program_id,pm.program_name from called_for_interview  cfi
+join program_master pm on pm.program_id=cfi.program_id group by cfi.program_id;
+-->
+select pm.program_id,pm.program_name from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+where at.date between '2017-05-20'
+and '2017-07-03'  and at.program_id ='0001080' order by at.date;
+</select>
+
+<insert id="insert_into_CFI">
+insert into called_for_interview
+select * from
+(
+select stn.program_id,stn.test_number,substring(stn.cos_value,1,2),es.gender,best_score,'0',sum_computed_marks,
+cm.marks,now(),'ATUL','N',es.first_name,es.father_first_name from student_test_number stn
+join comp_marks cm on cm.test_number=stn.test_number and cm.program_id=stn.program_id
+join entity_student es on es.application_number=stn.test_number
+where stn.program_id=#program_id#
+<!-- and stn.called ='Y' -->
+ )set1
+where
+not
+exists
+(select * from called_for_interview
+where  application_number=set1.test_number);
+</insert>
+
+ <select id ="getDefalterStudentForInterviewList" resultClass="statusBean_info">
+<!-- 
+select set1.application_number,set1.gender,set1.category,set1.first_name ,set1.father_first_name as father_name  from
+(
+select cfi.*,es.first_name,es.father_first_name from called_for_interview cfi
+join entity_student es on es.application_number =cfi.application_number
+ where cfi.program_id =#program_id# )set1
+left join
+(
+select * from called_for_interview_backup where program_id =#program_id#  group by application_number,program_id )set2
+on
+set1.program_id=set2.program_id and set1.application_number=set2.application_number
+where set2.application_number is null order by set1.gender,set1.application_number;
+ -->
+ 
+ select pm.program_name,apr.application_number,es.first_name,es.father_first_name as father_name,
+es.category_code as category,es.gender," " as Interview_marks,cm.marks
+from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id
+join comp_marks cm on cm.program_id=apr.program_id and cm.test_number =apr.application_number
+where sas.verification_status='REC'and apr.program_id in (#program_id#) and
+apr.is_duplicate = '0'
+order by es.category_code,apr.application_number;
+</select>
+
+
+
+<select id="getTotalGirls" resultClass="statusBean_info">
+  
+  select set1.gender,set1.category_code as category,count(*)as female from
+(
+select sm.student_first_name,sm.category_code,sm.religion,
+sm.minority,physically_handicapped,sm.gender,em.entity_name,pm.program_name,
+sp.enrollment_number,pr.session_start_date,
+pch.semester_code,pch.branch_id,pch.specialization_id,
+srsh.roll_number,srsh.status as status_srsh,srsh.sgpa,
+pm.program_id,srsh.entity_id,
+srsh.program_course_key,'2019-2020' as session_year
+from program_registration pr
+join  student_registration_semester_header srsh
+on pr.program_course_key =srsh.program_course_key
+and pr.semester_end_date=srsh.session_end_date
+and pr.semester_start_date=srsh.session_start_date
+and srsh.entity_id=pr.entity_id
+join program_course_header pch
+on pch.program_course_key =srsh.program_course_key
+join entity_master em on em.entity_id=srsh.entity_id
+join student_program sp
+ on sp.roll_number =srsh.roll_number
+and sp.program_id =pch.program_id
+and sp.branch_id=pch.branch_id
+and sp.specialization_id=pch.specialization_id
+and sp.entity_id=srsh.entity_id
+join student_master sm on sm.enrollment_number=sp.enrollment_number
+join program_master pm on pm.program_id=pch.program_id
+where
+srsh.status = 'REG' and sp.program_status  in ('ACT','SWT')
+and
+<!--  and pch.semester_code in ('SM6')-->
+pch.program_id not in ('0001026','0001024')
+and pch.program_id=#program_id#
+and pr.session_start_date ='2019-07-01'
+and pr.session_end_date='2020-06-30'
+and sm.gender='F' group by srsh.roll_number) set1
+where  <!--  set1.physically_handicapped='Y'-->
+set1.religion!='MUSLIM' and
+set1.minority='Y'
+group by set1.category_code;
+
+</select>
+
+
+
+<select id="getTotal" resultClass="statusBean_info">
+  
+  select set1.gender,set1.category_code as category,count(*)as complete_application from
+(
+select sm.student_first_name,sm.category_code,sm.religion,
+sm.minority,physically_handicapped,sm.gender,em.entity_name,pm.program_name,
+sp.enrollment_number,pr.session_start_date,
+pch.semester_code,pch.branch_id,pch.specialization_id,
+srsh.roll_number,srsh.status as status_srsh,srsh.sgpa,
+pm.program_id,srsh.entity_id,
+srsh.program_course_key,'2019-2020' as session_year
+from program_registration pr
+join  student_registration_semester_header srsh
+on pr.program_course_key =srsh.program_course_key
+and pr.semester_end_date=srsh.session_end_date
+and pr.semester_start_date=srsh.session_start_date
+and srsh.entity_id=pr.entity_id
+join program_course_header pch
+on pch.program_course_key =srsh.program_course_key
+join entity_master em on em.entity_id=srsh.entity_id
+join student_program sp
+ on sp.roll_number =srsh.roll_number
+and sp.program_id =pch.program_id
+and sp.branch_id=pch.branch_id
+and sp.specialization_id=pch.specialization_id
+and sp.entity_id=srsh.entity_id
+join student_master sm on sm.enrollment_number=sp.enrollment_number
+join program_master pm on pm.program_id=pch.program_id
+where
+srsh.status = 'REG' and sp.program_status  in ('ACT','SWT')
+and
+<!--  and pch.semester_code in ('SM6')-->
+pch.program_id not in ('0001026','0001024')
+and pch.program_id=#program_id#
+and pr.session_start_date ='2019-07-01'
+and pr.session_end_date='2020-06-30'
+and sm.gender in ('F','M') group by srsh.roll_number) set1
+where  <!--set1.physically_handicapped='Y'-->
+set1.religion!='MUSLIM' and
+set1.minority='Y'
+group by set1.category_code;
+
+</select>
+
+	
+ </sqlMap>

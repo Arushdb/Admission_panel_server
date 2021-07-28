@@ -1,0 +1,1811 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+        
+<sqlMap namespace="computation">
+
+ <typeAlias alias="compute" type="in.ac.dei.edrp.admissionsystem.Bean.ReportInfoGetter"/>
+
+ <typeAlias alias="admission" type="in.ac.dei.edrp.admissionsystem.Bean.admissionBean"/>
+
+
+
+
+
+<resultMap id="getapplicantsmap"  class="in.ac.dei.edrp.admissionsystem.Bean.ReportInfoGetter">
+		<result property="registration_number" column="registration_number" />
+		<result property="component_id" column="component_id" />
+		<result property="category" column="category" />
+		<result property="cos_value" column="cos_value" />		
+		<result property="marks_percentage" column="marks_percentage" />
+		<result property="deistudent" column="dei_student" />
+		<result property="component_Weightage" column="component_weightage" />
+		<result property="board_flag" column="board_flag" />
+		<result property="weightage_flag" column="weightage_flag" />		
+		<result property="special_weightage_flag" column="special_weightage_flag" />	
+		<result property="component_criteria_flag" column="component_criteria_flag" />	
+		<result property="normalization_factor" column="normalization_factor" />
+		<result property="board_id" column="board_id" />
+		<result property="weightage_percentage" column="weightage_percentage" />
+		<result property="staffward" column="staff_ward" />
+		<result property="component_group" column="component_group" />
+		<result property="flag" column="physical_handicap" />
+		<result property="gender" column="gender" />		
+	</resultMap>
+	
+
+
+<select  id ="getapplicants"   resultMap="getapplicantsmap">
+ 
+select   es.physical_handicap,s.registration_number as registration_number,substr(sr.cos_value,1,2) as category,
+sr.cos_value ,s.component_id   as   component_id,
+coalesce(s.marks_percentage,0) as marks_percentage,s.dei_student as dei_student  ,p.component_weightage,
+     p.board_flag, p.component_id,p.weightage_flag,p.special_weightage_flag
+        ,p.component_criteria_flag,p.component_group ,
+	coalesce(pb.normalization_factor,0) as normalization_factor ,
+        s.board_id as board_id ,
+		coalesce(sw.weightage_percentage,0) as weightage_percentage,
+		coalesce(sr.staff_ward,'N') as staff_ward , es.gender
+             from
+student_call_list s
+
+left join program_board pb on
+  s.program_id = pb.program_id
+  and s.entity_id = pb.entity_id
+  and s.component_id = pb.component_id
+  and s.board_id = pb.board
+left join
+   program_components p on
+   s.component_id=p.component_id and  s.program_id=p.program_id
+left join  special_weightage sw on s.component_id =sw.weightage_id
+
+ join   student_registration sr on
+
+ sr.registration_number=s.registration_number and
+   s.program_id=sr.program_id
+and   s.start_date = sr.start_date
+and s.end_date = sr.end_date
+
+
+join applicant_program_registration apr
+on apr.program_id = sr.program_id  and apr.session_start_date =sr.start_date
+and apr.session_end_date = sr.end_date and apr.registration_number = sr.registration_number
+
+join student_application_status  sas
+on
+ apr.session_start_date=sas.session_start_date
+and sas.application_status in ('P','D')
+<!--and sas.verification_status ='REC' added by Atul Dayal 18/06/2015-->
+and apr.session_end_date = sas.session_end_date
+ and apr.application_number = sas.application_number
+join entity_student es on es.student_id = sr.student_id
+
+ where   s.program_id=#program_id# and s.entity_id=#entity_id# and
+ 
+  sr.cos_value like #subject_code#   and p.type!=#type#
+ 
+  and   s.entity_id=p.offered_by
+  and   s.start_date=#start_date#
+    and   #end_date#=s.end_date and sr.computation_flag='N'  <!--   Added by Atul Dayal on 28/10/2014 -->
+   <!--  and sr.registration_number in ('190004106') --> 
+
+
+
+
+order by   s.registration_number,p.component_group, s.component_id;
+
+</select>
+
+
+	<resultMap id="getAgeEligibility" class="in.ac.dei.edrp.admissionsystem.Bean.ReportInfoGetter">
+		<result property="age_eligibility" column="age_limit" />
+		<result property="category" column="category" />
+	</resultMap>
+ 
+	<!-- Query Updated -->
+	<select id="getAgeEligibility" resultMap="getAgeEligibility">
+		select  age_limit ,category
+		from
+		program_age_eligibility where
+		program_id=#program_id# and
+		entity_id=#entity_id# 
+		
+</select>
+
+
+ 
+<select id="getPhyHnddetail" resultClass ="java.lang.String" >
+Select VALUE  as value from system_values where code = 'PHYHND' ;
+</select>
+
+<select id="viewStudentMarksINS" resultClass ="admission" >
+
+select scl.registration_number
+from student_call_list scl
+join final_candidates fc on fc.registration_number=scl.registration_number
+ where scl.component_id=#component_id#
+ and program_id=#program_id#
+ and fc.councelling_status  in ('INS')
+ and scl.registration_number =#registration_number#;
+</select>
+
+<select id="viewStudentMarksUPD" resultClass ="admission" >
+
+select scl.registration_number
+from student_call_list scl
+join final_candidates fc on fc.registration_number=scl.registration_number
+ where scl.component_id=#component_id#
+ and program_id=#program_id#
+ and fc.councelling_status  in ('UPD')
+ and scl.registration_number =#registration_number# and fc.user_id=#user_id#;
+</select>
+
+<select id="viewStudentMarksUPD_Other" resultClass ="admission" >
+
+select scl.registration_number
+from student_call_list scl
+join final_candidates fc on fc.registration_number=scl.registration_number
+ where scl.component_id=#component_id#
+ and program_id=#program_id#
+ and fc.councelling_status  in ('UPD')
+ and scl.registration_number =#registration_number# ;
+</select>
+
+
+
+<select id="getStudentPercentage" resultClass="compute">
+	SELECT sum(marks_percentage)/count(*) as agregate_percentage,aggregate_percentage  as minimum_agregate
+FROM program_aggregate_eligibility pae join student_call_list scl on pae.program_id=scl.program_id and
+pae.component_code=scl.component_id and pae.category=#cos_value# and scl.registration_number=#registration_number# 
+and scl.program_id=#program_id#;
+</select>
+
+
+
+<select id="getProgramList" resultClass="compute">
+
+<!--
+select stn.program_id,stn.entity_id from student_test_number stn
+join admitcard_table at on at.program_id=stn.program_id
+where at.date between '2020-06-21 07:00:00' and '2020-07-02 07:00:00'   and at.program_id  not in ('0001229')
+group by at.program_id order by date ;
+-->
+
+select pt.program_id,pt.entity_id,pm.program_name,
+at.session_start_date as start_date,
+at.session_end_date as end_date from process_control_table pt
+join program_master pm on pm.program_id=pt.program_id
+join admitcard_table at on at.program_id =pt.program_id
+ where pt.flag_1 in ('Y') order by pt.shift
+
+</select>
+
+
+<select id="get_compulsary_eligibility" resultClass="compute">
+
+
+select scl.registration_number ,scl.program_id ,scl.component_id ,scl.marks_percentage,cut_off_percentage as cut_off_number,
+es.physical_handicap as flag,pc.component_group 
+from student_call_list scl join program_component_eligibility pce on pce.program_id = scl.program_id
+and pce.component_id = scl.component_id
+
+join student_registration sr on sr.registration_number = scl.registration_number
+and sr.program_id = scl.program_id
+and   scl.start_date = sr.start_date
+and scl.end_date = sr.end_date
+
+join entity_student es on sr.student_id = es.student_id and es.category_code = pce.category
+
+join program_components pc on  pc.program_id = scl.program_id  and pc.component_id = scl.component_id
+where scl.program_id = #program_id#  and scl.registration_number = #registration_number#
+and pc.component_group  in ('G0') and scl.start_date = #start_date# and component_criteria_flag= "Y"
+
+
+</select>
+
+
+<select id="get_Optional_eligibility" resultClass="compute">
+select scl.registration_number ,scl.program_id ,scl.component_id ,scl.marks_percentage,cut_off_percentage as cut_off_number,
+es.physical_handicap as flag,pc.component_group 
+from student_call_list scl join program_component_eligibility pce on pce.program_id = scl.program_id
+and pce.component_id = scl.component_id
+
+join student_registration sr on sr.registration_number = scl.registration_number
+and sr.program_id = scl.program_id
+and   scl.start_date = sr.start_date
+and scl.end_date = sr.end_date
+
+join entity_student es on sr.student_id = es.student_id and es.category_code = pce.category
+
+join program_components pc on  pc.program_id = scl.program_id  and pc.component_id = scl.component_id
+where scl.program_id = #program_id#  and scl.registration_number = #registration_number#
+and pc.component_group not in ('G0') and scl.start_date = #start_date#
+and component_criteria_flag= "Y"
+</select>
+
+<select id="checkDuplicateForComputeMarks" resultClass="java.lang.Integer">
+		SELECT COUNT(*) FROM student_test_number 
+		WHERE program_id=#program_id# AND entity_id=#entity_id# AND registration_number=#registration_number#
+		AND start_date=#start_date# ANd end_date=#end_date#; 	<!-- updated By Atul Dayal  -->
+	</select>
+	
+<select id="getComputed_marks_roundoff" resultClass="compute">
+		select (ROUND((cast(#computed_Marks# as decimal(6,2))),2)) as computed_Marks_roundoff,
+		 (ROUND((cast(#actual_computed_Marks# as decimal(6,2))),2)) as actual_computed_marks_roundoff; <!-- added By Atul Dayal  -->
+	</select>
+	
+		<update id="updateCallList" >
+		update
+		student_call_list set computed_Marks=#computed_Marks#
+		,actual_computed_marks=#actual_computed_Marks#,
+		 computed_Marks_roundoff=#computed_Marks_roundoff#, <!-- modified By Atul Dayal 28/10/2014 -->
+        actual_computed_marks_roundoff=#actual_computed_marks_roundoff# <!-- modified By Atul Dayal 28/10/2014 -->
+		where
+		program_id=#program_id# and
+		entity_id=#entity_id# AND
+		component_id=#component_id# and
+		registration_number=#registration_number# and
+		start_date>=#start_date#
+		and end_date>=start_date and #end_date#>=end_date ; 
+</update>
+
+	<update id="updateTestNumber" >
+		update
+		student_test_number set
+		sum_computed_marks=#sum_computed_marks#,sum_actual_computed_marks=#sum_actual_computed_marks#,
+		reason_code=#reason_code#,status=#message#,cos_value=#cos_value#,called=#called#,
+		modification_time=now()
+		where entity_id=#entity_id# and program_id=#program_id#
+		and
+		registration_number=#registration_number#
+		and
+		start_date>=#start_date#
+		and end_date>=start_date and
+		#end_date#>=end_date;
+</update>
+
+
+	<select id="checkFMCInsert" resultClass="compute">
+	
+select evaluation_component
+as component_description from student_final_marks sfm
+where sfm.program_id =#program_id#
+and sfm.evaluation_component in ('CA','PW','ET','GD')
+and sfm.registration_number =#registration_number# and sfm.entity_id =#entity_id#
+group by sfm.evaluation_component ;
+ 
+	</select>
+	
+	
+		<select id="checkFMCInsert2" resultClass="compute">
+	
+select test_number as number from student_test_number 
+where program_id =#program_id# and registration_number =#registration_number#;
+
+	</select>
+	
+	
+	
+		<insert id="insertcheckFMCInsert" parameterClass="compute">
+	
+insert into student_final_marks
+select #program_id# as program_id ,#entity_id# as entity_id,
+#registration_number# as registration_number,component_id
+as evaluation_component,'0' as marks,
+null as branch_code,'A' as attended,#start_date# as start_date,
+#end_date# as end_date,now() as insert_time,null as modification_time,'atul'
+as creator_id,null as modifier_id,null as specialization_code ,null as testid,
+#number# as rollno,null as score,null
+from final_merit_components
+where program_id =#program_id# and offered_by =#entity_id#
+and component_id in ('CA','PW','ET','GD');
+
+    </insert>
+    
+    
+    
+    
+<update id="updatefinalscore" parameterClass="compute">
+update student_test_number stn
+join
+(
+select t4.*,coalesce(t4.totalscore,0)+coalesce(t5.totalscore,0) as finaltotal,
+coalesce(t4.totalactual,0)+coalesce(t5.totalactual,0) as finaltotalactual
+ from(select t2.* from (
+select component_group,pc.program_id ,registration_number,sum(computed_marks) as totalscore,sum(actual_computed_marks) as
+totalactual from program_components pc
+join student_call_list  scl on pc.program_id = scl.program_id and pc.component_id = scl.component_id
+where pc.program_id = #program_id# and component_group not in ('G0')
+group by registration_number,component_group)t2
+join
+(
+select registration_number,component_group,max(totalscore) as maxscore from
+(
+select scl.registration_number,component_group,sum(computed_marks) as totalscore,sum(actual_computed_marks) as
+totalactual from program_components pc
+join student_call_list  scl on pc.program_id = scl.program_id and pc.component_id = scl.component_id
+
+join student_registration sr on sr.registration_number=scl.registration_number and sr.computation_flag='N'
+where pc.program_id = #program_id# and component_group not in ('G0')
+group by scl.registration_number,component_group
+)t1
+group by registration_number
+)t3
+on
+t2.registration_number = t3.registration_number and t3.maxscore = t2.totalscore)t4
+left join
+(
+select pc.program_id,registration_number,component_group,coalesce(sum(computed_marks),0) as totalscore,coalesce(sum(actual_computed_marks),0) as
+totalactual from program_components pc
+join student_call_list  scl on pc.program_id = scl.program_id and pc.component_id = scl.component_id
+where pc.program_id = #program_id# and component_group  in ('G0')
+group by registration_number,component_group
+)t5
+on t4.registration_number =t5.registration_number and t4.program_id = t5.program_id
+)t6
+ on stn.program_id = t6.program_id and stn.registration_number = t6.registration_number
+
+set  sum_computed_marks_old = finaltotal ,sum_actual_computed_marks_old = finaltotalactual
+;
+</update>
+
+
+
+<update id="updatefinalscoreroundoff" parameterClass="compute">
+update student_test_number stn
+join
+(
+select t4.*,coalesce(t4.totalscore,0)+coalesce(t5.totalscore,0) as finaltotal,
+coalesce(t4.totalactual,0)+coalesce(t5.totalactual,0) as finaltotalactual
+ from(select t2.* from (
+select component_group,pc.program_id ,registration_number,sum(computed_marks_roundoff) as totalscore,sum(actual_computed_marks_roundoff) as
+totalactual from program_components pc
+join student_call_list  scl on pc.program_id = scl.program_id and pc.component_id = scl.component_id
+where pc.program_id = #program_id# and component_group not in ('G0')
+group by registration_number,component_group)t2
+join
+(
+select registration_number,component_group,max(totalscore) as maxscore from
+(
+select scl.registration_number,component_group,sum(computed_marks_roundoff) as totalscore,sum(actual_computed_marks_roundoff) as
+totalactual from program_components pc
+join student_call_list  scl on pc.program_id = scl.program_id and pc.component_id = scl.component_id
+join student_registration sr on sr.registration_number=scl.registration_number and sr.computation_flag='N'
+where pc.program_id = #program_id# and component_group not in ('G0')
+group by scl.registration_number,component_group
+)t1
+group by registration_number
+)t3
+on
+t2.registration_number = t3.registration_number and t3.maxscore = t2.totalscore)t4
+left join
+(
+select pc.program_id,registration_number,component_group,coalesce(sum(computed_marks_roundoff),0) as totalscore,coalesce(sum(actual_computed_marks_roundoff),0) as
+totalactual from program_components pc
+join student_call_list  scl on pc.program_id = scl.program_id and pc.component_id = scl.component_id
+where pc.program_id = #program_id# and component_group  in ('G0')
+group by registration_number,component_group
+)t5
+on t4.registration_number =t5.registration_number and t4.program_id = t5.program_id
+)t6
+ on stn.program_id = t6.program_id and stn.registration_number = t6.registration_number
+set  sum_computed_marks_roundoff = finaltotal ,sum_actual_computed_marks_roundoff = finaltotalactual
+;
+</update>
+	
+
+
+<update id="updatefinalscore_AS" parameterClass="compute">
+update student_test_number stn
+join
+(
+select t4.*,coalesce(t4.totalscore,0)+coalesce(t5.totalscore,0) as finaltotal,
+coalesce(t4.totalactual,0)+coalesce(t5.totalactual,0) as finaltotalactual
+ from(select t2.* from (
+select component_group,pc.program_id ,registration_number,sum(computed_marks) as totalscore,sum(actual_computed_marks) as
+totalactual from program_components pc
+join student_call_list  scl on pc.program_id = scl.program_id and pc.component_id = scl.component_id
+join final_merit_components fmc on fmc.program_id =pc.program_id
+and fmc.component_id=pc.component_id
+where pc.program_id = #program_id# and component_group not in ('G0')
+group by registration_number,component_group)t2
+join
+(
+select registration_number,component_group,max(totalscore) as maxscore from
+(
+select scl.registration_number,component_group,sum(computed_marks) as totalscore,sum(actual_computed_marks) as
+totalactual from program_components pc
+join student_call_list  scl on pc.program_id = scl.program_id and pc.component_id = scl.component_id
+
+join student_registration sr on sr.registration_number=scl.registration_number and sr.computation_flag='N'
+
+join final_merit_components fmc on fmc.program_id =pc.program_id
+and fmc.component_id=pc.component_id
+
+where pc.program_id = #program_id# and component_group not in ('G0')
+group by scl.registration_number,component_group
+)t1
+group by registration_number
+)t3
+on
+t2.registration_number = t3.registration_number and t3.maxscore = t2.totalscore)t4
+left join
+(
+select pc.program_id,registration_number,component_group,coalesce(sum(computed_marks),0) as totalscore,coalesce(sum(actual_computed_marks),0) as
+totalactual from program_components pc
+join student_call_list  scl on pc.program_id = scl.program_id and pc.component_id = scl.component_id
+where pc.program_id = #program_id# and component_group  in ('G0')
+group by registration_number,component_group
+)t5
+on t4.registration_number =t5.registration_number and t4.program_id = t5.program_id
+)t6
+ on stn.program_id = t6.program_id and stn.registration_number = t6.registration_number
+set  academic_score = ROUND((cast(finaltotal as decimal(6,3))),2)
+</update>
+
+
+<update  id="updatebestscore">
+
+update student_test_number stn
+join student_registration sr on sr.registration_number = stn.registration_number
+set  sum_computed_marks = if((ROUND((cast(sum_computed_marks_old as decimal(6,3))),2))<![CDATA[<]]>(sum_computed_marks_roundoff),sum_computed_marks_roundoff,(ROUND((cast(sum_computed_marks_old as decimal(6,3))),2))),
+sum_actual_computed_marks=if((ROUND((cast(sum_actual_computed_marks_old as decimal(6,3))),2))<![CDATA[<]]>(sum_actual_computed_marks_roundoff),sum_actual_computed_marks_roundoff,(ROUND((cast(sum_actual_computed_marks_old as decimal(6,3))),2)))
+,stn.modification_time=now()
+where stn.program_id = #program_id# and stn.start_date=#start_date# and stn.end_date=#end_date# and sr.computation_flag='N'
+</update>
+
+
+
+<update  id="updateET_AS_score">
+
+update student_final_marks sfm right join
+student_test_number stn on  stn.registration_number =sfm.registration_number
+and sfm.program_id =stn.program_id and sfm.entity_id=stn.entity_id and sfm.evaluation_component='ET'
+set best_score=ROUND((cast((coalesce(stn.sum_computed_marks,'0')+coalesce(sfm.score,'0')) as decimal(6,3))),2)
+where stn.program_id=#program_id# 
+
+</update>
+
+<select id="getcalledapplicants" resultClass="compute">
+select count(*) as number from program_cut_off where program_id=#program_id# group by program_id;
+</select>
+
+
+<select id="viewStudentMarks" resultClass="admission">
+select stn.called as val1 ,stn.reason_code as val2, pm.program_name  as val3,
+(select description from component_description cd where cd.component_id= scl.component_id)   as val4
+ ,scl.component_id as val5,scl.marks_obtained as val6,scl.total_marks as val7,
+ scl.marks_percentage as val8,coalesce(scl.modification_time,'--') as val9
+from applicant_program_registration apr
+join student_call_list scl on scl.registration_number =apr.registration_number
+join program_master pm on  pm.program_id =apr.program_id
+join student_test_number stn on stn.registration_number =scl.registration_number
+and apr.application_number =#application_number#;
+</select>
+
+<select id="viewStudentMarksforCounselling" resultClass="admission">
+<!--  
+select stn.called as val1 ,stn.reason_code as val2, pm.program_name  as val3,
+(select description from component_description cd where cd.component_id= scl.component_id)   as val4
+ ,scl.component_id as val5,scl.marks_obtained as val6,scl.total_marks as val7,
+ scl.marks_percentage as val8,coalesce(scl.modification_time,0) as val9,
+
+(select component_description from
+system_table_two where group_code ='BOARDS' and component_code=scl.board_id) as val10,
+
+ scl.passing_year as val11,scl.registration_number as val12,
+ (select description from component_description where component_id=scl.component_id) as val13
+from applicant_program_registration apr
+join student_call_list scl on scl.registration_number =apr.registration_number
+join program_master pm on  pm.program_id =apr.program_id
+join student_test_number stn on stn.registration_number =scl.registration_number
+and apr.application_number =#application_number# and apr.program_id=#program_id#;
+-->
+
+select val14,val1,val2 ,val3,if((length(val4)<![CDATA[>]]>12),concat(substr(val4,1,11),'.'),val4) as val4,val5,val6,val7,val8,val9,coalesce(val10,val13 ) as val10,val11,val12,val13 from
+(
+select stn.test_number as val14,stn.called as val1 ,stn.reason_code as val2, pm.program_name  as val3,
+(select description from component_description cd where cd.component_id= scl.component_id)   as val4
+ ,scl.component_id as val5,scl.marks_obtained as val6,scl.total_marks as val7,
+ scl.marks_percentage as val8,coalesce(scl.modifier_id,'--') as val9,
+
+(select component_description from
+system_table_two where group_code ='BOARDS' and component_code=scl.board_id) as val10,
+
+ scl.passing_year as val11,scl.registration_number as val12,
+scl.other_board_name as val13
+from applicant_program_registration apr
+join student_call_list scl on scl.registration_number =apr.registration_number
+join program_master pm on  pm.program_id =apr.program_id
+join student_test_number stn on stn.registration_number =scl.registration_number
+and apr.application_number =#application_number# and apr.program_id=#program_id#)set1;
+</select>
+
+<select id="viewStudentMarksforCounselling_btech" resultClass="admission">
+
+select val14,val1,val2 ,val3,if((length(val4)<![CDATA[>]]>12),concat(substr(val4,1,11),'.'),val4) as val4,val5,val6,val7,val8,val9,coalesce(val10,val13 ) as val10,val11,val12,val13 from
+(
+select stn.test_number as val14,stn.called as val1 ,stn.reason_code as val2, if(component_id='JM',scl.percentile,'NA')  as val3,
+(select description from component_description cd where cd.component_id= scl.component_id)   as val4
+ ,scl.component_id as val5,scl.marks_obtained as val6,scl.total_marks as val7,
+ scl.marks_percentage as val8,coalesce(scl.modifier_id,'--') as val9,
+
+(select component_description from
+system_table_two where group_code ='BOARDS' and component_code=scl.board_id) as val10,
+
+ scl.passing_year as val11,scl.registration_number as val12,
+scl.other_board_name as val13
+from applicant_program_registration apr
+join student_call_list scl on scl.registration_number =apr.registration_number
+join program_master pm on  pm.program_id =apr.program_id
+join student_test_number stn on stn.registration_number =scl.registration_number
+and apr.application_number =#application_number# and apr.program_id=#program_id#)set1;
+
+</select>
+
+<update  id="updateCalledApplicants_cutoff_based_on_Category">
+update student_test_number stn
+join
+program_cut_off pco
+on pco.program_id=stn.program_id and pco.cos_value=stn.cos_value
+join entity_student es on es.application_number = stn.test_number
+set stn.called ='N',stn.reason_code='CutOffEligibility' ,stn.status='InEligible'
+where
+stn.program_id=#program_id# and ROUND((cast(stn.best_score as decimal(6,3))),2)<![CDATA[<]]>pco.cut_off
+and
+stn.status ='Eligible'
+and stn.called ='Y'
+</update>
+
+<update  id="updateCalledApplicants_cutoff_based_on_Category_Gender">
+
+update student_test_number stn
+join
+program_cut_off pco
+on pco.program_id=stn.program_id and pco.cos_value=stn.cos_value
+join entity_student es on es.application_number = stn.test_number and es.gender =pco.gender
+set stn.called ='N',stn.reason_code='CutOffEligibility' ,stn.status='InEligible'
+where
+stn.program_id= #program_id# and ROUND((cast(stn.best_score as decimal(6,3))),2)<![CDATA[<]]>pco.cut_off
+and
+stn.status ='Eligible'
+and stn.called ='Y'
+
+</update>
+
+<select id="getCatCutOff" resultClass="compute">
+select substring(value,1,2) as BC,substring(value,3,2) as GN,substring(value,5,2) as SC,substring(value,7,2) as ST from system_values  where code ='CUTCAT'
+</select>
+
+
+
+
+<update  id="updateCalledApplicants_cutoff_ET_CAT_BC">
+update student_test_number stn
+join student_final_marks sfm on sfm.program_id=stn.program_id and sfm.entity_id=stn.entity_id
+and stn.registration_number=sfm.registration_number
+set stn.called='N' ,stn.reason_code='EnteranceTestEligibility',stn.status='InEligible'
+where stn.program_id =#program_id# and stn.called ='Y' and sfm.evaluation_component='ET' and stn.cos_value='BCXX' and sfm.score <![CDATA[<]]>#BC#;
+</update>
+
+<update  id="updateCalledApplicants_cutoff_ET_CAT_GN">
+update student_test_number stn
+join student_final_marks sfm on sfm.program_id=stn.program_id and sfm.entity_id=stn.entity_id
+and stn.registration_number=sfm.registration_number
+set stn.called='N' ,stn.reason_code='EnteranceTestEligibility',stn.status='InEligible'
+where stn.program_id =#program_id# and stn.called ='Y' and sfm.evaluation_component='ET' and stn.cos_value='GNXX' and sfm.score <![CDATA[<]]>#GN#;
+</update>
+
+<update  id="updateCalledApplicants_cutoff_ET_CAT_SC">
+update student_test_number stn
+join student_final_marks sfm on sfm.program_id=stn.program_id and sfm.entity_id=stn.entity_id
+and stn.registration_number=sfm.registration_number
+set stn.called='N' ,stn.reason_code='EnteranceTestEligibility',stn.status='InEligible'
+where stn.program_id =#program_id# and stn.called ='Y' and sfm.evaluation_component='ET' and stn.cos_value='SCXX' and sfm.score <![CDATA[<]]>#SC#;
+</update>
+
+<update  id="updateCalledApplicants_cutoff_ET_CAT_ST">
+update student_test_number stn
+join student_final_marks sfm on sfm.program_id=stn.program_id and sfm.entity_id=stn.entity_id
+and stn.registration_number=sfm.registration_number
+set stn.called='N' ,stn.reason_code='EnteranceTestEligibility',stn.status='InEligible'
+where stn.program_id =#program_id# and stn.called ='Y' and sfm.evaluation_component='ET' and stn.cos_value='STXX' and sfm.score <![CDATA[<]]>#ST#;
+</update>
+
+
+<update  id="updateCalledApplicants_AbsentInET">
+update student_test_number stn
+join student_final_marks sfm on sfm.registration_number =stn.registration_number
+join final_merit_components fmc on fmc.program_id=stn.program_id
+and fmc.component_id=sfm.evaluation_component
+set stn.called='N',stn.reason_code='Absent_in_ET'
+where stn.program_id=#program_id#
+and called='Y'
+and sfm.evaluation_component='ET'
+and sfm.attended='A';
+</update>
+
+
+
+<update  id="updateCalledApplicants_BlankET">
+update student_test_number stn
+join
+(
+select * from
+(
+select set1.registration_number,set2.registration_number as reg2 from
+(select * from student_test_number where program_id =#program_id#
+ and called ='Y')set1
+left join
+(select * from student_final_marks where program_id =#program_id#
+and evaluation_component='ET')set2
+on set1.registration_number=set2.registration_number  )
+t1 where t1.reg2 is null)t2
+on t2.registration_number=stn.registration_number
+set stn.called ='N', stn.reason_code ='EnteranceTestEligibility',stn.status='InEligible';
+</update>
+
+<update  id="updatestudentbycutoffnumber" >
+
+<!--  
+update student_test_number stn
+join
+(
+select set1.registration_number from
+(
+select * from
+student_test_number stn where program_id=#program_id#
+and entity_id=#entity_id#
+ group by registration_number)set1
+
+join
+(select * from  student_call_list where
+program_id=#program_id# and entity_id =#entity_id#
+group by registration_number )set2
+on set1.registration_number =set2.registration_number)set3
+on stn.registration_number =set3.registration_number
+set stn.called = 'Y'
+where stn.program_id=#program_id# and stn.entity_id =#entity_id# and stn.status = 'Eligible';
+-->
+ 
+update  student_test_number set called = 'Y'
+ where status = 'Eligible'  
+ and program_id = #program_id# and entity_id =#entity_id# ;
+
+</update>
+
+<update id ="updateTestNumberBeforeStart">
+update student_test_number set called ='N',status='',reason_code='',academic_score='0'
+ where program_id=#program_id# and entity_id=#entity_id# ;
+
+</update>
+
+
+<update id ="update_SCL_marks">
+update student_call_list scl
+join final_candidates fc on fc.registration_number=scl.registration_number
+set scl.marks_obtained=#marks_obt#,
+scl.total_marks=#totalMarks#,
+scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
+scl.modification_time = now(),
+scl.modifier_id ='COUNCIL',
+scl.creator_id=#user_id#,
+fc.user_id=#user_id#,
+fc.modification_time= now(),
+fc.councelling_status='UPD'
+ where scl.component_id=#component_id#
+ and program_id=#program_id#
+ and fc.councelling_status  in ('INS') and scl.modifier_id !='COUNCIL_VER'
+ and scl.registration_number =#registration_number#;
+</update>
+
+<update id ="update_SCL_marksAll">
+
+update student_call_list scl
+set scl.marks_obtained=#marks_obt#,
+scl.total_marks=#totalMarks#,
+scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
+scl.modification_time = now(),
+scl.modifier_id ='COUNCIL',
+scl.creator_id=#user_id#
+ where scl.component_id=#component_id#
+ and scl.program_id=#program_id# and scl.modifier_id !='COUNCIL_VER'
+ and scl.registration_number =#registration_number#;
+
+</update>
+
+
+<update id ="update_SCL_marks_Btech">
+update student_call_list scl
+join final_candidates fc on fc.registration_number=scl.registration_number
+set scl.marks_obtained=#marks_obt#,
+scl.total_marks=#totalMarks#,
+scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
+scl.percentile=#JEE_Percetile#,
+scl.modification_time = now(),
+scl.modifier_id ='COUNCIL',
+scl.creator_id=#user_id#,
+fc.councelling_status='UPD'
+ where scl.component_id=#component_id#
+ and program_id=#program_id#
+ and fc.councelling_status  in ('INS','UPD') and scl.modifier_id !='COUNCIL_VER'
+ and scl.registration_number =#registration_number#;
+</update>
+
+
+<update id ="update_SCL_marks2">
+update student_call_list scl
+join final_candidates fc on fc.registration_number=scl.registration_number
+set scl.marks_obtained=#marks_obt#,
+scl.total_marks=#totalMarks#,
+scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
+scl.modification_time = now(),
+scl.modifier_id ='COUNCIL',
+scl.creator_id=#user_id#,
+fc.user_id=#user_id#,
+fc.modification_time= now(),
+fc.councelling_status='UPD'
+ where scl.component_id=#component_id#
+ and program_id=#program_id#
+ and fc.councelling_status  in ('UPD') and scl.modifier_id !='COUNCIL_VER'
+ and scl.registration_number =#registration_number# and fc.user_id=#user_id#;
+</update>
+
+
+<update id ="update_SCL_marks2_other">
+update student_call_list scl
+join final_candidates fc on fc.registration_number=scl.registration_number
+set scl.marks_obtained=#marks_obt#,
+scl.total_marks=#totalMarks#,
+scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
+scl.modification_time = now(),
+scl.modifier_id ='COUNCIL',
+scl.creator_id=#user_id#,
+fc.modification_time= now(),
+fc.councelling_status='UPD'
+ where scl.component_id=#component_id#
+ and program_id=#program_id#
+ and fc.councelling_status  in ('UPD') and scl.modifier_id not in ('COUNCIL_VER')
+ and scl.registration_number =#registration_number# ;
+</update>
+
+
+<update id ="update_SCL_marksAll_other">
+
+update student_call_list scl
+set scl.marks_obtained=#marks_obt#,
+scl.total_marks=#totalMarks#,
+scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
+scl.modification_time = now(),
+scl.modifier_id ='COUNCIL',
+scl.creator_id=#user_id#
+ where scl.component_id=#component_id#
+ and scl.program_id=#program_id#
+ and scl.registration_number =#registration_number#
+ and scl.modifier_id not in ('COUNCIL_VER');
+</update>
+
+<update id="update_REJECT_Status">
+
+update final_candidates  set councelling_status='REJ',remarks=#remarks#,user_id=#user_id#
+ where registration_number =#registration_number#;
+
+</update>
+
+<update id="update_REJECT_SCL">
+update  student_call_list
+set modifier_id ='COUNCIL_REJ',creator_id=#user_id#,modification_time = now()
+where registration_number =#registration_number# ;
+</update>
+
+
+<update id="update_VERIFIED_Status">
+update final_candidates  set councelling_status='VER',remarks=#remarks#,user_id=#user_id#
+ where registration_number =#registration_number#;
+</update>
+
+
+<update id="update_VERIFIED_SCL">
+update  student_call_list
+set modifier_id ='COUNCIL_VER',creator_id=#user_id#,modification_time = now()
+where registration_number =#registration_number# ;
+</update>
+
+<select id="getComponentDescription" resultClass="compute">
+		SELECT
+		description as component_description
+		 FROM component_description where
+		component_id=#component_id#;
+</select>
+
+<select id="getCouncellingData" resultClass="compute">
+	select registration_number,councelling_status
+as flag from final_candidates where registration_number =#registration_number#;
+</select>
+
+<update id="UpdateCouncellingData">
+update final_candidates set councelling_status='VER',modification_time=now()
+where  registration_number =#registration_number#;
+</update>
+
+<update id="UpdateCouncellingDataINSCL">
+update student_call_list set modifier_id ='COUNCIL_VER' where registration_number=#registration_number# ;
+</update>
+
+
+<insert id="InsertCouncellingData">
+insert into final_candidates value
+(#registration_number#, 'INS', null, #user_id#, now(), null);
+</insert>
+
+
+
+
+	<select id="getEligible" resultClass="compute">
+		select distinct cut_off_percentage as component_eligiblity
+		from program_component_eligibility where
+		entity_Id=#entity_id# and
+		program_id=#program_id#  and
+		category=#category# and
+		component_id=#component_id# ;
+</select>
+
+<delete id="deletestudentfinalmeritlist">
+delete from student_final_merit_list where program_id = #program_id# ;
+</delete>
+
+<select id="getRegisteredStudent" resultClass="compute">
+SELECT stn.registration_number AS registration_number,test_number AS test_number,stn.cos_value AS cos_value,
+sum_actual_computed_marks AS sum_actual_computed_marks,sr.staff_ward as staffward,pm.staff_ward_wtg  as status
+	FROM student_test_number stn 
+join student_registration sr on sr.registration_number = stn.registration_number and
+sr.program_id = stn.program_id and stn.start_date = sr.start_date
+join program_master pm on pm.program_id = stn.program_id
+	WHERE stn.program_id=#program_id# AND stn.entity_id=#entity_id#
+  AND called='Y'  AND stn.start_date=#university_start_date# AND stn.end_date=#university_end_date#
+</select>
+
+<update id="updateStudentFinalMarksforMerit">
+	update student_final_marks  sfm1 join
+
+(SELECT sfm.entity_id,sfm.registration_number, fmc.program_id,sfm.start_date,fmc.component_id AS component_id,
+fmc.description AS component_description,fmc.weightage_percentage
+AS component_Weightage ,sfm.marks,fmc.total_marks,
+if((academic_component="Y"),sfm.marks*weightage_percentage/100,(sfm.marks*weightage_percentage)/fmc.total_marks)
+ AS marks1
+	FROM final_merit_components fmc ,student_final_marks sfm
+	WHERE fmc.program_id=sfm.program_id AND fmc.component_id=sfm.evaluation_component
+	AND fmc.offered_by=sfm.entity_id AND  sfm.program_id=#program_id#
+  AND sfm.entity_id=#entity_id# AND sfm.start_date=#university_start_date#
+  	AND sfm.end_date=#university_end_date# 
+  	)set1
+on
+  set1.registration_number= sfm1.registration_number and set1.component_id = sfm1.evaluation_component
+and  set1.entity_id=sfm1.entity_id AND set1.start_date=sfm1.start_date
+
+set sfm1.score = set1.marks1
+</update>
+
+
+  <select id="getComponentDetail" resultClass="compute">
+  select registration_number,coalesce(sum(score),0) as total_marks   from student_final_marks
+where program_id = #program_id# and  entity_id = #entity_id# and start_date = #university_start_date#
+ and registration_number = #registration_number#
+group by registration_number
+ 
+</select>  
+
+
+<select id="getAcademicScoreAll" resultClass="compute">
+
+select program_id,registration_number,round(cast(academic_score as decimal(6,3)),2) 
+as totalscore from student_test_number
+where program_id=#program_id# and registration_number=#registration_number#
+
+</select>
+
+<select id="getNonAcademicScore" resultClass="compute">
+ 
+ select registration_number,coalesce(sum(score),'0') as totalscore  from student_final_marks  sfm join
+final_merit_components fmc on fmc.component_id = sfm.evaluation_component
+and sfm.program_id = fmc.program_id
+ where sfm.program_id = #program_id#
+and start_date<![CDATA[>=]]>(select STR_TO_DATE(substr(sv.value, 1, 8),'%Y%m%d') 
+from system_values sv where sv.code='ADMSSN')
+  and academic_component = 'N'  and registration_number =#registration_number#
+ and  registration_number =#registration_number#
+group by registration_number
+ ;
+</select>  
+
+<insert id="insertIntoFinalMeritList">
+	INSERT INTO student_final_merit_list(program_id,entity_id,registration_number,test_number,total_marks,cos_value,start_date,end_date,insert_time,creator_id,sum_actual_computed_marks,weighted_total_marks)
+	VALUES(#program_id#,#entity_id#,#registration_number#,#test_number#,#total_marks#,#cos_value#,#university_start_date#,#university_end_date#,now(),#user_id#,#sum_actual_computed_marks#,#computed_Marks#);
+</insert>
+
+
+
+
+<select id="getprogram_components" resultClass="admission">
+ 
+
+select component_id as val1,component_weightage as val2,
+weightage_flag as val3,component_criteria_flag as val4,
+component_group as val5 from program_components where program_id =#program_id#;
+
+</select>  
+
+<select id="getprogram_component_eligibility" resultClass="admission">
+select component_id as val1,category as val2,cut_off_percentage as val3
+ from program_component_eligibility where program_id =#program_id#;
+</select> 
+
+
+<select id="getfinal_merit_components" resultClass="admission">
+select component_id as val1,description as val2,total_marks as val3,
+weightage_percentage as val4,academic_component as val5
+from final_merit_components where program_id =#program_id#;
+</select> 
+
+<select id="getfinal_merit_List" resultClass="admission">
+
+select es.first_name as val1,es.gender as val2,test_number as val3,cos_value as val4,
+total_marks as val5,marks as val6,sfm.attended as val7
+from student_final_merit_list sfml
+join student_final_marks sfm on
+sfml.registration_number=sfm.registration_number
+join entity_student es on es.application_number=sfml.test_number
+where sfm.evaluation_component='PW'
+and sfml.program_id=#program_id# and sfm.attended='P'
+group by sfml.registration_number
+order by cos_value,total_marks desc;
+
+</select>
+
+
+<select id="getfinal_merit_ListA" resultClass="admission">
+
+select es.first_name as val1,es.gender as val2,test_number as val3,cos_value as val4,
+total_marks as val5,marks as val6,sfm.attended as val7, pm.program_name as val8
+from student_final_merit_list sfml
+join student_final_marks sfm on
+sfml.registration_number=sfm.registration_number
+join entity_student es on es.application_number=sfml.test_number
+join program_master pm on pm.program_id=sfml.program_id
+where sfm.evaluation_component='PW'
+and sfml.test_number=#application_number# and sfm.attended='P'
+group by sfml.registration_number
+order by cos_value,total_marks desc;
+
+</select>
+
+<select id="getfinal_merit_ListA1" resultClass="admission">
+
+select * from
+(
+select component_id as val1,description as val2,
+sfm.marks as val3,sfm.score as val4,sfml.total_marks as val5,fmc.total_marks as val6,
+weightage_percentage as val7,academic_component as val8,pm.program_name as val9
+from  applicant_program_registration apr
+join final_merit_components fmc on fmc.program_id=apr.program_id
+join student_final_marks sfm on
+sfm.registration_number =apr.registration_number
+and fmc.component_id=sfm.evaluation_component
+join program_master pm on pm.program_id=apr.program_id
+left join student_final_merit_list sfml
+on sfml.registration_number=apr.registration_number
+where apr.application_number =#application_number# 
+and fmc.academic_component ='N')set1;
+
+</select>
+
+
+<select id="getfinal_merit_ListA2" resultClass="admission">
+
+select scl.component_id as val1,marks_percentage as val2,
+component_weightage as val3,computed_marks as val4,sum_computed_marks as val5,
+stn.academic_score as val6,(stn.best_score-sum_computed_marks)
+as val7,stn.called as val8,stn.reason_code as val9,
+weightage_flag as val10,component_criteria_flag as val11,
+component_group as val12,
+board_id as val13,
+other_board_name as val14 from student_call_list scl
+join applicant_program_registration apr
+on apr.registration_number=scl.registration_number
+join program_components pc on pc.program_id=apr.program_id
+and pc.component_id=scl.component_id
+join student_test_number stn
+on stn.registration_number=scl.registration_number
+where apr.application_number =#application_number#  ;
+
+</select>
+
+
+<select id="WRONGAPP_ETmarks" resultClass="admission">
+select cm.test_number as val3,marks as val2,extra as val1 from  comp_marks cm
+left join applicant_program_registration
+apr on apr.application_number =cm.test_number and
+apr.program_id=cm.program_id
+where cm.program_id =#program_id#
+and apr.application_number is null ;
+</select>
+
+<select id="WRONGAPP_ETmarksWithAPP" resultClass="admission">
+select * from
+(
+select cm.test_number as val3,marks as val2,extra as val1 from  comp_marks cm
+left join applicant_program_registration
+apr on apr.application_number =cm.test_number and
+apr.program_id=cm.program_id
+where cm.program_id =#program_id#
+and apr.application_number is null)set1 where val3=#application_number#;
+</select>
+
+<select id="DPLAPP_ETmarks" resultClass="admission">
+select test_number as val3,marks as val2,extra as val1 from comp_marks_clone
+where program_id=#program_id# and extra ='DPL';
+</select>
+
+<select id="viewETmarks" resultClass="admission">
+select pm.program_name as val1,apr.application_number as val3,cm.marks as val2,cm.extra as val4 from comp_marks cm
+join applicant_program_registration apr on
+apr.application_number=cm.test_number
+and apr.program_id=cm.program_id
+join program_master pm on pm.program_id=apr.program_id
+where cm.test_number=#application_number# ;
+
+</select>
+
+<select id="getRoomsforTT" resultClass="admission">
+
+select * from
+(
+SELECT em.entity_name as val1,r.room_code as val2,
+r.capacity as val3,r.f_room_key as val4,
+r.type as val5,r.fac_name as val6,if(em.entity_id=#entity_id#,'1','0') as val7
+FROM time_table.room_capacity r
+join entity_master em on r.entity_id=em.entity_id
+order by em.entity_name,r.room_code)set1 order by set1.val7 desc;
+<!--  
+SELECT em.entity_name as val1,r.room_code as val2,
+r.capacity as val3,r.f_room_key as val4,r.type as val5,r.fac_name as val6
+FROM time_table.room_capacity r
+join entity_master em on r.entity_id=em.entity_id
+order by em.entity_name,r.room_code;
+-->
+
+</select>
+
+
+<select id="getTeacherforTT" resultClass="admission">
+
+select * from
+(
+SELECT r.ext as val5 ,em.entity_name as val1,r.name
+as val2,r.staff as val3,
+r.employee_code as val4,
+ concat(r.name,' (',r.ext,')') as val6,
+if(em.entity_id=#entity_id#,'1','0') as val7
+ FROM time_table.staff_data r
+join entity_master em
+on r.entity_id=em.entity_id
+order  by em.entity_id)set1 order by set1.val7 desc;
+
+<!--  
+SELECT r.ext as val5 ,em.entity_name as val1,r.name
+as val2,r.staff as val3,
+r.employee_code as val4,
+ concat(r.name,' (',r.ext,')') as val6
+ FROM time_table.staff_data r
+join entity_master em
+on r.entity_id=em.entity_id
+order  by em.entity_id;
+-->
+
+</select>
+
+
+
+<select id="getSemDateforTT" resultClass="admission">
+
+select semester_start_date,semester_end_date from program_registration
+ where program_course_key=#pck#
+ and session_start_date=#start_date#
+ and session_end_date=#end_date# and entity_id=#entity_id#;
+
+</select>
+
+
+<select id="getSemDateforTTOld" resultClass="admission">
+
+select semester_start_date,semester_end_date from program_registration
+ where program_course_key=#pck#
+ and session_start_date=concat(mid(#start_date#,1,4)-1,mid(#start_date#,5))
+ and session_end_date=concat(mid(#end_date#,1,4)-1,mid(#end_date#,5)) and entity_id=#entity_id#;
+
+</select>
+
+<select id="getCourseInfoForTT" resultClass="admission">
+
+select cms.course_code as val3,count(*) as val2 ,
+cms.course_classification as val4,cms.course_name as val1,
+cms.credits as val5,
+sc.semester_start_date as val6,sc.semester_end_date
+as val7 from student_course sc
+join course_master_per_session cms
+on cms.course_code=sc.course_code
+join program_course_detail pcd
+on pcd.program_course_key =sc.program_course_key
+and sc.course_code =pcd.course_code
+where
+sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=#start_date#
+and cms.session_end_date=#end_date#
+and sc.program_course_key =#pck#
+and pcd.available ='Y'
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code order by cms.course_classification desc ;
+
+</select>
+
+<select id="getCourseInfoForTTforEditpckWise" resultClass="admission">
+
+select *from
+(
+select 
+cms.course_code as val1,
+cms.credits as val2
+,count(*) as val3,
+cms.course_classification as val4,
+'DS' as val5,
+cms.course_name as val6,
+'Y' as val7
+
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=#start_date#
+and cms.session_end_date=#end_date#
+<!--  and pch.program_id=#program_id# and pch.semester_code=#semester_code#-->
+and sc.program_course_key =#pck#
+and pcd.available ='Y' 
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code
+order by cms.course_classification
+)set1
+
+</select>
+
+
+
+<select id="getCourseInfoForTTforEditpckWiseOld" resultClass="admission">
+
+select *from
+(
+select 
+cms.course_code as val1,
+cms.credits as val2
+,'0' as val3,
+cms.course_classification as val4,
+'DS' as val5,
+cms.course_name as val6,
+'Y' as val7
+
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=concat(mid(#start_date#,1,4)-1,mid(#start_date#,5))
+and cms.session_end_date=concat(mid(#end_date#,1,4)-1,mid(#end_date#,5))
+<!--  and pch.program_id=#program_id# and pch.semester_code=#semester_code#-->
+and sc.program_course_key =#pck#
+and pcd.available ='Y' 
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code
+order by cms.course_classification
+)set1
+
+</select>
+
+<select id="getCourseInfoForTTforEdit" resultClass="admission">
+<!--  
+select cms.course_code as val1 ,
+cms.course_classification as val4,'0' as val3,'Y' as val7,
+cms.course_name as val6,
+cms.credits,
+if(cms.course_classification='P',cms.credits*2,cms.credits) as val2,
+'DS' as val5
+ from student_course sc
+join course_master_per_session cms
+on cms.course_code=sc.course_code
+join program_course_detail pcd
+on pcd.program_course_key =sc.program_course_key
+and sc.course_code =pcd.course_code
+where
+sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=#start_date#
+and cms.session_end_date=#end_date#
+and sc.program_course_key =#pck#
+and pcd.available ='Y'
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code order by cms.course_classification  ;
+-->
+
+select *from
+(
+select 
+cms.course_code as val1,
+if(cms.course_classification='P',cms.credits*2,cms.credits) as val2
+,count(*) as val3,
+cms.course_classification as val4,
+'DS' as val5,
+cms.course_name as val6,
+'Y' as val7,'OFF' as val9
+
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=#start_date#
+and cms.session_end_date=#end_date#
+and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+and pcd.available ='Y' 
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code
+order by cms.course_classification
+)set1
+
+</select>
+
+<select id ="getJointLecturesData" resultClass="admission" >
+
+select * from
+(
+select
+concat(pm.program_name,' / ',(select component_description
+ from system_table_two where group_code='BRNCOD'
+ and component_code=pch.branch_id),' /',(select component_description
+ from system_table_two where group_code='SPCLCD'
+ and component_code=pch.specialization_id)) as val1
+,sc.program_course_key as val2,entity_id as val3,count(*) as val4,
+sc.semester_start_date as val5,sc.semester_end_date as val6
+from student_course sc
+join course_master cm on cm.course_code=sc.course_code
+join program_course_detail pcd
+on pcd.program_course_key =sc.program_course_key
+and cm.course_code =pcd.course_code
+join program_course_header pch on pch.program_course_key=sc.program_course_key
+join program_master pm on pm.program_id=pch.program_id
+where pcd.available ='Y'
+and sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and pcd.course_category ='REG'
+ and cm.course_classification in ('T','P')
+and cm.course_code =#course_code# and pch.program_id not in (#program_id#)
+group by sc.program_course_key
+order by cm.course_classification desc)set1 order by val1;
+
+</select>
+
+
+<select id ="getJointLecturesDataOld" resultClass="admission" >
+
+select * from
+(
+select
+concat(pm.program_name,' / ',(select component_description
+ from system_table_two where group_code='BRNCOD'
+ and component_code=pch.branch_id),' /',(select component_description
+ from system_table_two where group_code='SPCLCD'
+ and component_code=pch.specialization_id)) as val1
+,sc.program_course_key as val2,entity_id as val3,'0' as val4,
+sc.semester_start_date as val5,sc.semester_end_date as val6
+from student_course sc
+join course_master cm on cm.course_code=sc.course_code
+join program_course_detail pcd
+on pcd.program_course_key =sc.program_course_key
+and cm.course_code =pcd.course_code
+join program_course_header pch on pch.program_course_key=sc.program_course_key
+join program_master pm on pm.program_id=pch.program_id
+where pcd.available ='Y'
+and sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and pcd.course_category ='REG'
+ and cm.course_classification in ('T','P')
+and cm.course_code =#course_code# and pch.program_id not in (#program_id#)
+group by sc.program_course_key
+order by cm.course_classification desc)set1 order by val1;
+
+</select>
+
+
+
+
+
+<select id="getCourseInfoForTTforEditOld" resultClass="admission">
+
+select *from
+(
+select 
+cms.course_code as val1,
+if(cms.course_classification='P',cms.credits*2,cms.credits) as val2
+,'0' as val3,
+cms.course_classification as val4,
+'DS' as val5,
+cms.course_name as val6,
+'Y' as val7, 'OFF' as val9
+
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=concat(mid(#start_date#,1,4)-1,mid(#start_date#,5))
+and cms.session_end_date=concat(mid(#end_date#,1,4)-1,mid(#end_date#,5))
+and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+and pcd.available ='Y' 
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code
+order by cms.course_classification
+)set1
+
+</select>
+
+<select id="getCourseInfoForTTforEditBS" resultClass="admission">
+
+select *from
+(
+select (select component_description from system_table_two where group_code='BRNCOD'
+and component_code=pch.branch_id) as val1,
+cms.course_code as val2,
+pch.program_course_key as val3,
+pch.branch_id as val4
+,count(*) as val5,
+cms.course_name as val6
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=#start_date#
+and cms.session_end_date=#end_date#
+and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+and pcd.available ='Y' and sc.course_code=#course_code#
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code,sc.program_course_key
+order by cms.course_classification
+)set1
+
+</select>
+
+
+
+
+<select id="getCourseInfoForTTforEditBSOld" resultClass="admission">
+
+select *from
+(
+select (select component_description from system_table_two where group_code='BRNCOD'
+and component_code=pch.branch_id) as val1,
+cms.course_code as val2,
+pch.program_course_key as val3,
+pch.branch_id as val4
+,'0' as val5,
+cms.course_name as val6
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=concat(mid(#start_date#,1,4)-1,mid(#start_date#,5))
+and cms.session_end_date=concat(mid(#end_date#,1,4)-1,mid(#end_date#,5))
+and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+and pcd.available ='Y' and sc.course_code=#course_code#
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code,sc.program_course_key
+order by cms.course_classification
+)set1
+
+</select>
+
+
+
+
+
+<select id="getCourseInfoForTTforEditDS" resultClass="admission">
+select *from
+(
+select 
+cms.course_code as val1,
+if(cms.course_classification='P',cms.credits*2,cms.credits) as val2
+,count(*) as val5,
+cms.course_classification as val4,
+cms.course_name as val6,
+'Y' as val7
+
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=#start_date#
+and cms.session_end_date=#end_date# and cms.course_code=#course_code#
+and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+and pcd.available ='Y' 
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code
+order by cms.course_classification
+)set1
+</select>
+
+
+
+<select id="getCourseInfoForTTforEditDSOld" resultClass="admission">
+select *from
+(
+select 
+cms.course_code as val1,
+if(cms.course_classification='P',cms.credits*2,cms.credits) as val2
+,'0' as val5,
+cms.course_classification as val4,
+cms.course_name as val6,
+'Y' as val7
+
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=concat(mid(#start_date#,1,4)-1,mid(#start_date#,5))
+and cms.session_end_date=concat(mid(#end_date#,1,4)-1,mid(#end_date#,5)) and cms.course_code=#course_code#
+and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+and pcd.available ='Y' 
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code
+order by cms.course_classification
+)set1
+</select>
+
+
+
+<select id="getCourseInfoForTTforEditGS" resultClass="admission">
+
+select *from
+(
+select
+sm.gender as val4,
+cms.course_code as val2,
+pch.program_course_key as val3,
+if(sm.gender='M','Male','Female') as val1
+,count(*) as val5,
+sm.gender as val7,
+cms.course_name as val6
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+join student_program sp on sp.entity_id=sc.entity_id
+and sp.program_id=pch.program_id
+and pch.specialization_id=sp.specialization_id
+and pch.branch_id=sp.branch_id
+and pch.semester_code =sp.in_semester
+and sp.roll_number =sc.roll_number
+join student_master sm on sm.enrollment_number=sp.enrollment_number
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=#start_date#
+and cms.session_end_date=#end_date#
+and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+and pcd.available ='Y' and sc.course_code=#course_code#
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code,sm.gender
+order by cms.course_classification
+)set1
+
+</select>
+
+
+
+
+
+<select id="getCourseInfoForTTforEditGSOld" resultClass="admission">
+
+select *from
+(
+select
+sm.gender as val4,
+cms.course_code as val2,
+pch.program_course_key as val3,
+if(sm.gender='M','Male','Female') as val1
+,'0' as val5,
+sm.gender as val7,
+cms.course_name as val6
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+join student_program sp on sp.entity_id=sc.entity_id
+and sp.program_id=pch.program_id
+and pch.specialization_id=sp.specialization_id
+and pch.branch_id=sp.branch_id
+and pch.semester_code =sp.in_semester
+and sp.roll_number =sc.roll_number
+join student_master sm on sm.enrollment_number=sp.enrollment_number
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=concat(mid(#start_date#,1,4)-1,mid(#start_date#,5))
+and cms.session_end_date=concat(mid(#end_date#,1,4)-1,mid(#end_date#,5))
+and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+and pcd.available ='Y' and sc.course_code=#course_code#
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code,sm.gender
+order by cms.course_classification
+)set1
+
+</select>
+
+
+<select id="getCourseInfoForTTforEditGB" resultClass="admission">
+
+select *from
+(
+select
+if(sm.gender='M','Male','Female') as val1,
+(select component_description from system_table_two where group_code='BRNCOD'
+and component_code=pch.branch_id) as val2,
+sm.gender as val7,
+pch.branch_id as val4,
+pch.program_course_key as val3
+,count(*) as val5,
+cms.course_name as val6
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+join student_program sp on sp.entity_id=sc.entity_id
+and sp.program_id=pch.program_id
+and pch.specialization_id=sp.specialization_id
+and pch.branch_id=sp.branch_id
+and pch.semester_code =sp.in_semester
+and sp.roll_number =sc.roll_number
+join student_master sm on sm.enrollment_number=sp.enrollment_number
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=#start_date#
+and cms.session_end_date=#end_date#
+and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+and pcd.available ='Y' and sc.course_code=#course_code#
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code,sm.gender,pch.program_course_key
+order by sm.gender,pch.program_course_key
+)set1
+
+</select>
+
+
+
+
+<select id="getCourseInfoForTTforEditGBOld" resultClass="admission">
+
+select *from
+(
+select
+if(sm.gender='M','Male','Female') as val1,
+(select component_description from system_table_two where group_code='BRNCOD'
+and component_code=pch.branch_id) as val2,
+sm.gender as val7,
+pch.branch_id as val4,
+pch.program_course_key as val3
+,'0' as val5,
+cms.course_name as val6
+from student_course sc
+join course_master_per_session cms on cms.course_code=sc.course_code
+join program_course_detail pcd on pcd.program_course_key =sc.program_course_key and sc.course_code =pcd.course_code
+join program_course_header pch
+on pch.program_course_key=sc.program_course_key
+join student_program sp on sp.entity_id=sc.entity_id
+and sp.program_id=pch.program_id
+and pch.specialization_id=sp.specialization_id
+and pch.branch_id=sp.branch_id
+and pch.semester_code =sp.in_semester
+and sp.roll_number =sc.roll_number
+join student_master sm on sm.enrollment_number=sp.enrollment_number
+where sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and cms.session_start_date=concat(mid(#start_date#,1,4)-1,mid(#start_date#,5))
+and cms.session_end_date=concat(mid(#end_date#,1,4)-1,mid(#end_date#,5))
+and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+and pcd.available ='Y' and sc.course_code=#course_code#
+and pcd.course_category ='REG'
+and cms.course_classification in ('T','P')
+and sc.entity_id =#entity_id#
+group by sc.course_code,sm.gender,pch.program_course_key
+order by sm.gender,pch.program_course_key
+)set1
+
+</select>
+
+
+<select id="getRoomDataforTT" resultClass="admission">
+
+select * from
+(
+SELECT r.f_room_key as val1,em.entity_name as val2 ,r.room_code as val3,
+capacity as val4,type as val5,if(r.entity_id=#entity_id#,1,0) as val6,
+concat(r.room_code,' (',fac_name,' -',capacity,' -',type,')') as val7
+FROM time_table.room_capacity r
+join entity_master em on
+em.entity_id=r.entity_id where type='LAB' )set1 order by set1.val6 desc;
+</select>
+
+
+
+
+<select id="checkRoomCourseMapping" resultClass="admission">
+SELECT * FROM time_table.time_table_course_room_mapping
+where course_code=#course_code# and pck=#pck# and f_room_key=#f_room_key#
+and session=concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2));
+</select>
+
+<select id="checkTeacherCourseMapping" resultClass="admission">
+SELECT * FROM time_table.time_table_course_teacher_mapping
+where course_code=#course_code# and pck=#pck# and employee_code=#employee_code#
+and session=concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2));
+</select>
+
+<select id="checkTimeTableCourseInfo" resultClass="admission">
+SELECT * FROM time_table.time_table_course_info
+where course_code=#course_code# and pck=#pck# and entity_id=#entity_id#
+and session=concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2));
+</select>
+
+
+<select id="checkTimeTableCourseSection" resultClass="admission">
+SELECT * FROM time_table.time_table_section_control
+where session=concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2)) and section_key=#param1# and entity_id=#entity_id#;
+</select>
+
+<insert id="InsertTimeTableCourseSection"  >
+insert into time_table.time_table_section_control
+values (#course_code#, #section#, #pck#, concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2)),
+#entity_id#, #param1#, #sectionType#,
+#gender#, #user_id#, now(),#capacity#);
+</insert>
+
+<delete id="DeleteTimeTableCourseSection"  >
+delete from time_table.time_table_section_control
+where  session=concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2)) 
+and  entity_id= #entity_id# and course_code=#course_code# and section_key=#param1#
+</delete>
+
+<update id="updateTimeTableCourseSection">
+
+update time_table.time_table_section_control
+set capacity=#capacity# where  session=concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2)) 
+and  entity_id= #entity_id# and section_key=#param1#
+</update>
+
+
+
+<insert id="InsertTimeTableCourseInfo">
+insert into  time_table.time_table_course_info
+values(#course_code#, #credits#, #course_classification#, #pck#, concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2)), #entity_id#, #section#, #status#, #capacity#,#mode#);
+</insert>
+
+<insert id="InsertTimeTableCourseInfoNewCourse">
+insert into  time_table.time_table_new_course
+values(#course_code#, #credits#, #course_classification#, #pck#, concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2)), #entity_id#, #section#, #status#, #capacity#,#mode#);
+</insert>
+
+
+<update id="updateTimeTableCourseInfo">
+update time_table.time_table_course_info
+set  lectures=#credits#, type=#course_classification#, section=#section#, status=#status#,student_count=#capacity#, mode=#mode#
+where course_code=#course_code# and pck=#pck# and entity_id=#entity_id#
+and session=concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2));
+</update>
+
+
+<update id="updateTimeTableCourseInfoNewCourse">
+update time_table.time_table_new_course
+set  lectures=#credits#, type=#course_classification#, section=#section#, status=#status#,student_count=#capacity#,mode=#mode#
+where course_code=#course_code# and pck=#pck# and entity_id=#entity_id#
+and session=concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2));
+</update>
+
+<insert id="InsertRoomCourseMapping">
+insert into  time_table.time_table_course_room_mapping
+values(#course_code#, #pck#, #f_room_key#, concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2)),#user_id#);
+</insert>
+
+<insert id="InsertTeacherCourseMapping">
+insert into  time_table.time_table_course_teacher_mapping
+values(#course_code#, #pck#, #employee_code#, concat(mid(#start_date#,1,4),'-',mid(#end_date#,3,2)),#user_id#);
+</insert>
+
+
+<select id ="checkTimeTableJointlecture" resultClass="admission">
+SELECT * FROM time_table.time_table_joint_lectures where entity_id=#entity_id#
+and pck=#pck# and course_code=#course_code#
+and semester_start_date=#start_date#
+and semester_end_date=#end_date#;
+</select>
+
+<insert id="InsertTimeTableJointlecture">
+insert into time_table.time_table_joint_lectures
+values (#pck#, #course_code#, #entity_id#,
+#start_date#, #end_date#, #capacity#,#user_id#);
+</insert>
+
+<update id="updateTimeTableJointlecture">
+update time_table.time_table_joint_lectures
+set student_count=#capacity#
+ where entity_id=#entity_id#
+and pck=#pck# and course_code=#course_code#
+and semester_start_date=#start_date#
+and semester_end_date=#end_date#;
+</update>
+
+
+<delete id="DeleteTimeTableJointlecture">
+delete from time_table.time_table_joint_lectures
+ where course_code=#course_code#
+and semester_start_date=#start_date#
+and semester_end_date=#end_date# and user_id=#user_id#;
+</delete>
+
+
+ </sqlMap>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+        
+<sqlMap namespace="login" >
+
+<typeAlias alias="admissionBean" type="in.ac.dei.edrp.admissionsystem.Bean.admissionBean"/>
+
+<select id ="getuserData" resultClass="admissionBean">
+select set1.*,ep.panel_authority from
+(
+select ui.user_name as userName,ui.user_id,em.employee_code,employee_type from
+ user_info as ui
+join  employee_master em on em.employee_id=ui.user_id
+ where ui.user_name =#userName#
+ and ui.password =sha1(#password#) group by ui.user_name)set1
+join
+edit_panel_authority ep on set1.userName=ep.user_name;
+</select>
+
+<select id="getuserDatafromedit_panel_authority" resultClass="admissionBean" >
+select user_name as userName,user_id,user_id
+as employee_code,'T' as employee_type,
+panel_authority
+from edit_panel_authority
+where user_name=#userName#
+and password =sha1(#password#) and status='ON';
+</select>
+
+<select id ="getEntityData" resultClass="admissionBean">
+
+select at.date,at.program_id,pm.program_name,at.entity_id,em.entity_name
+from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+join entity_master em on em.entity_id=at.entity_id group by
+at.entity_id order by at.date,pm.program_name;
+
+</select>
+
+<select id ="getEntityDataTimeTable" resultClass="admissionBean">
+
+select em.entity_name,entity_id
+from program_offered_by pob
+join entity_master em on em.entity_id=pob.offered_by
+join program_master pm on pm.program_id=pob.program_id
+where entity_type not in ('DEC','ICT') and em.entity_id not in ('00010126',
+'00010152',
+'00010014',
+'00010128')
+ group by em.entity_id
+order by em.entity_name;
+
+</select>
+
+
+<select id ="getsemesterData" resultClass="admissionBean">
+
+select semester_code,(select component_description
+from system_table_two
+where component_code=pch.semester_code and group_code='SEMCOD')
+as semester_name
+from program_course_header pch
+where pch.program_id=#program_id#
+ group by pch.semester_code;
+
+</select>
+
+<select id ="getBranchDataFromCMS" resultClass="admissionBean">
+
+select program_course_key as pck,(select component_description from system_table_two stt
+ where stt.group_code='BRNCOD' and stt.component_code=branch_id) as branch_name,branch_id from program_course_header
+where program_id=#program_id# and semester_code=#semester_code# group by branch_id;
+
+</select>
+
+
+
+<select id ="getProgramData" resultClass="admissionBean">
+
+select at.date,at.program_id,pm.program_name,at.entity_id,em.entity_name
+from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+join entity_master em on em.entity_id=at.entity_id
+join program_form pf on pf.program_id=at.program_id and pf.offered_by=at.entity_id
+where at.entity_id=#entity_id# and pf.available in ('Y','N')
+group by
+at.entity_id,at.program_id order by at.date,pm.program_name;
+
+</select>
+
+
+<select id ="getProgramDataForTimeTable" resultClass="admissionBean">
+
+select pm.program_id,pm.program_name,em.entity_name,entity_id
+from program_offered_by pob
+join entity_master em on em.entity_id=pob.offered_by
+join program_master pm on pm.program_id=pob.program_id
+where entity_type not in ('DEC','ICT')
+and em.entity_id =#entity_id# group by pm.program_id
+order by pm.program_name;
+
+</select>
+
+<select id ="getProgramDataPE" resultClass="admissionBean">
+
+select at.date,at.program_id,pm.program_name,at.entity_id,em.entity_name
+from admitcard_table at
+join program_master pm on pm.program_id=at.program_id
+join entity_master em on em.entity_id=at.entity_id
+join program_form pf on pf.program_id=at.program_id
+and pf.offered_by=at.entity_id
+group by
+at.entity_id,at.program_id order by at.date,pm.program_name;
+
+</select>
+
+
+<select id ="getProgramDataArbitration" resultClass="admissionBean">
+select pm.program_id,pm.program_name from applicant_program_registration apr
+join program_master pm on pm.program_id=apr.program_id
+ where apr.application_number=#application_number#;
+</select>
+
+<select id ="getSessionDate" resultClass="admissionBean">
+
+select start_date as session_start_date ,end_date as
+ session_end_date,concat(substring(start_date,1,4),'-',substring(end_date,1,4)) as sessionDate
+  from university_master order by start_date desc limit 2 ;
+
+</select>
+
+
+</sqlMap>
+
+
+

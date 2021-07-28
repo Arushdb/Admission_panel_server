@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+        
+ <sqlMap namespace="transfer">
+ 
+ 
+ <typeAlias alias="transfer_bean" type="in.ac.dei.edrp.admissionsystem.Bean.transferBean"/>
+ 
+  <select id="checkfortransferapp" resultClass="transfer_bean">
+
+
+select es.first_name as candidateName ,es.father_first_name as fatherName,es.mother_first_name as
+MotherName,es.date_of_birth as dob,es.gender,es.category_code as category,es.physical_handicap as phyhandicaped,
+sr.exam_center1 as examCenter,
+aam.address_line1 as addressline1,aam.address_line2 as addressline2,aam.city,aam.state,aam.pincode,aam.home_phone as phoneNumber
+, es.primary_email_id as email_id,sas.application_document_path as DocPath,sas.verification_status as verification
+ from entity_student es
+join admission_addresses_master aam on aam.user_id=es.student_id
+join student_registration sr on aam.user_id=sr.student_id
+join student_application_status sas on sas.application_number =es.application_number
+where es.application_number =#actualApplication# and aam.address_key='COR' group by es.student_id;
+
+</select>
+ 
+ <select id ="getentityid" resultClass="transfer_bean">
+	select entity_id as entityId from admitcard_table where program_id =#programName# group by program_id;
+	</select>
+	
+
+	
+	
+	
+	
+	
+	
+ 
+ <select id="getuserformlocations" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT' order by col;
+</select>
+
+ <select id="BEDpaper" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT'and program_id ='0001009'order by col;
+</select>
+
+ <select id="BBMpaper" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT'and program_id ='0001080'order by col;
+</select>
+
+
+ <select id="BApaper" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT'and program_id ='0001003' order by col;
+</select>
+
+
+ <select id="BApapercomp" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and
+status='ACT'and program_id ='0001003'  and title like '%COMP%' order by col;
+</select>
+
+ <select id="BASocScicomp" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and
+status='ACT'and program_id =#programName#  and title like '%COMP%' order by col;
+</select>
+
+
+
+ <select id="BASocSci" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT'and program_id ='0001090' order by col;
+</select>
+
+
+ <select id="DOCPATH" resultClass="transfer_bean">
+select Description as DocPath from userform_control where title='DOCPATH';
+</select>
+
+
+
+ <select id="BCOMpaper" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT'and program_id ='0001070' order by col;
+</select>
+
+ <select id="BSCpaper" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT'and program_id ='0001057' order by col;
+</select>
+
+
+ <select id="GetOptionalPaper" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT'and program_id =#programName# order by col;
+</select>
+
+ <select id="GetOptionalPaperG1" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT'and program_id =#programName# and code='G1' order by col;
+</select>
+
+ <select id="GetOptionalPaperG2" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT'and program_id =#programName# and code='G2' order by col;
+</select>
+
+ <select id="GetOptionalPaperG3" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and status='ACT'and program_id =#programName# and code='G3' order by col;
+</select>
+
+ <select id="GetCompPaper" resultClass="transfer_bean">
+select * from userform_control where group_code='BF' and
+status='ACT'and program_id =#programName#  and title like '%COMP%' order by col;
+</select>
+
+
+
+
+ <select id="MAprog" resultClass="transfer_bean">
+select * from userform_control where code ='PG'  and status ='ACT' and group_code ='BF' order by col;
+</select>
+
+
+ <select id="MAPAPER" resultClass="transfer_bean">
+select * from userform_control where code ='PG'  and status ='ACT' and group_code ='BF'
+and program_id ='0001126' and title ='COMP' order by col;
+</select>
+
+
+ <select id="papersum" resultClass="transfer_bean">
+select sum(min_choice)as papsum from
+(
+select * from program_paper_code where program_id =#programName#
+group by main_group, grouping, min_choice, max_choice
+) ppc
+group by main_group;
+</select>
+
+ <select id="EntitySession" resultClass="transfer_bean">
+select concat(SUBSTR(value,1,4),"-",SUBSTR(value,5,2),"-",SUBSTR(value,7,2)) as startdate,
+concat(SUBSTR(value,9,4),"-",SUBSTR(value,13,2),"-",SUBSTR(value,15,2))as enddate,concat(SUBSTR(value,1,4),"-",SUBSTR(value,11,2))as session from system_values where code ='ADMSSN';
+</select>
+
+
+<select id="getSystemValues" resultClass="transfer_bean">
+		SELECT value sequenceNumber
+		FROM system_values
+		WHERE university_id=#universityId# AND code=#ugpg#
+	</select>
+
+	<update id="updateSystemValuesUserForm">
+		UPDATE system_values
+		SET value=#SequenceNumber#
+		WHERE university_id=#universityId# AND code=#ugpg# and value=#oldSequenceNumber#
+	</update>
+
+        <insert id="setEntityStudentUserform">
+		INSERT INTO entity_student
+		(university_id,student_id,first_name,
+		primary_email_id,date_of_birth,category_code,gender,
+		father_first_name,
+		mother_first_name,
+		registered_in_session,insert_time,creator_id,nationality,religion,minority,marital_status,physical_handicap,application_number
+		,father_income,mother_income,guardian_income,hostel_required,ever_expelled)
+		VALUES
+		(#universityId#,#studentId#,#candidateName#,
+		#email_id#,#dob#,#cosval#,#gender#,
+		#fatherName#,
+		#MotherName#,
+		#session#,now(),'bubble',#nationality#,#religion#,#minority#,
+		#meritalstatus#,#phyhandicaped#,#appnumber#,#fatherincome#,#motherincome#,#gardianincome#,#hostel#,'N')
+	</insert>	
+	
+	<insert id="setAdmitCardVanue">
+	
+	insert into admitcard_vanue (program_id, application_number, gender, center_code, ext, Insert_time)
+values (#program_id#,#appnumber#,#gender#,'000000','',now());
+	</insert>
+	
+	
+	
+	<insert id="setStudentAddressUserForm">
+		INSERT INTO admission_addresses_master
+		(user_type,user_id,address_key,address_line1,address_line2,city,
+		state,pincode,home_phone,insert_time,creator_id,country,district)
+		VALUES
+		('STD',#studentId#,'COR','bubble',#addressline2#,#city#,
+		#state#,#pincode#,#phoneNumber#,now(),'bubble','IN',#city#)
+	</insert>
+	
+	<insert id="setStudentAddressUserFormtransfer">
+		INSERT INTO admission_addresses_master
+		(user_type,user_id,address_key,address_line1,address_line2,city,
+		state,pincode,home_phone,insert_time,creator_id,country,district)
+		VALUES
+		('STD',#studentId#,'COR',#addressline1#,#addressline2#,#city#,
+		#state#,#pincode#,#phoneNumber#,now(),'bubble','IN',#city#)
+	</insert>
+	
+		<insert id="setStudentRegistrationUserForm">
+	    INSERT INTO student_registration
+		(student_id,registration_number,cos_value,start_date,end_date,insert_time,creator_id,program_id, staff_ward,cocurricular_activities,
+		application_type,
+		father_income,mother_income,guardian_income,locality,hostel_required,ever_expelled,staff_ward_code,exam_center1)
+		VALUES
+		(#studentId#,#registrationNumber#,#cos#,#startdate#,#enddate#,now(),'bubble',#programName#, #staff_status#,#cca#,
+		'P',
+		#fatherincome#,#motherincome#,#gardianincome#,'U',#hostel#,'NO',#staff_code#,#examCenter#)
+		</insert>
+	
+	<select id="getpapergroupUserForm" resultClass="transfer_bean">
+		select ppc.grouping,ppc.Main_Group as mainGroup,ppc.paper_code as papercode from program_paper_code ppc join
+system_table_two stt on ppc.paper_code=stt.component_code  where stt.group_code  ='PAPCOD'
+and ppc.program_id=#programName# and stt.component_description=#paperGroup# limit 1;
+	</select>	
+	
+		
+	    <insert id="setStudentPaperUserForm">
+		INSERT INTO student_paper
+		(program_id,registration_number,paper_code,
+		start_date,end_date,insert_time,creator_id,grouping,main_group)
+		VALUES
+		(#programName#,#registrationNumber#,#papercode#,
+		#startdate#,#enddate#,now(),#userId#,#grouping#,#mainGroup#);
+	    </insert>
+
+	<insert id="setApplicantProgramRegistrationUserForm">
+		INSERT INTO applicant_program_registration 
+		(user_name,registration_number,program_id,application_number,session_start_date,session_end_date,creator_id,insert_time)
+		VALUES (#email_id#,#registrationNumber#,#programName#,#appnumber#,#startdate#,#enddate#,'bubble',now())
+	</insert>
+	
+			<insert id="setStudenttestNumberUserForm">
+INSERT INTO student_test_number(program_id, entity_id, 
+ registration_number, test_number, called, cos_value,
+   reason_code, status, end_date, start_date) values (#programName#,#entityId#,#registrationNumber#,#appnumber#,'Y',#cos#,'bubble',
+   'Eligible',#enddate#,#startdate#);
+		
+	</insert>
+	
+	
+
+	
+	
+		<insert id="setApplicantAccountInfo">
+insert into applicant_account_info
+(first_name,  email_id, password, father_name,
+date_of_birth, gender, phone_number, state, creator_id,
+ insert_time,  mother_name,
+ category,  nationality, religion, city, status,
+ user_name, student_id,session_start_date,session_end_date)
+values (#candidateName#, #email_id#,
+sha1(#password#), #fatherName#, #dob#,
+#gender#, #phoneNumber#,#state#, 'bubble', now(),
+#MotherName#, #cosval#,
+#nationality#, #religion#, #city#, 'ACT',
+#appnumber#, #studentId#,#startdate#,#enddate#)
+	</insert>
+	
+<insert id="setStudentApplicationStatusUserForm">
+	
+		INSERT INTO student_application_status 
+		(application_status,application_number,email_id,session_start_date,session_end_date,application_document_path,university_id,tab_status)
+		VALUES ('D',#appnumber#,#email_id#,#startdate#,#enddate#,#DocPath#,#universityId#,'3')
+		
+	</insert>
+
+
+
+<insert id="setStudentApplicationStatusUserFormTrasfer">
+	
+		INSERT INTO student_application_status 
+		(application_status,verification_status,application_number,email_id,session_start_date,session_end_date,application_document_path,university_id,tab_status)
+		VALUES ('D',#verification#,#appnumber#,#email_id#,#startdate#,#enddate#,#DocPath#,#universityId#,'3')
+		
+	</insert>
+
+
+<insert id="InsertETMarks">
+	
+		insert into comp_marks (program_id, test_number, marks, extra)
+		
+	</insert>
+
+
+
+<select id="getTempAppNumber" resultClass="transfer_bean">
+
+select pm.program_id,apr.Application_Number as tempApplicationNumber from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join program_master pm on pm.program_id =sr.program_id where  sas.application_status in ('D','A') and 
+ apr.is_duplicate = '0' and sr.program_id =#program_id#
+order by sr.exam_center1,sr.program_id,es.gender,
+es.category_code,apr.application_number limit 1;
+
+</select>
+
+
+
+
+
+<select id="checkPaper" resultClass="transfer_bean">
+
+select pm.program_id,#registrationNumber#,null,sp.paper_code,sp.start_date, sp.end_date, now(), null, 'transfer', null, sp.grouping, sp.main_group
+from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join student_paper sp on sp.registration_number =sr.registration_number
+join program_master pm on pm.program_id =sr.program_id where sas.application_status='D'
+and apr.is_duplicate = '0' and sr.program_id =#program_id# and apr.application_number =#tempApplicationNumber#;
+
+</select>
+
+
+<select id="checkApplication" resultClass="transfer_bean">
+
+select apr.application_number as transferapp from applicant_program_registration apr
+join student_test_number stn
+on stn.registration_number =apr.registration_number
+where application_number =#appnumber#
+</select>
+
+
+
+
+<insert id="setDefaultPaperCodes">
+
+insert into student_paper
+select pm.program_id,#registrationNumber#,null,sp.paper_code,sp.start_date, sp.end_date, now(), null, 'transfer', null, sp.grouping, sp.main_group
+from student_application_status sas
+join applicant_program_registration apr on sas.application_number =apr.application_number
+join student_registration sr on sr.registration_number = apr.registration_number
+join entity_student es on es.student_id=sr.student_id
+join student_paper sp on sp.registration_number =sr.registration_number
+join program_master pm on pm.program_id =sr.program_id where sas.application_status='D'
+and apr.is_duplicate = '0' and sr.program_id =#program_id# and apr.application_number =#tempApplicationNumber#;
+</insert>
+
+
+<insert id="setDefaultPaperCodes2">
+insert into student_paper
+select program_id,#registrationNumber#,null,paper_code,#startdate#,#enddate# ,now(),null,'transfer',
+null,grouping,Main_Group from program_paper_code
+where program_id =#program_id# group by paper_code;
+</insert>
+
+<insert id="setAcademicScore">
+insert into student_call_list
+(program_id, registration_number, component_id, marks_percentage, marks_obtained, total_marks, computed_marks,
+ computed_Marks_roundoff, best_score, entity_id, branch_code, score, actual_computed_marks, actual_computed_marks_roundoff,
+  board_id, start_date, end_date, insert_time, modification_time, creator_id, modifier_id, specialization_code, dei_student,
+  other_board_name, other_branch_name, gate_year, gate_rank, gate_total_appeared_candidates, gate_branch, passing_year,
+  result_awaited, examination_option_code, subject_option_code)
+
+   select set2.program_id,set2.registration_number,
+   set2.component_id,COALESCE(set1.marks_percentage,0) as marks_percentage,
+    COALESCE(set1.marks_obtained,0) as marks_obtained ,COALESCE(set1.total_marks,0) as total_marks,COALESCE(set1.computed_marks,0) as computed_marks ,
+   COALESCE(set1.computed_Marks_roundoff,0) as computed_Marks_roundoff,COALESCE(set1.best_score,0) as best_score , set2.entity_id,
+    set1.branch_code, set1.score, COALESCE(set1.actual_computed_marks,0) as actual_computed_marks ,
+    COALESCE(set1.actual_computed_marks_roundoff,0) as actual_computed_marks_roundoff, set1.board_id,
+    COALESCE(set1.start_date,'2017-07-01') as start_date, COALESCE(set1.end_date,'2018-06-30') as end_date, now(),now(),
+    set1.creator_id, set1.modifier_id, set1.specialization_code,
+     COALESCE(set1.dei_student,'N') as dei_student , set1.other_board_name, set1.other_branch_name,
+     set1.gate_year, set1.gate_rank, set1.gate_total_appeared_candidates,
+     set1.gate_branch, set1.passing_year, set1.result_awaited,
+     set1.examination_option_code, set1.subject_option_code
+     from
+     (select scl.* from student_call_list scl
+      join student_test_number stn on
+       stn.registration_number=scl.registration_number
+        where stn.test_number =#actualApplication# and stn.program_id=#fromprogram#)set1
+
+        right join ( select pc.component_id,stn.registration_number,stn.test_number,stn.program_id
+        ,stn.entity_id from program_components pc
+        join student_test_number stn on
+        stn.program_id =pc.program_id
+        where pc.program_id =#program_id# and
+         stn.test_number =#appnumber#)set2
+         on set1.component_id=set2.component_id
+</insert>
+<update id="updateAPRForduplicate">
+update applicant_program_registration  set is_duplicate ='1' where application_number =#actualApplication# and program_id =#fromprogram#;
+</update>
+
+	
+  </sqlMap>
+ 

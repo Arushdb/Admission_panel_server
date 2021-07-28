@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+        
+<sqlMap namespace="Admitcard" >
+
+<typeAlias alias="admitcardInfo" type="in.ac.dei.edrp.admissionsystem.Bean.GenerateAdmitCardBean"/>
+<typeAlias alias="admissionInfo" type="in.ac.dei.edrp.admissionsystem.Bean.admissionBean"/>
+
+<select id="getapplcants" resultClass="admitcardInfo">
+
+select abc1.*,abc2.venue from 
+(
+select set1.*,
+
+DATE_FORMAT(sp.date,'%d %M %Y') as testdate,
+DATE_FORMAT(sp.date,'%r') as testtime,
+DATE_FORMAT(sp.time ,'%d %M %Y')as interviewdate,
+DATE_FORMAT(sp.time ,'%r')as interviewtime
+
+from (
+
+select concat_ws(' ',es.first_name,es.middle_name,es.last_name)  as name,
+ sas.application_document_path as doc_path ,
+
+concat_ws(' ',es.father_first_name,es.father_middle_name,es.father_last_name)
+as fathername,stn.program_id,stn.entity_id,  stn.registration_number ,sas.application_number,stn.test_number as testnumber,
+
+concat_ws(',', aam.address_line1 ,aam.address_line2) as address ,aam.city,aam.state,aam.pincode, sr.application_type as applicationType,
+pm.program_code as programCode
+<!--
+,
+(select component_description from system_table_two where
+group_code ='CENCOD' and component_code=sr.exam_center1)as venue
+-->
+
+ from student_test_number stn join student_registration sr
+on stn.registration_number = sr.registration_number and stn.start_date = sr.start_date
+
+JOIN entity_student es on es.student_id = sr.student_id
+
+join admission_addresses_master aam on sr.student_id = aam.user_id
+
+join applicant_program_registration apr
+on apr.program_id = stn.program_id  and apr.session_start_date =stn.start_date
+and apr.session_end_date = stn.end_date and apr.registration_number = stn.registration_number
+
+join student_application_status  sas
+on
+ apr.session_start_date=sas.session_start_date and sas.application_status in ('P','D')
+ <!--  and sas.verification_status ='REC'-->
+and apr.admit_card_available not in ('X','Y')
+and apr.session_end_date = sas.session_end_date
+ and apr.application_number = sas.application_number 
+ and apr.is_duplicate = '0'
+ join program_master as pm on pm.program_id=sr.program_id
+where  stn.program_id = #program_id# and stn.entity_id =  #entity_id#  and called = 'Y' and aam.address_key='PER'
+ and stn.start_date =  #start_date# and stn.end_date =  #end_date# and stn.status='Eligible'
+
+ )set1
+join admitcard_table sp on
+sp.program_id=set1.program_id where set1.testnumber is not null
+)abc1
+left join
+(select av.application_number ,av.gender,av.program_id,
+<!--  if(bc.ext='',concat(bc.building_name,',',bc.location),concat(bc.building_name,',',bc.location,',',bc.ext))-->
+ bc.location as venue
+ FROM admitcard_vanue av join building_codes bc
+on av.center_code=bc.building_code where
+program_id =#program_id# group by application_number order by bc.building_name,av.gender)abc2
+on abc1.application_number=abc2.application_number and abc1.program_id=abc2.program_id;
+</select>
+
+
+<select id="getAdmitCardMonth"  resultClass="admitcardInfo" >
+		select value as admitcard_month from system_values where code='ADMMON';
+</select>
+		
+<select id="getAdmitCardInterviewFlag"  resultClass="admitcardInfo" >
+		select value as Interview_Flag from system_values where code='ADMINT';
+</select>
+		
+<select id="getInterviewDateAndTime"  resultClass="admitcardInfo" >
+		select DATE_FORMAT(time ,'%d %M %Y')as interviewdate,DATE_FORMAT(time ,'%r')as interviewtime 
+		from admitcard_table where program_id =#program_id#;
+</select>
+		
+		
+<select id="getpaperoptionforchoice"  resultClass="admitcardInfo" >
+		select count(*) as paper_code from program_paper_code where program_id = #program_id#;
+</select>
+		
+
+<update id ="updateadmitcardpath"   >
+
+update  student_registration set document_path = #admitCardPath#
+ where registration_number= #registration_number# 
+and start_date = #start_date#;
+
+</update>
+
+
+<update id ="setadmitcardavailable"   >
+
+ update  applicant_program_registration  set admit_card_available = 'X'
+where registration_number =#registration_number#;
+</update>
+
+<insert id="insertFTPDocumentDetails">
+	insert into ftp_documents 
+	(application_number, doc_id, file_name, status, ftp_source_path, ftp_target_path, remote_server_ip,
+	user_name, password, insert_time, ftp_start_time, ftp_end_time, session_start, session_end)
+	select #form_number#, #docId#, #file_name#, 'U', #sourcePath#, #targetPath#,
+	stt.component_description, stt2.component_description, stt3.component_description,
+	now(), null, null, STR_TO_DATE(substr(sv.value, 1, 8), '%Y%m%d') as session_start,
+	STR_TO_DATE(substr(sv.value, 9, 8), '%Y%m%d') as session_end
+	from system_table_two stt
+	join system_table_two stt2 on stt.group_code=stt2.group_code and stt2.component_code='RUN'
+	join system_table_two stt3 on stt.group_code=stt3.group_code and stt3.component_code='RPS'
+	join system_values sv on stt.university_code=sv.university_id and sv.code='ADMSSN'
+	where stt.component_code='RIP' and stt.group_code='ADMFTP';
+</insert>
+
+
+<select id="getETForAdmCard" resultClass="admissionInfo">
+select if(sp.grouping is null or sp.grouping='', 'NA',sp.grouping) 'group', if(stt.component_description is null or stt.component_description='', 'NA', stt.component_description) paperName, sp.paper_code paperCode from applicant_program_registration as apr  join student_paper as sp
+on sp.registration_number=apr.registration_number and sp.program_id=apr.program_id and apr.application_number=#application_number#
+and sp.start_date=apr.session_start_date and sp.end_date=apr.session_end_date
+ join system_values as sv on sv.university_id=substring(apr.program_id, 1, 4) and STR_TO_DATE(substr(sv.value, 1, 8), '%Y%m%d')=apr.session_start_date and
+STR_TO_DATE(substr(sv.value, 9, 8), '%Y%m%d')=apr.session_end_date and sv.code='ADMSSN'
+ join program_master as pm on pm.program_id=apr.program_id
+ join system_table_two as stt on stt.component_code=sp.paper_code and stt.university_code=sv.university_id and stt.group_code='PAPCOD'
+where  apr.registration_number=#registration_number#;
+</select>
+
+
+<select id="programWithCommonShift" resultClass="admissionInfo">
+select pm.program_code programCode, pm.program_name programName, pm.program_id programID,
+substring(apr.session_start_date,3,2) param1 from
+(
+select date from admitcard_table
+where program_id = #program_id#
+) s1
+join admitcard_table as at on at.date = s1.date
+join program_master as pm on pm.program_id = at.program_id
+join applicant_program_registration as apr on apr.application_number in (select application_number from student_application_status where
+application_number in(select application_number from student_application_status
+where binded_application_number in (
+select binded_application_number from student_application_status where application_number =#application_number#)))
+and apr.program_id = at.program_id
+join student_application_status as sas on sas.application_number = apr.application_number
+join student_test_number as stn on stn.registration_number = apr.registration_number
+and stn.program_id = apr.program_id
+join common_entrance_test as cet1 on cet1.program_id = apr.program_id
+join
+  (
+    select * from common_entrance_test
+    where program_id = #program_id#
+  ) cet2 on cet2.group_id = cet1.group_id
+where apr.admit_card_available in ('X','N','Y') and sas.application_status in ('P','D')
+and sas.verification_status = 'REC' and stn.called = 'Y' and stn.status='Eligible'
+order by pm.program_name asc;
+</select>
+
+
+<select id="getApplicantVanue" resultClass="admitcardInfo">
+select av.application_number ,av.gender,av.program_id,
+<!-- if(bc.ext='',concat(bc.building_name,',',bc.location),concat(bc.building_name,',',bc.location,',',bc.ext)) -->
+ bc.location as venue from
+(
+select at2.date, at2.program_id from admitcard_table at1
+join admitcard_table as at2 on at2.date = at1.date
+where at1.program_id=#program_id#) s1
+join applicant_program_registration as apr on apr.program_id = s1.program_id
+and apr.application_number = #application_number#
+join admitcard_vanue as av on av.application_number = apr.application_number
+and av.program_id = apr.program_id
+left join building_codes bc on av.center_code=bc.building_code
+group by av.application_number;
+</select>
+
+<select id="getprogramListShiftWise" resultClass="admitcardInfo">
+select pt.program_id,pt.entity_id,pm.program_name,
+at.session_start_date as start_date,
+at.session_end_date as end_date from process_control_table pt
+join program_master pm on pm.program_id=pt.program_id
+join admitcard_table at on at.program_id =pt.program_id
+ where pt.flag_1='Y' order by pt.shift 
+</select>
+
+
+</sqlMap>
+
+
+

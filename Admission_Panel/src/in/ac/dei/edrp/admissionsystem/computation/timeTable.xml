@@ -1,0 +1,1371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+        
+<sqlMap namespace="timeTable">
+
+<typeAlias alias="time_table" type="in.ac.dei.edrp.admissionsystem.Bean.TimeTableBean"/>
+
+<select id ="timeTableVariabels" resultClass ="time_table">
+select entity_id, UG_PG as typeOrder, binding, sem_order, binding_dec
+ from time_table_run order by sl;
+</select>
+
+<select id ="instructorList" resultClass ="time_table">
+select * from
+(
+select set2.employee_id as instructor,COALESCE(set1.lectue_count,'0') as lecture_count from
+(
+
+
+select * from instructor_course where course_code =#course_code#
+ and entity_id =#entity_id# and display_type='I'
+ and status ='ACT' group by employee_id
+
+
+ )set2
+
+ left join
+(
+
+select instructor,count(*) as lectue_count from time_table_1
+where day =#day# group by instructor
+)set1
+
+on set2.employee_id=set1.instructor)set3
+
+ where set3.lecture_count <![CDATA[<]]>2;
+</select>
+
+<select id="getRecord" resultClass ="time_table">
+<!--  
+select em.entity_name,em.entity_id,
+pm.program_name,pm.program_id
+ from program_offered_by pob
+join program_master pm
+on pm.program_id =pob.program_id
+join entity_master em on
+em.entity_id =pob.offered_by
+where em.entity_id in ('00010018')    and pm.program_id in ('0001080')
+group by pm.program_id
+order by program_name;
+-->
+<!--  
+SELECT program_id,entity_id FROM time_table_programs where entity_id=#entity_id#
+and ug_pg=#typeOrder# and type in (#sem_order#)
+group by program_id;
+
+-->
+SELECT program_id,entity_id FROM time_table_programs where entity_id='00010018'
+and ug_pg='UG' and type in ('ODD') <!--  and program_id='0001057'-->
+group by program_id;
+</select>
+
+<select id="checkSpecialCourseStatus" resultClass ="time_table">
+select course_code, entity_id, course_type as courseType,
+ test_case, pck as program_course_key
+ from time_table_special_courses where course_code=#course_code#
+  and pck=#program_course_key# <!-- and entity_id=#entity_id# -->;
+</select>
+
+
+<select id="getRecordForPrint" resultClass ="time_table">
+
+<!--  
+select em.entity_name,em.entity_id,
+pm.program_name,pm.program_id
+ from program_offered_by pob
+join program_master pm
+on pm.program_id =pob.program_id
+join entity_master em on
+em.entity_id =pob.offered_by
+where em.entity_id in ('00010018')   
+group by pm.program_id
+order by program_name;
+-->
+SELECT program_id,entity_id FROM time_table_programs where entity_id='00010018'
+<!--  and ug_pg='UG'-->and
+ type in ('ODD')
+group by program_id;
+</select>
+
+<select id="getPCK" resultClass ="time_table">
+
+<!--  
+select pch.program_course_key,
+em.entity_name,em.entity_id,
+pm.program_name,pm.program_id
+ from program_offered_by pob
+join program_master pm
+on pm.program_id =pob.program_id
+join entity_master em on
+em.entity_id =pob.offered_by
+join program_course_header pch
+on pch.program_id =pm.program_id
+where em.entity_id =#entity_id# and pm.program_id =#program_id#     
+group by pm.program_id,pch.program_course_key
+order by program_name;
+-->
+<!--  
+SELECT program_id,entity_id,pck as program_course_key
+FROM time_table_programs where entity_id=#entity_id# and program_id=#program_id#
+and 
+  ug_pg=#typeOrder# and 
+type in (#sem_order#) and binding=#binding#   and pck in ('00010571100013');
+-->
+
+SELECT program_id,entity_id,pck as program_course_key
+FROM time_table_programs where entity_id=#entity_id# and program_id=#program_id#
+and 
+  ug_pg='UG' and 
+type in ('ODD') and binding='E'   <!--  and pck in ('00010571100013')-->;
+
+</select>
+
+
+<select id="getPCKprint" resultClass ="time_table">
+
+
+SELECT program_id,entity_id,pck as program_course_key
+FROM time_table_programs where entity_id=#entity_id# and program_id=#program_id#
+and 
+type in ('ODD');
+</select>
+
+
+<select id="getPCKforTimeTablePrint" resultClass ="time_table">
+
+
+select pch.program_course_key from time_table_1 t1
+join
+program_course_header pch
+on pch.program_course_key=t1.pck
+join program_master pm
+on pm.program_id=pch.program_id
+where t1.entity=#entity_id# and pch.program_id =#program_id#
+group by pch.program_course_key;
+
+</select>
+
+
+
+
+
+<select id="getSEMdate" resultClass ="time_table">
+
+<!--  
+select concat(mid(um.start_date,1,4),'-',mid(um.end_date,1,4)) as session1,date_format(pr.semester_start_date,'%Y-%m-%d')
+as semester_start_date ,
+ date_format(pr.semester_end_date,'%Y-%m-%d')
+ as semester_end_date,
+ pr.program_course_key,pr.entity_id
+ from university_master um
+ join program_registration pr on pr.session_start_date =um.start_date
+ and pr.session_end_date=um.end_date
+ where um.current_status ='1' and program_course_key =#program_course_key#
+ and entity_id =#entity_id# and pr.semester_start_date ='2019-01-01'
+ group by pr.semester_start_date , pr.semester_end_date
+order by pr.semester_start_date desc;
+-->
+
+SELECT semester_start_date,semester_end_date,
+program_id,entity_id,pck as program_course_key,
+session as session1
+FROM time_table_programs where entity_id=#entity_id#
+ and pck=#program_course_key#;
+
+</select>
+
+
+<select id="getCourseCountTheory" resultClass ="time_table">
+
+
+<!--  
+select * from
+(
+select ic.employee_id as instructor,count(*)as courseCount,cm.course_classification as courseType,cm.course_code,cm.course_name,cm.credits as credit  from student_course sc
+join course_master cm on cm.course_code=sc.course_code
+join program_course_detail pcd
+on pcd.program_course_key =sc.program_course_key
+and cm.course_code =pcd.course_code
+
+left join instructor_course ic on ic.program_course_key=sc.program_course_key
+and ic.semester_start_date=sc.semester_start_date
+and ic.semester_end_date=sc.semester_end_date and ic.status='ACT'and ic.display_type='I'
+
+where sc.program_course_key =#program_course_key#
+and pcd.available ='Y'
+and sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and pcd.course_category ='REG'
+and sc.entity_id =#entity_id# and cm.course_classification='T'
+group by sc.course_code
+order by cm.course_classification desc
+)set1  
+  order by set1.courseCount desc;
+-->
+
+select * from
+(
+select set2.instructor,set1.* from
+(
+select
+count(*)as courseCount,cm.course_classification as courseType,
+cm.course_code,cm.course_name,cm.credits as credit,sc.semester_start_date,
+sc.semester_end_date,sc.program_course_key,sc.entity_id  from student_course sc
+join course_master cm on cm.course_code=sc.course_code
+join program_course_detail pcd
+on pcd.program_course_key =sc.program_course_key
+and cm.course_code =pcd.course_code
+where sc.program_course_key =#program_course_key#
+and pcd.available ='Y'
+and sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and pcd.course_category ='REG'
+and sc.entity_id =#entity_id# and cm.course_classification in ('T','P')  <!--  and cm.course_code in ('HOR102','UGR101')-->
+group by sc.course_code
+order by cm.course_classification desc
+)set1
+join
+(select ic.employee_id as instructor,ic.* from instructor_course ic where ic.status='ACT'and ic.display_type='I')set2
+on set1.program_course_key=set2.program_course_key
+and set1.semester_start_date =set2.semester_start_date
+and set1.semester_end_date=set2.semester_end_date
+and set1.entity_id=set2.entity_id
+and set1.course_code =set2.course_code
+order by set1.courseCount desc)set3 group by set3.course_code
+order by set3.courseCount desc ;
+
+
+
+</select>
+
+<select id="getCourseWiseGender" resultClass ="time_table">
+
+select
+count(*)as courseCount,sm.gender,cm.course_classification as courseType,
+cm.course_code,cm.course_name,cm.credits as credit,sc.semester_start_date,
+sc.semester_end_date,sc.program_course_key,sc.entity_id  from student_course sc
+join course_master cm on cm.course_code=sc.course_code
+join program_course_detail pcd
+on pcd.program_course_key =sc.program_course_key
+and cm.course_code =pcd.course_code
+
+join program_course_header pch on pch.program_course_key=sc.program_course_key
+join student_program sp on sp.roll_number=sc.roll_number
+and sp.program_id=pch.program_id and sp.branch_id=pch.branch_id
+and sp.specialization_id=pch.specialization_id and
+sp.in_semester=pch.semester_code
+join student_master sm on sm.enrollment_number=sp.enrollment_number
+
+where sc.program_course_key =#program_course_key#
+and pcd.available ='Y'
+and sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and pcd.course_category ='REG'
+and sc.entity_id =#entity_id# and cm.course_classification in ('T','P')
+and sc.course_code=#course_code#
+group by sc.course_code,sm.gender
+order by cm.course_classification desc;
+
+
+</select>
+
+<insert id ="InsertIntoTempTable">
+insert into time_table_temp_table (val1, val2, val3, val4, val5) 
+values (#course_code#,#day#,#lecture#,#entity_id#,null);
+</insert>
+
+<select id="checkmultipleCourses" resultClass ="time_table">
+select * from
+(
+select sc.program_course_key,sc.course_code,entity_id,
+semester_start_date,semester_end_date,count(*) as studentCount  from student_course sc
+join course_master cm on cm.course_code=sc.course_code
+join program_course_detail pcd
+on pcd.program_course_key =sc.program_course_key
+and cm.course_code =pcd.course_code
+where pcd.available ='Y'
+and sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and pcd.course_category ='REG'
+and sc.entity_id =#entity_id# and cm.course_classification in ('T','P')
+and cm.course_code =#course_code#
+group by sc.program_course_key
+order by cm.course_classification desc)set1
+</select>
+
+<select id="checkmultipleCoursesDetail" resultClass ="time_table">
+select
+count(*)as stduentCount,cm.course_classification as courseType,
+cm.course_code,cm.course_name,cm.credits as credit,sc.semester_start_date,
+sc.semester_end_date,sc.program_course_key,sc.entity_id  from student_course sc
+join course_master cm on cm.course_code=sc.course_code
+join program_course_detail pcd
+on pcd.program_course_key =sc.program_course_key
+and cm.course_code =pcd.course_code
+where pcd.available ='Y'
+and sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and pcd.course_category ='REG'
+and sc.entity_id =#entity_id# and cm.course_classification in ('T','P')
+and cm.course_code =#course_code#
+group by sc.course_code
+order by cm.course_classification desc;
+</select>
+
+<insert id ="InsertmultipleCoursesInTimeTableJointLecture">
+
+insert into time_table_joint_lectures
+select * from
+(
+select sc.program_course_key,sc.course_code,entity_id,
+semester_start_date,semester_end_date,count(*) as studentCount  from student_course sc
+join course_master cm on cm.course_code=sc.course_code
+join program_course_detail pcd
+on pcd.program_course_key =sc.program_course_key
+and cm.course_code =pcd.course_code
+where pcd.available ='Y'
+and sc.semester_start_date =#semester_start_date#
+and sc.semester_end_date =#semester_end_date#
+and pcd.course_category ='REG'
+and sc.entity_id =#entity_id# and cm.course_classification in ('T','P')
+and cm.course_code =#course_code#
+group by sc.program_course_key
+order by cm.course_classification desc)set1
+where not exists (select * from time_table_joint_lectures where pck=set1.program_course_key
+and entity_id= set1.entity_id
+and course_code =set1.course_code
+and semester_start_date=set1.semester_start_date
+and semester_end_date=set1.semester_end_date);
+
+</insert>
+
+<select id="getLectureCount" resultClass ="time_table">
+
+
+select COALESCE(creditX,null,1) as credit,set1.* from
+(
+select round(credits) as creditX , course_name,course_code,
+course_classification,
+course_type,credits
+from course_master where  <!--  course_classification =#courseType# and -->
+course_name not like '%project%' and course_code =#course_code#
+group by credits)set1;
+
+</select>
+
+<select id="getSuitableRoom1" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,
+type ,(capacity-(#totalLecture#)) as val ,f_room_key from
+room_capacity where entity_id =#entity_id# and type=#lectureType#)set1
+where set1.val>0 order by set1.val;
+</select>
+
+<select id="getSuitableRoomForPrectical" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,
+type ,(capacity-(#totalLecture#)) as val ,f_room_key from
+room_capacity where entity_id =#entity_id# and type=#lectureType#)set1
+where set1.val>0 order by set1.val;
+
+</select>
+
+
+<select id="getSuitableRoomForPrecticalFRC" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity  -(#totalLecture#) ) as val ,f_room_key,
+if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType# and function_code =#roomFunction#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+<!--  where set1.val>0-->
+ order by  set1.flag,set1.val desc ;
+
+</select>
+
+
+<select id="getSuitableRoomSSC" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity  -(#totalLecture#) ) as val ,f_room_key,if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+  where set1.val>0 order by set1.flag,set1.val desc;
+
+</select>
+
+
+<select id="getSuitableRoom2SSC" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity  -(#totalLecture# -50) ) as val ,f_room_key,if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+  where set1.val>0 order by set1.flag,set1.val desc;
+
+</select>
+
+
+<select id="getSuitableRoom3SSC" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity  -(#totalLecture# -100) ) as val ,f_room_key ,if(entity_id=#entity_id#,1,2) as flag from
+room_capacity where type=#lectureType#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+ where set1.val>0 order by set1.flag,set1.val desc;
+
+</select>
+
+
+<select id="getSuitableRoom4SSC" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity  -(#totalLecture# -200) ) as val ,f_room_key,if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+ where set1.val>0 order by set1.flag,set1.val desc;
+
+</select>
+
+<select id="getSuitableRoom5SSC" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity  -(#totalLecture# -300) ) as val ,f_room_key,if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+ where set1.val>0 order by set1.flag,set1.val desc;
+
+</select>
+
+
+<select id="getSuitableRoom6SSC" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity  -(#totalLecture# -400) ) as val ,f_room_key,if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+ where set1.val>0 order by set1.flag,set1.val desc;
+
+</select>
+
+<select id="getSuitableRoom7SSC" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity  -(#totalLecture# -500) ) as val ,f_room_key,if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+  where set1.val>0 order by set1.flag,set1.val desc;
+
+</select>
+
+<select id="getSuitableRoom8SSC" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity  -(#totalLecture# -600) ) as val ,f_room_key,if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+ where set1.val>0 order by set1.flag,set1.val desc ;
+
+</select>
+
+
+<select id="ChekRoomFunctionForCourse" resultClass ="time_table">
+<!--  
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity-(#totalLecture#)) as val ,f_room_key,
+if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where
+ type='LAB' and function_code =##)set1
+where set1.val>0 order by set1.val,set1.flag;
+-->
+
+select function_code as roomFunction from time_table_special_courses
+where test_case='FRC' <!--  and entity_id=#entity_id#--> and pck=#program_course_key#
+and course_code =#course_code#;
+</select>
+
+
+
+<select id="getSuitableRoom2" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,
+type ,(capacity-(#totalLecture#-50)) as val ,f_room_key from
+room_capacity where entity_id =#entity_id# and type=#lectureType#)set1
+where set1.val>0 order by set1.val;
+
+</select>
+
+
+<select id="getSuitableRoom2FRC" resultClass ="time_table">
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity-(#totalLecture#-50)) as val ,f_room_key,
+if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType# and function_code =#roomFunction#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+<!--  where set1.val>0--> order by set1.flag,set1.val desc;
+</select>
+
+
+<select id="getSuitableRoom3" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,
+type ,(capacity-(#totalLecture#-100)) as val ,f_room_key from
+room_capacity where entity_id =#entity_id# and type=#lectureType#)set1
+where set1.val>0 order by set1.val;
+
+</select>
+
+<select id="getSuitableRoom3FRC" resultClass ="time_table">
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity-(#totalLecture#-100)) as val ,f_room_key,
+if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType# and function_code =#roomFunction#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+<!--  where set1.val>0--> order by set1.flag,set1.val desc;
+
+</select>
+
+
+<select id="getSuitableRoom4FRC" resultClass ="time_table">
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity-(#totalLecture#-200)) as val ,f_room_key,
+if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType# and function_code =#roomFunction#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+<!--  where set1.val>0 --> order by set1.flag,set1.val desc;
+
+</select>
+
+
+<select id="getSuitableRoom5FRC" resultClass ="time_table">
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity-(#totalLecture#-300)) as val ,f_room_key,
+if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType# and function_code =#roomFunction#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+<!--  where set1.val>0 --> order by set1.flag,set1.val desc;
+
+</select>
+
+<select id="getSuitableRoom6FRC" resultClass ="time_table">
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity-(#totalLecture#-400)) as val ,f_room_key,
+if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType# and function_code =#roomFunction#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+)set1
+<!--  where set1.val>0 --> order by set1.flag,set1.val desc;
+
+</select>
+
+<select id="getSuitableRoom7FRC" resultClass ="time_table">
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity-(#totalLecture#-500)) as val ,f_room_key,
+if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType# and function_code =#roomFunction#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+
+)set1
+<!--  where set1.val>0--> order by set1.flag,set1.val desc;
+
+</select>
+
+
+<select id="getSuitableRoom8FRC" resultClass ="time_table">
+select * from
+(
+select room_code as roomNo,capacity,function_code,
+type ,(capacity-(#totalLecture#-600)) as val ,f_room_key,
+if(entity_id=#entity_id#,1,2) as flag  from
+room_capacity where type=#lectureType# and function_code =#roomFunction#
+
+and entity_id
+in (select * from
+(
+select associate_faculties from time_table_add_faculties where
+associate_faculties=#entity_id#) set1
+union
+(
+select associate_faculties from time_table_add_faculties where gender=#gender#))
+
+
+)set1
+<!-- where set1.val>0  --> order by set1.flag,set1.val desc;
+
+</select>
+
+<select id="getSuitableRoom4" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,
+type ,(capacity-(#totalLecture#-200)) as val ,f_room_key from
+room_capacity where entity_id =#entity_id# and type=#lectureType#)set1
+where set1.val>0 order by set1.val;
+
+</select>
+
+<select id="getSuitableRoom5" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,
+type ,(capacity-(#totalLecture#-300)) as val ,f_room_key from
+room_capacity where entity_id =#entity_id# and type=#lectureType#)set1
+where set1.val>0 order by set1.val;
+
+</select>
+
+<select id="getSuitableRoom6" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,
+type ,(capacity-(#totalLecture#-400)) as val ,f_room_key from
+room_capacity where entity_id =#entity_id# and type=#lectureType#)set1
+where set1.val>0 order by set1.val;
+
+</select>
+
+<select id="getSuitableRoom7" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,
+type ,(capacity-(#totalLecture#-500)) as val ,f_room_key from
+room_capacity where entity_id =#entity_id# and type=#lectureType#)set1
+where set1.val>0 order by set1.val;
+
+</select>
+
+<select id="getSuitableRoom8" resultClass ="time_table">
+
+select * from
+(
+select room_code as roomNo,capacity,
+type ,(capacity-(#totalLecture#-600)) as val ,f_room_key from
+room_capacity where entity_id =#entity_id# and type=#lectureType#)set1
+where set1.val>0 order by set1.val;
+
+</select>
+
+<select id="getSuitableTimeSlot" resultClass ="time_table">
+
+select set2.lecture_code as lecture from
+(
+SELECT * FROM time_table_1
+where  session=#session1#     <!-- sem_start_date=#semester_start_date# and sem_end_date=#semester_end_date#  -->
+and day=#day#
+and f_room_key=#f_room_key#)set1
+right join
+(
+select * from lecture_time where shift like #shift#)set2
+on set1.lecture_code=set2.lecture_code where
+set1.lecture_code is null
+order by set2.lecture_time;
+
+</select>
+
+
+<select id="getSuitableTimeSlot_Lab" resultClass ="time_table">
+
+select set2.lecture_code as lecture from
+(
+SELECT * FROM time_table_1
+where  session=#session1#     
+and day=#day#
+and f_room_key=#f_room_key#)set1
+right join
+(
+
+select lab as lecture_code,lecture_time,shift
+from lecture_time where shift like #shift#
+group by lab
+
+)set2
+on set1.lecture_code=set2.lecture_code where
+set1.lecture_code is null
+order by set2.lecture_time;
+
+</select>
+
+<select id= "CheckBeforeInsert" resultClass ="time_table" >
+
+select * from time_table_1
+where session=#session1# <!--  sem_start_date =#semester_start_date# and sem_end_date=#semester_end_date#-->
+and day=#day# and f_room_key =#f_room_key# and lecture_code=#lecture# <!--  and course_code =#course_code#
+  and instructor =#instructor# and entity=#entity_id#-->;
+
+</select>
+
+<select id= "CheckBeforeInsert2" resultClass ="time_table" >
+
+select * from time_table_1
+where session=#session1# <!--  sem_start_date =#semester_start_date# and sem_end_date=#semester_end_date#-->
+and day=#day# and entity=#entity_id# and course_code =#course_code# <!--  and pck =#program_course_key#--> and section=#section#;
+
+</select>
+
+<select id= "CheckBeforeInsert3" resultClass ="time_table" >
+
+select * from time_table_1
+where  session=#session1# <!--  sem_start_date =#semester_start_date# and sem_end_date=#semester_end_date#-->
+and entity=#entity_id# and course_code =#course_code# and section=#section# and pck =#program_course_key# ;
+
+</select>
+
+
+<select id= "CheckInstructorLoad" resultClass ="time_table" >
+
+select * from time_table_1 tt where tt.day=#day# and tt.session =#session1#
+and tt.instructor =#instructor# group by lecture_code,f_room_key;
+
+</select>
+
+
+
+
+<select id= "CheckjointLecture" resultClass ="time_table" >
+SELECT * FROM time_table_joint_lectures where
+pck=#program_course_key# and entity_id=#entity_id# and course_code=#course_code#
+and semester_start_date=#semester_start_date# and semester_end_date=#semester_end_date#;
+
+</select>
+
+
+<select id= "CheckjointLectureInsert" resultClass ="time_table" >
+
+select * from time_table_1
+where  sem_start_date=#semester_start_date# and sem_end_date=#semester_end_date#
+and course_code =#course_code#
+and section=#section#  and entity=#entity_id#;
+
+</select>
+
+
+<insert id= "Insertdata">
+insert into time_table_1
+(f_room_key, lecture_code, day, pck, course_code, sem_start_date,
+ sem_end_date, instructor, entity, student_count, section,session)
+values
+(#f_room_key#,#lecture#,#day#,#program_course_key#,#course_code#,
+#semester_start_date#,#semester_end_date#,#instructor#,#entity_id#,
+#stduentCount#,#section#,#session1#);
+
+</insert>
+
+<select id ="checkLectureBeforeAllotment" resultClass ="time_table" >
+
+select * from
+(
+SELECT sc.roll_number,tt.* FROM time_table_1 tt
+join student_course sc on sc.course_code =tt.course_code
+and sc.semester_start_date =tt.sem_start_date
+and sc.semester_end_date=tt.sem_end_date and tt.entity=sc.entity_id
+and tt.pck=sc.program_course_key
+where
+
+
+tt.lecture_code in (select f1.lecture_code from
+(
+select * from
+(
+select lab as lecture_code from lecture_time where lecture_code=#lecture#
+)t1
+union
+(select lecture_code  from lecture_time where lecture_code=#lecture# )
+)f1)
+
+
+
+ and tt.day=#day#
+and tt.sem_start_date=#semester_start_date#
+and tt.sem_end_date =#semester_end_date# and tt.pck=#program_course_key#
+group by sc.roll_number)set1
+join
+(
+select * from student_course sc
+where sc.semester_start_date=#semester_start_date#
+and sc.semester_end_date=#semester_end_date#
+and sc.course_code =#course_code#
+and program_course_key =#program_course_key# and entity_id =#entity_id# group by sc.roll_number)set2
+on set1.roll_number=set2.roll_number;
+
+</select>
+
+<select id ="checkLectureBeforeAllotmentLAB" resultClass ="time_table" >
+
+select * from
+(
+SELECT sc.roll_number,tt.* FROM time_table_1 tt
+join student_course sc on sc.course_code =tt.course_code
+and sc.semester_start_date =tt.sem_start_date
+and sc.semester_end_date=tt.sem_end_date and tt.entity=sc.entity_id
+and tt.pck=sc.program_course_key
+where
+tt.lecture_code in
+(select f1.lecture_code from
+(
+select * from
+(
+select lab as lecture_code from lecture_time where lab=#lecture#
+)t1
+union
+(select lecture_code  from lecture_time where lab=#lecture# group by lecture_code)
+)f1)
+  and tt.day=#day#
+and tt.sem_start_date=#semester_start_date#
+and tt.sem_end_date =#semester_end_date# and tt.pck=#program_course_key#
+group by sc.roll_number)set1
+join
+(
+select * from student_course sc
+where sc.semester_start_date=#semester_start_date#
+and sc.semester_end_date=#semester_end_date#
+and sc.course_code =#course_code#
+and program_course_key =#program_course_key# and entity_id =#entity_id# group by sc.roll_number)set2
+on set1.roll_number=set2.roll_number;
+
+</select>
+
+<select id ="checkLectureBeforeAllotmentSection" resultClass ="time_table" >
+
+select * from
+(
+SELECT sc.roll_number,tt.* FROM time_table_1 tt
+join student_course sc on sc.course_code =tt.course_code
+and sc.semester_start_date =tt.sem_start_date
+and sc.semester_end_date=tt.sem_end_date and tt.entity=sc.entity_id
+and tt.pck=sc.program_course_key
+where
+
+
+
+tt.lecture_code in (select f1.lecture_code from
+(
+select * from
+(
+select lab as lecture_code from lecture_time where lecture_code=#lecture#
+)t1
+union
+(select lecture_code  from lecture_time where lecture_code=#lecture# )
+)f1)
+
+
+
+
+
+ and tt.day=#day#
+and tt.sem_start_date=#semester_start_date#
+and tt.sem_end_date =#semester_end_date# and tt.pck=#program_course_key# and tt.section=#section#
+group by sc.roll_number)set1
+join
+(
+select * from student_course sc
+where sc.semester_start_date=#semester_start_date#
+and sc.semester_end_date=#semester_end_date#
+and sc.course_code =#course_code#
+and program_course_key =#program_course_key# and entity_id =#entity_id# group by sc.roll_number)set2
+on set1.roll_number=set2.roll_number;
+
+</select>
+
+
+
+<select id ="checkLectureBeforeAllotmentSectionLAB" resultClass ="time_table" >
+
+select * from
+(
+SELECT sc.roll_number,tt.* FROM time_table_1 tt
+join student_course sc on sc.course_code =tt.course_code
+and sc.semester_start_date =tt.sem_start_date
+and sc.semester_end_date=tt.sem_end_date and tt.entity=sc.entity_id
+and tt.pck=sc.program_course_key
+where
+tt.lecture_code in 
+(
+select f1.lecture_code from
+(
+select * from
+(
+select lab as lecture_code from lecture_time where lab=#lecture#
+)t1
+union
+(select lecture_code  from lecture_time where lab=#lecture# group by lecture_code)
+)f1
+) 
+and tt.day=#day#
+and tt.sem_start_date=#semester_start_date#
+and tt.sem_end_date =#semester_end_date# and tt.pck=#program_course_key# and tt.section=#section#
+group by sc.roll_number)set1
+join
+(
+select * from student_course sc
+where sc.semester_start_date=#semester_start_date#
+and sc.semester_end_date=#semester_end_date#
+and sc.course_code =#course_code#
+and program_course_key =#program_course_key# and entity_id =#entity_id# group by sc.roll_number)set2
+on set1.roll_number=set2.roll_number;
+
+</select>
+
+
+
+<select id ="checkLectureBeforeAllotmentInstructor" resultClass ="time_table" >
+
+select * from time_table_1 tt
+
+where tt.lecture_code in (select f1.lecture_code from
+(
+select * from
+(
+select lab as lecture_code from lecture_time where lecture_code=#lecture#
+)t1
+union
+(select lecture_code  from lecture_time where lecture_code=#lecture# )
+)f1)
+
+and tt.day=#day# and tt.session=#session1#
+<!--  and tt.sem_start_date=#semester_start_date# and tt.sem_end_date =#semester_end_date#-->
+ and tt.instructor=#instructor#;
+
+</select>
+
+<select id ="checkLectureBeforeAllotmentInstructorLAB" resultClass ="time_table" >
+
+select * from time_table_1 tt
+where tt.lecture_code in (select f1.lecture_code from
+(
+select * from
+(
+select lab as lecture_code from lecture_time where lab=#lecture#
+)t1
+union
+(select lecture_code  from lecture_time where lab=#lecture# group by lecture_code)
+)f1) and tt.day=#day# and tt.session=#session1#
+<!--  and tt.sem_start_date=#semester_start_date# and tt.sem_end_date =#semester_end_date#-->
+ and tt.instructor=#instructor#;
+
+</select>
+
+<select id ="checkLectureBeforeAllotmentInstructorSection" resultClass ="time_table" >
+
+select * from time_table_1 tt
+
+
+where tt.lecture_code in (select f1.lecture_code from
+(
+select * from
+(
+select lab as lecture_code from lecture_time where lecture_code=#lecture#
+)t1
+union
+(select lecture_code  from lecture_time where lecture_code=#lecture# )
+)f1)
+
+
+
+ and tt.day=#day# and tt.session=#session1# and tt.section=#section#
+<!--  and tt.sem_start_date=#semester_start_date# and tt.sem_end_date =#semester_end_date#-->
+ and tt.instructor=#instructor#;
+
+</select>
+
+
+<select id ="checkLectureBeforeAllotmentInstructorSectionLAB" resultClass ="time_table" >
+
+select * from time_table_1 tt
+where tt.lecture_code in 
+(
+select f1.lecture_code from
+(
+select * from
+(
+select lab as lecture_code from lecture_time where lab=#lecture#
+)t1
+union
+(select lecture_code  from lecture_time where lab=#lecture# group by lecture_code)
+)f1
+) 
+and tt.day=#day# and tt.session=#session1# and tt.section=#section#
+<!--  and tt.sem_start_date=#semester_start_date# and tt.sem_end_date =#semester_end_date#-->
+ and tt.instructor=#instructor#;
+
+</select>
+
+<select id ="getTimetableRecord"  resultClass ="time_table">
+
+select concat(tt.course_code,'-',rc.room_code,'- (',rc.capacity,') ','- (',tt.section,')',' , ',tt.instructor)  as course_classification,
+rc.room_code,rc.capacity,lt.lecture_time,
+tt.lecture_code as lecture,student_count,course_code
+,day,instructor,section,tt.pck from time_table_1 tt
+join room_capacity rc on
+tt.f_room_key=rc.f_room_key
+<!--  and tt.entity =rc.entity_id-->
+join lecture_time lt
+on lt.lecture_code =tt.lecture_code
+where <!--  tt.day=#day# and-->  tt.lecture_code =#lecture# and tt.sem_start_date=#semester_start_date#
+and tt.sem_end_date =#semester_end_date#
+and tt.pck=#program_course_key#
+</select>
+
+<select id ="getTimetableRecordLAB"  resultClass ="time_table">
+
+select concat(tt.course_code,'-',rc.room_code,'- (',rc.capacity,') ','- (',tt.section,')',' , ',tt.instructor)  as course_classification,
+rc.room_code,rc.capacity,lt.lecture_time,
+tt.lecture_code as lecture,student_count,course_code
+,day,instructor,section,tt.pck from time_table_1 tt
+join room_capacity rc on
+tt.f_room_key=rc.f_room_key
+<!-- and tt.entity =rc.entity_id-->
+join (select lab as lecture_code ,lecture_time from
+ lecture_time  group by lab) lt
+on lt.lecture_code =tt.lecture_code
+where <!--  tt.day=#day# and-->  tt.lecture_code =#lecture# and tt.sem_start_date=#semester_start_date#
+and tt.sem_end_date =#semester_end_date#
+and tt.pck=#program_course_key#
+</select>
+
+
+<select id ="getTimetableRecordCount"  resultClass ="time_table">
+
+select set2.DAY1 as day, set2.count1 as courseCount from
+(
+select set1.day as DAY1,count(*) as count1,set1.* from
+(
+select concat(rc.room_code,'- (',rc.capacity,') ,',tt.course_code,'- (',tt.section,')',' , ',tt.instructor) as course_classification,
+rc.room_code,rc.capacity,lt.lecture_time,
+tt.lecture_code as lecture,student_count,course_code
+,day,instructor,section,tt.pck from time_table_1 tt
+join room_capacity rc on
+tt.f_room_key=rc.f_room_key
+<!--  and tt.entity =rc.entity_id-->
+join lecture_time lt
+on lt.lecture_code =tt.lecture_code
+where  tt.sem_start_date=#semester_start_date#
+and tt.sem_end_date =#semester_end_date#
+and tt.pck=#program_course_key# and tt.lecture_code=#lecture#)set1 group by set1.day )
+set2 order by set2.count1 desc;
+</select>
+
+
+<select id ="getTimetableRecordCountLAB"  resultClass ="time_table">
+
+select set2.DAY1 as day, set2.count1 as courseCount from
+(
+select set1.day as DAY1,count(*) as count1,set1.* from
+(
+select concat(rc.room_code,'- (',rc.capacity,') ,',tt.course_code,'- (',tt.section,')',' , ',tt.instructor) as course_classification,
+rc.room_code,rc.capacity,lt.lecture_time,
+tt.lecture_code as lecture,student_count,course_code
+,day,instructor,section,tt.pck from time_table_1 tt
+join room_capacity rc on
+tt.f_room_key=rc.f_room_key
+<!--  and tt.entity =rc.entity_id-->
+join (select lab as lecture_code ,lecture_time from
+ lecture_time  group by lab) lt
+on lt.lecture_code =tt.lecture_code
+where  tt.sem_start_date=#semester_start_date#
+and tt.sem_end_date =#semester_end_date#
+and tt.pck=#program_course_key# and tt.lecture_code=#lecture#)set1 group by set1.day )
+set2 order by set2.count1 desc;
+</select>
+
+<select id ="GetLectures"  resultClass ="time_table">
+<!--  
+select lecture_code as lecture from lecture_time  order by lecture_time;
+-->
+select lecture,mid(lecture,5) as lectureType from
+(
+select * from
+(
+select lecture_code as lecture from lecture_time
+order by lecture_time)set1
+union
+select * from
+(
+select lab as lecture  from
+lecture_time  group by lab order by lecture_time)set2)set3;
+</select>
+
+<update id="updateMON">
+update timetableprint set MON =#course_classification#,course_code=#course_code# where MON is null and lecture =#lecture#
+and pck=#program_course_key# limit 1;
+</update>
+
+<update id="updateTUE">
+update timetableprint set TUE =#course_classification# ,course_code=#course_code# where TUE is null and lecture =#lecture#
+and pck=#program_course_key# limit 1;
+</update>
+
+<update id="updateWED">
+update timetableprint set WED =#course_classification#,course_code=#course_code# where WED is null and lecture =#lecture#
+and pck=#program_course_key# limit 1;
+</update>
+
+<update id="updateTHU">
+update timetableprint set THU =#course_classification#,course_code=#course_code# where THU is null and lecture =#lecture#
+and pck=#program_course_key# limit 1;
+</update>
+
+<update id="updateFRI">
+update timetableprint set FRI =#course_classification#,course_code=#course_code# where FRI is null and lecture =#lecture#
+and pck=#program_course_key# limit 1;
+</update>
+
+<update id="updateSAT">
+update timetableprint set SAT =#course_classification#,course_code=#course_code# where SAT is null and lecture =#lecture#
+and pck=#program_course_key# limit 1;
+</update>
+
+<insert id="insertEmptyRecord">
+insert into timetableprint (MON, TUE, WED, THU, FRI, SAT, lecture, pck , sem_start_date, sem_end_date ,entity_id)
+values (null,null,null,null,null,null,#lecture#,#program_course_key#,#semester_start_date#,#semester_end_date#,#entity_id#);
+</insert>
+
+<select id= "checkBeforeInsertTimeTablePrint" resultClass ="time_table">
+select * from timetableprint where sem_start_date =#semester_start_date# and sem_end_date =#semester_end_date# 
+and lecture =#lecture# and entity_id =#entity_id# and pck=#program_course_key#;
+</select>
+
+<select id= "CheckjointLectures" resultClass ="time_table">
+select * from time_table_joint_lectures
+ where entity_id=#entity_id# and semester_start_date=#semester_start_date#
+and semester_end_date=#semester_end_date#  and course_code =#day#;
+</select>
+
+
+<select id= "getRecordsToPrint" resultClass ="time_table">
+ 
+SELECT set1.program_name,set1.lecture,COALESCE (set1.MON,'------') as MON
+,COALESCE (set1.TUE,'------') as TUE,COALESCE (set1.WED,'------') as WED,COALESCE (set1.THU,'------')as THU,COALESCE (set1.FRI,'------') as FRI,COALESCE (set1.SAT,'------') as SAT FROM
+(
+SELECT concat(pm.program_name,'_',pch.semester_code,'_',pch.branch_id) as program_name,CAST(MID(LECTURE,3) AS unsigned) AS CON,LECTURE,MON,TUE,WED,THU,FRI,SAT
+FROM timetableprint
+join program_course_header pch on pch.program_course_key =pck
+join program_master pm on pm.program_id=pch.program_id
+ where pck=#program_course_key# and sem_start_date =#semester_start_date#
+ and sem_end_date =#semester_end_date# and entity_id=#entity_id# ORDER BY LECTURE)
+ SET1 order by SET1.con;
+
+ 
+ <!--  
+ select tt.course_code as jointLecture,set2.* from
+(
+SELECT set1.course_code,set1.sem_start_date,set1.sem_end_date,set1.entity_id,set1.pck,set1.program_name,set1.lecture,set1.MON
+,set1.TUE,set1.WED,set1.THU,set1.FRI,set1.SAT FROM
+(
+SELECT course_code,sem_start_date,sem_end_date,entity_id,pck,concat(pm.program_name,'_',pch.semester_code,'_',pch.branch_id) as program_name,
+CAST(MID(LECTURE,3) AS unsigned) AS CON,LECTURE,MON,TUE,WED,THU,FRI,SAT
+FROM timetableprint
+join program_course_header pch on pch.program_course_key =pck
+join program_master pm on pm.program_id=pch.program_id
+ where pck='00010571100013' and sem_start_date =#semester_start_date#
+ and sem_end_date =#semester_end_date# and entity_id=#entity_id# ORDER BY LECTURE)
+ SET1
+ order by SET1.con)set2
+left join
+(select * from time_table_joint_lectures
+where  entity_id=#entity_id# group by course_code) tt
+on
+ tt.pck=set2.pck
+and tt.course_code=set2.course_code and set2.entity_id=tt.entity_id
+and tt.semester_start_date=set2.sem_start_date
+and tt.semester_end_date =set2.sem_end_date;
+ -->
+ 
+</select>
+
+ </sqlMap>

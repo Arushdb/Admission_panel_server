@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+      
+    <!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+  
+
+<sqlMapConfig>
+<settings useStatementNamespaces="true"/>  
+
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/login/Login.xml"/>
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/admitcard/AdmitCard.xml"/>
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/ccaEntry/cca_int.xml"/>
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/computation/computation.xml"/>
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/ccaEntry/admStatus.xml"/>
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/computation/timeTable.xml"/>
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/computation/transfer.xml"/>
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/computation/bubbleform.xml"/>
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/studentModule/teaching.xml"/>
+<!--  
+<sqlMap resource="elloraBranch/ellora.xml"/>
+-->
+</sqlMapConfig>
