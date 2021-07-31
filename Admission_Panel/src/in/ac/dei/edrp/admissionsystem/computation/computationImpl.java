@@ -3,6 +3,7 @@ package in.ac.dei.edrp.admissionsystem.computation;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -2329,6 +2330,133 @@ public admissionBean UpdateFinalStatus(admissionBean input) {
 	}
 	
 	return input1;
+}
+
+@Override
+public String distributETMarks()  {
+	// TODO Auto-generated method stub
+	
+	// Read comp_marks
+	// check if students has binding application 
+	// get his all applications
+	List<ReportInfoGetter> applicants=getSqlMapClientTemplate().queryForList("computation.getapplicantsmarks");
+	if(applicants.size()==0)
+		return "There is no record for processing";
+	
+	String bindedapplications ="";
+	String[] bindary ;
+	
+	 List<String> bindedapps; 
+	 String commonpgmObj; 
+	 ReportInfoGetter input = new ReportInfoGetter();
+	 
+	
+	
+	for (ReportInfoGetter applicant:applicants) {
+		bindedapps  = new ArrayList<String>();
+		bindary=null;
+		bindedapplications="";
+		bindedapplications =applicant.getComp();
+		//bindedapplications = bindedapplications +")";
+		 try {
+		bindary=bindedapplications.split(",");
+		bindedapps = Arrays.asList(bindary);
+		input.setWrklist(bindedapps);
+		
+		List<ReportInfoGetter> commonpgms=getSqlMapClientTemplate().queryForList("computation.getcommonprograms",input);
+		
+		//commonpgms.get(0).getWrklist().size();
+		
+			
+		
+		boolean marksdistributed =false;
+		String flag="";
+		for (ReportInfoGetter common:commonpgms) {
+			commonpgmObj =common.getProgram_id();
+			boolean status =commonpgmObj.contains(applicant.getProgram_id() );
+			if(status) {
+				flag="Y";
+				distributemarks(commonpgmObj,applicant,bindedapps,flag);
+				marksdistributed =true;
+				System.out.println("Application number "+applicant.getTest_number());
+				System.out.println("marks distributed"+commonpgmObj);
+			}
+		}
+		if (!marksdistributed) {
+			
+			flag ="N";
+			// distribute only if candidate has applied into the program 
+			
+			//  check if applied  
+			
+			//if applied 
+			distributemarks(applicant.getProgram_id(), applicant,bindedapps,flag);
+			
+		}
+			
+	
+		
+		System.out.println("This is test message");
+		
+			}catch(Exception ex) {
+			return ex.getMessage();
+			}
+		
+		
+	}
+	
+	
+			
+	
+	
+			
+			// get all programs for these applications
+			
+			
+			// check which program has a mapping for common entrance test
+			
+			
+			// insert marks for common entrance test
+			
+	return "Entrance test marks successfully distributed";
+}
+
+public void distributemarks(String commonpgmObj,ReportInfoGetter applicant,List<String> bindedapps,String flag ) throws SQLException {
+	
+	 ReportInfoGetter input = new ReportInfoGetter();
+	 List<ReportInfoGetter> result;
+	 
+			 String[] commonpgmary ;
+			 List<String> commonpgmlist ;
+	
+//	if (flag.equalsIgnoreCase("N")){
+//		 getSqlMapClientTemplate().insert("computation.insertcompmarksdist",applicant);
+//		 getSqlMapClientTemplate().update("computation.updatecompmarksstatus",applicant);
+//		 return;
+//	}
+	
+	//if (flag.equalsIgnoreCase("Y")){
+		
+		
+		commonpgmary=commonpgmObj.split(",");
+		commonpgmlist = Arrays.asList(commonpgmary);
+		input.setWrklist(bindedapps);
+		input.setWrklist1(commonpgmlist);
+		result =getSqlMapClientTemplate().queryForList("computation.getallapplication",input);
+		
+		for (ReportInfoGetter appl:result) {
+			input.setTest_number(appl.getTest_number());
+			input.setProgram_id(appl.getProgram_id());
+			input.setEntranceTestMarks(applicant.getEntranceTestMarks());
+			input.setReason_code(applicant.getReason_code());
+			 getSqlMapClientTemplate().insert("computation.insertcompmarksdist",input);
+		}
+		
+		 getSqlMapClientTemplate().update("computation.updatecompmarksstatus",applicant);
+		 return;
+	//}
+	
+		
 }
  
 }

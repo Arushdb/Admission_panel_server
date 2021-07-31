@@ -1,5 +1,6 @@
 package in.ac.dei.edrp.admissionsystem.computation;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import in.ac.dei.edrp.admissionsystem.Bean.GenerateAdmitCardBean;
@@ -20,4 +21,5 @@ public interface computationDao {
 	
 	public admissionBean UpdateFinalStatus(admissionBean input);
 
+	public String distributETMarks() ;
 }

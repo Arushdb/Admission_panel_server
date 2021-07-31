@@ -1,6 +1,7 @@
 package in.ac.dei.edrp.admissionsystem.Bean;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 public class ReportInfoGetter  
@@ -179,6 +180,10 @@ public class ReportInfoGetter
     private String entranceTestMarks; //added by manpreet 18-05-2015
     private String rank;
     private String final_score;
+    
+   
+    private List<String> wrklist ;
+    private List<String> wrklist1 ;
     
     public String getEntranceTestMarks() {
 		return entranceTestMarks;
@@ -1838,6 +1843,24 @@ public class ReportInfoGetter
 	public void setFileData(File fileData) {
 		this.fileData = fileData;
 	}
+
+	public List<String> getWrklist() {
+		return wrklist;
+	}
+
+	public void setWrklist(List<String> wrklist) {
+		this.wrklist = wrklist;
+	}
+
+	public List<String> getWrklist1() {
+		return wrklist1;
+	}
+
+	public void setWrklist1(List<String> wrklist1) {
+		this.wrklist1 = wrklist1;
+	}
+
+	
 	
 
 }

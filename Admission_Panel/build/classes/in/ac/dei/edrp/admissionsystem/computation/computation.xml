@@ -1811,4 +1811,94 @@ and semester_end_date=#end_date# and user_id=#user_id#;
 </delete>
 
 
+<resultMap id="applicantsmarksmap"  class="in.ac.dei.edrp.admissionsystem.Bean.ReportInfoGetter">
+		<result property="test_number" column="test_number" />
+		<result property="program_id" column="program_id" />
+		<result property="entranceTestMarks" column="marks" />
+		
+		<result property="reason_code" column="extra1" />
+		
+		<result property="comp" column="bindedapplications" />
+		
+	</resultMap>
+<select id="getapplicantsmarks"  resultMap="applicantsmarksmap">
+
+select  cm1.program_id as program_id , cm1.test_number as test_number , cm1.marks as marks, 
+ 
+  extra1 ,
+ 
+ bindedapplications from comp_marks cm1 left join 
+(
+select  t1.test_number  
+ , group_concat(distinct application_number) as bindedapplications 
+from (select binded_application_number ,marks,program_id,extra1,test_number
+FROM admission_form.comp_marks left join student_application_status  on 
+test_number=application_number) t1  left join student_application_status  sas on 
+sas.binded_application_number=t1.binded_application_number
+
+group by  t1.test_number 
+)t2 on cm1.test_number=t2.test_number where  cm1.status ="N" ;
+</select>
+
+
+<resultMap id="commonprogramsmap"  class="in.ac.dei.edrp.admissionsystem.Bean.ReportInfoGetter">
+		<result property="type" column="address_path" />
+		<result property="program_id" column="program_id" />
+		
+		
+	</resultMap>
+<select id="getcommonprograms"  resultMap="commonprogramsmap">
+select  address_path,group_concat(distinct adm.program_id)  as program_id
+from applicant_program_registration as  apr 
+join admitcard_table adm
+on apr.program_id=adm.program_id 
+ where 
+ 
+ <dynamic prepend="apr.application_number in">
+			<iterate property="wrklist" open="(" close=")" conjunction=",">
+				#wrklist[]#
+			</iterate>
+		</dynamic>
+ 
+
+ 
+ and address_path is not null
+  group by 
+  address_path ;
+</select>
+
+<insert id="insertcompmarksdist" parameterClass="compute">
+insert into comp_marks_dist value (
+
+#program_id#,#test_number#,#entranceTestMarks#,'N',now(),null,"distprc",null,#reason_code#
+
+)
+
+</insert>
+<update id="updatecompmarksstatus" parameterClass="compute">
+update comp_marks set status = "P" where program_id =#program_id# and test_number=#test_number#;
+</update>
+
+<resultMap id="getallapplicationmap"  class="in.ac.dei.edrp.admissionsystem.Bean.ReportInfoGetter">
+		<result property="test_number" column="application_number" />
+		<result property="program_id" column="program_id" />
+			
+	</resultMap>
+
+<select id="getallapplication"  resultMap="getallapplicationmap">
+ select application_number ,program_id from applicant_program_registration where 
+ 
+ <dynamic prepend="application_number in">
+			<iterate property="wrklist" open="(" close=")" conjunction=",">
+				#wrklist[]#
+			</iterate>
+		</dynamic>
+ <dynamic prepend=" and program_id in">
+			<iterate property="wrklist1" open="(" close=")" conjunction=",">
+				#wrklist1[]#
+			</iterate>
+		</dynamic> 
+ 
+
+</select>
  </sqlMap>

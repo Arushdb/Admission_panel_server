@@ -3,6 +3,7 @@ package in.ac.dei.edrp.admissionsystem.computation;
 
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -511,5 +512,22 @@ private computationDao computationDao;
 		
 	}
 	
+	public ModelAndView distributETMarks(HttpServletRequest request, HttpServletResponse responce)
+	{
+		
+	    String msg;
+		
+			msg = computationDao.distributETMarks();
+		
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("msg", msg);
+			JSONArray array1 = new JSONArray();
+			   array1.add(jsonObject);
+			
+		
+	    
+		return new ModelAndView("CreateCourse/hello", "message",array1.toString() );
+		
+	}
 	
 }
