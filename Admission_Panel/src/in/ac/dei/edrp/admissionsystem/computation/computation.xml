@@ -1832,7 +1832,7 @@ select  cm1.program_id as program_id , cm1.test_number as test_number , cm1.mark
 select  t1.test_number  
  , group_concat(distinct application_number) as bindedapplications 
 from (select binded_application_number ,marks,program_id,extra1,test_number
-FROM admission_form.comp_marks left join student_application_status  on 
+FROM comp_marks left join student_application_status  on 
 test_number=application_number) t1  left join student_application_status  sas on 
 sas.binded_application_number=t1.binded_application_number
 
