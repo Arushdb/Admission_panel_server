@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Admission_Panel">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+    <path id="Apache Tomcat v8.5 [Apache Tomcat v8.5].libraryclasspath">
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/annotations-api.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/catalina-ant.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/catalina-ha.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/catalina-storeconfig.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/catalina-tribes.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/catalina.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/ecj-4.6.3.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/el-api.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/jasper-el.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/jasper.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/jaspic-api.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/jsp-api.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/servlet-api.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-api.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-coyote.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-dbcp.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-i18n-de.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-i18n-es.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-i18n-fr.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-i18n-ja.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-i18n-ko.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-i18n-ru.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-i18n-zh-CN.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-jdbc.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-jni.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-util-scan.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-util.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/tomcat-websocket.jar"/>
+        <pathelement location="../../../Program Files/Apache Software Foundation/apache-tomcat-8.5.61/lib/websocket-api.jar"/>
+    </path>
+    <path id="Web App Libraries.libraryclasspath">
+        <pathelement location="WebContent/WEB-INF/lib/BrihRemoteAuth.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/aopalliance.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/asm-2.2.3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/asm-commons-2.2.3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/asm-util-2.2.3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/aspectjlib.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/aspectjrt.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/aspectjweaver.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/bsf-2.3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/bsh-2.0b4.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/c3p0-0.9.1.2.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/cglib-nodep-2.1_3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/com-sun-pdfview-1.0.5-201003191900.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/com.keepautomation.barcode.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/com.springsource.com.mchange.v2.c3p0-0.9.1.2.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/com.springsource.net.sf.cglib-2.2.0.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/com.springsource.org.aopalliance-1.0.0.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/com.springsource.org.apache.commons.lang-2.4.0.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/com.springsource.org.apache.commons.logging-1.1.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/com.springsource.org.apache.commons.pool-1.5.3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/com.springsource.org.apache.log4j-1.2.15.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/com.springsource.org.aspectj.weaver-1.6.8.RELEASE.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-attributes-api.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-attributes-compiler.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-codec.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-dbcp.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-fileupload.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-httpclient.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-io.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-lang.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-logging-1.0.4.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-logging.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-nio-file-0.3.0.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-pool.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/commons-validator-1.1.4.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/core-3.1.0.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/cors-filter-2.5.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/dwr.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/flexTasks.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/freemarker.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/gson-2.2.4.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/iText-2.1.3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/ibatis-2.3.4.726.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/ibatis-common-2.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/ibatis-db.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/ibatis-sqlmap-2.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/ibatis2-common-2.1.0.565.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/ibatis2-sqlmap-2.1.5.582.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/itext-2.0.8.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/itextpdf-5.5.6.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta-oro-2.0.8.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jasperreports-2.0.5.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/java-property-utils-1.9.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jdo2-api.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jotm.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jsf-api.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jsf-impl.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/json_simple-1.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jstl-1.2.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jxl.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/log4j-1.2.12.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/log4j-1.2.15.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/log4j.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/mail-1.4.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/mysql-connector-java-5.1.7-bin.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.aop-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.asm-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.aspects-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.beans-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.context-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.core-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.expression-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.instrument-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.instrument.tomcat-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.jdbc-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.orm-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.transaction-3.0.1.RELEASE-A.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.springframework.web-3.0.2.RELEASE.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/pdf-renderer-1.0.5.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/pdfbox-1.5.0.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/pdfviewer.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/persistence.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/poi-3.0.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/portlet-api.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/simplecaptcha-1.2.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-agent.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-aop.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-aspects.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-beans.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-binding-1.0.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-context.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-core.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-jdbc.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-jms.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-orm.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-tomcat-weaver.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-tx.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-web.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-webflow-1.0.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-webmvc-portlet.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-webmvc-struts.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/spring-webmvc.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/struts.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/velocity-1.5.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/velocity-tools-view-1.4.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/xapool.jar"/>
+    </path>
+    <path id="EAR Libraries.libraryclasspath"/>
+    <path id="Admission_Panel.classpath">
+        <pathelement location="build/classes"/>
+        <path refid="Apache Tomcat v8.5 [Apache Tomcat v8.5].libraryclasspath"/>
+        <path refid="Web App Libraries.libraryclasspath"/>
+        <path refid="EAR Libraries.libraryclasspath"/>
+    </path>
+    <target name="init">
+        <mkdir dir="build/classes"/>
+        <copy includeemptydirs="false" todir="build/classes">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="build/classes"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="build/classes" includeantruntime="false" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="Admission_Panel.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+</project>

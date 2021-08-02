@@ -2331,7 +2331,7 @@ public admissionBean UpdateFinalStatus(admissionBean input) {
 	
 	return input1;
 }
-
+// Changes By Arush on 02-08-2021 to distribute Marks
 @Override
 public String distributETMarks()  {
 	// TODO Auto-generated method stub
