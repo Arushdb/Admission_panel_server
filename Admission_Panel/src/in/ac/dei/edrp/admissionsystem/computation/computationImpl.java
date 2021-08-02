@@ -2425,6 +2425,7 @@ public void distributemarks(String commonpgmObj,ReportInfoGetter applicant,List<
 	
 	 ReportInfoGetter input = new ReportInfoGetter();
 	 List<ReportInfoGetter> result;
+	 List<ReportInfoGetter> checklist;
 	 
 			 String[] commonpgmary ;
 			 List<String> commonpgmlist ;
@@ -2449,7 +2450,15 @@ public void distributemarks(String commonpgmObj,ReportInfoGetter applicant,List<
 			input.setProgram_id(appl.getProgram_id());
 			input.setEntranceTestMarks(applicant.getEntranceTestMarks());
 			input.setReason_code(applicant.getReason_code());
-			 getSqlMapClientTemplate().insert("computation.insertcompmarksdist",input);
+			
+			checklist= getSqlMapClientTemplate().queryForList("computation.checkindist",input);
+			if(checklist.size()>0) {
+				System.out.println("Application alreadu exists in comp_marks_dist\n Application Number: "+input.getTest_number()+"Program_id"+input.getProgram_id()+"bindedApplication:"+bindedapps);
+			}else {
+				getSqlMapClientTemplate().insert("computation.insertcompmarksdist",input);	
+			}
+			 
+			 
 		}
 		
 		 getSqlMapClientTemplate().update("computation.updatecompmarksstatus",applicant);

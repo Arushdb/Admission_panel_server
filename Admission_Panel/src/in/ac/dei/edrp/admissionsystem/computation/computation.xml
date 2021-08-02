@@ -1901,4 +1901,16 @@ update comp_marks set status = "P" where program_id =#program_id# and test_numbe
  
 
 </select>
+
+<resultMap id="checkindistmap"  class="in.ac.dei.edrp.admissionsystem.Bean.ReportInfoGetter">
+		<result property="test_number" column="test_number" />
+		<result property="program_id" column="program_id" />
+			
+	</resultMap>
+
+<select id="checkindist"  resultMap="checkindistmap">
+select 
+program_id,test_number
+from comp_marks_dist where test_number = #test_number# and program_id=#program_id#;
+</select>
  </sqlMap>
