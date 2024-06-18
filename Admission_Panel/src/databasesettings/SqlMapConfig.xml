@@ -17,6 +17,9 @@
 <sqlMap resource="in/ac/dei/edrp/admissionsystem/computation/transfer.xml"/>
 <sqlMap resource="in/ac/dei/edrp/admissionsystem/computation/bubbleform.xml"/>
 <sqlMap resource="in/ac/dei/edrp/admissionsystem/studentModule/teaching.xml"/>
+
+
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/verification/Verify.xml"/>
 <!--  
 <sqlMap resource="elloraBranch/ellora.xml"/>
 -->

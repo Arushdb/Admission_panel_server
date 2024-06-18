@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="verifystudent">
+
+	<typeAlias alias="studentinfo"
+		type="in.ac.dei.edrp.admissionsystem.Bean.studentBean" />
+
+
+	<select id="getstudentmarks" resultClass="studentinfo">
+		select es.first_name as first_name, apr.application_number as
+		application_number,
+		marks_percentage as marksPercentage,marks_obtained as marksObtained,
+		total_marks as totalMarks,percentile_n as score,stt.component_description as
+		componentID ,
+
+		CASE
+		WHEN sas.marksstatus = 'V' THEN "Verified"
+		WHEN sas.marksstatus = 'W' THEN "Wrong Marks"
+		ELSE "Not Checked"
+		END as verificationStatusCode,
+
+
+		sas.reason as verificationStatusDesc
+		from applicant_program_registration apr
+		join student_call_list scl on
+		apr.registration_number=scl.registration_number
+		join system_table_two stt on stt.component_code=scl.component_id
+		join entity_student es on es.application_number=apr.application_number
+		join student_application_status sas on
+		sas.application_number=apr.application_number
+		where apr.application_number=#application_number# and
+		stt.group_code='SPWCOD'
+		group by component_id;
+
+	</select>
+	
+	<update id="updatestatus">
+		update student_application_status set marksstatus =
+		#verificationStatusCode#,
+		reason=#verificationStatusDesc#
+		where application_number= #application_number#
+
+
+	</update>
+
+	<select id="validateIWlist" resultClass="studentinfo">
+		select application_number from interview_1 where
+		application_number=#application_number#
+
+
+	</select>
+
+
+</sqlMap>
