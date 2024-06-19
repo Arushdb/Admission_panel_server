@@ -9,10 +9,10 @@ import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 public class VerifyImpl extends SqlMapClientDaoSupport implements VerifyDao {
 
 	@Override
-	public List<studentBean> getAcademicMarks(String appno) {
-		studentBean sbean = new studentBean();
+	public List<studentBean> getAcademicMarks(studentBean sbean) {
+		
 		List <studentBean> studentlist = null;
-		sbean.setApplication_number(appno);
+		
 	 studentlist =getSqlMapClientTemplate().queryForList("verifystudent.getstudentmarks",sbean);
 		// TODO Auto-generated method stub
 		return studentlist;

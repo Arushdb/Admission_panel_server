@@ -66,5 +66,9 @@ http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 <property name="sqlMapClient" ref="sqlMapClient" />
 </bean>
 
+<bean id="vfyDao" class="in.ac.dei.edrp.admissionsystem.verification.VerifyImpl">
+<property name="sqlMapClient" ref="sqlMapClient" />
+</bean>
+
 
 </beans>

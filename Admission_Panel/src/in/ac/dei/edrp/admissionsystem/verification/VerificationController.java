@@ -36,8 +36,13 @@ private VerifyDao vfyDao;
 		JSONArray marksarray = new JSONArray();
 		
 		String  application_number = request.getParameter("application_number");
+		String  user = request.getParameter("user");
+		studentBean sbean =new studentBean();
+		sbean.setApplication_number(application_number);
+		sbean.setUser_id(user);
 		
-	   	    List <studentBean> candidatemarks =vfyDao.getAcademicMarks(application_number);
+		
+	   	    List <studentBean> candidatemarks =vfyDao.getAcademicMarks(sbean);
 	
 	   	    for  (studentBean candidate:candidatemarks) {
 	   	    	JSONObject jsonObject = new JSONObject();
@@ -69,10 +74,12 @@ private VerifyDao vfyDao;
 		String  application_number = request.getParameter("application_number");
 		String  reason = request.getParameter("verificationStatusDesc");
 		String  code = request.getParameter("verificationStatusCode");
+		String  user = request.getParameter("user");
 		studentBean sbean = new studentBean();
 		sbean.setApplication_number(application_number);
 		sbean.setVerificationStatusCode(code);
 		sbean.setVerificationStatusDesc(reason);
+		sbean.setUser_id(user);
 		
 	   	    int count =vfyDao.updatestatus(sbean);
 	   	 JSONObject jsonObject = new JSONObject();

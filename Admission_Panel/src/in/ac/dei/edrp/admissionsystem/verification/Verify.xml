@@ -40,7 +40,8 @@
 	<update id="updatestatus">
 		update student_application_status set marksstatus =
 		#verificationStatusCode#,
-		reason=#verificationStatusDesc#
+		reason=#verificationStatusDesc#,
+		verifiedby=#user_id# ,verifiedtime = now()
 		where application_number= #application_number#
 
 
