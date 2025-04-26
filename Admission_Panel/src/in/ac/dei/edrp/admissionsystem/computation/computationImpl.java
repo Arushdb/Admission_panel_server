@@ -148,9 +148,7 @@ public class computationImpl extends SqlMapClientDaoSupport implements computati
 								}
 	                         
 						System.out.println("B_eligibility logic"+lastentity.getRegistration_number());
-						
-						
-						
+																		
 						totalstudents++;
 						finalscore_without_sp_wt = 0;
 	            		finaltotalscore = 0 ;

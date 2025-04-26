@@ -40,6 +40,11 @@ http://www.springframework.org/schema/context
 <property name="ccaDao" ref="ccaDao"/>
 </bean>
 
+<bean name="/verifymarks/*.htm" class="in.ac.dei.edrp.admissionsystem.verification.VerificationController" >
+<property name="vfyDao" ref="vfyDao"/>
+</bean>
+
+
 
 
 

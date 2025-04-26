@@ -250,6 +250,7 @@ where sfm.evaluation_component=#flag#
 and sfm.creator_id=#creator# and sfm.sub_status='SUB'
 group by stn.test_number)set1
 join entity_student es on es.application_number =set1.test_number
+join interview_1 iw on iw.application_number=es.application_number
 where substring(set1.insert_time,1,10) =substring(now(),1,10)
 order by set1.insert_time desc;
 </select>
