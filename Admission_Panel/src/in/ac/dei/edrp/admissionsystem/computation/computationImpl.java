@@ -2192,7 +2192,14 @@ private String padZero(Integer number, int length) {
 
 public admissionBean UpdateSCLMarks(final admissionBean input) {
 	 final admissionBean bean1 = new admissionBean();
-		
+	 admissionBean vfystatus = null; 	
+	 vfystatus = (admissionBean) getSqlMapClientTemplate().queryForObject("computation.getverificationstatus",input);
+		if(vfystatus.getFlag()!=null)
+		 if (vfystatus.getFlag().equalsIgnoreCase("COUNCIL_VER")) {
+			return vfystatus ;
+		}
+	 
+	 
 		transactionTemplate.execute
         (new TransactionCallback()
 	     {
@@ -2206,10 +2213,15 @@ public admissionBean UpdateSCLMarks(final admissionBean input) {
 			savePoint= new Object();
 			savePoint = ts.createSavepoint();
 			
+			
 			List<admissionBean> checkforINS=getSqlMapClientTemplate().queryForList("computation.viewStudentMarksINS",input);
 			List<admissionBean> checkforUPD=getSqlMapClientTemplate().queryForList("computation.viewStudentMarksUPD",input);
 			List<admissionBean> checkforUPD_Other=getSqlMapClientTemplate().queryForList("computation.viewStudentMarksUPD_Other",input);
 			
+			
+				
+			
+				
 			cca_intBean input1= new cca_intBean();
 			input1.setApplication_number(input.getApplication_number());
 			input1.setRegistration_number(input.getRegistration_number());
