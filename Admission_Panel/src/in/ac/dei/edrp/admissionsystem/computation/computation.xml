@@ -142,6 +142,12 @@
 		Select VALUE as value from system_values where code = 'PHYHND' ;
 	</select>
 
+	<select id="getverificationstatus" resultClass="admission">
+	SELECT modifier_id as flag FROM student_call_list where registration_number=
+	        #registration_number# and component_id=#component_id#
+	        ;
+	</select>
+
 	<select id="viewStudentMarksINS" resultClass="admission">
 
 		select scl.registration_number
@@ -814,10 +820,11 @@
 		scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
 		scl.modification_time = now(),
 		scl.modifier_id ='COUNCIL',
-		scl.creator_id=#user_id#,
+		scl.creator_id=#user_id#
+		<!--   Arush on 28-04-2025
 		fc.user_id=#user_id#,
 		fc.modification_time= now(),
-		fc.councelling_status='UPD'
+		fc.councelling_status='UPD' -->
 		where scl.component_id=#component_id#
 		and program_id=#program_id#
 		and fc.councelling_status in ('INS') and  coalesce(scl.modifier_id,"")  !='COUNCIL_VER'
@@ -849,8 +856,9 @@
 		scl.percentile_n=#JEE_Percetile#,
 		scl.modification_time = now(),
 		scl.modifier_id ='COUNCIL',
-		scl.creator_id=#user_id#,
-		fc.councelling_status='UPD'
+		scl.creator_id=#user_id#
+		<!--   Arush on 28-04-2025
+		fc.councelling_status='UPD' -->
 		where scl.component_id=#component_id#
 		and program_id=#program_id#
 		and fc.councelling_status in ('INS','UPD') and scl.modifier_id
@@ -888,8 +896,10 @@
 		scl.modification_time = now(),
 		scl.modifier_id ='COUNCIL',
 		scl.creator_id=#user_id#,
+		<!--   Arush on 28-04-2025
 		fc.modification_time= now(),
-		fc.councelling_status='UPD'
+		
+		fc.councelling_status='UPD' -->
 		where scl.component_id=#component_id#
 		and program_id=#program_id#
 		and fc.councelling_status in ('UPD') and scl.modifier_id not in
