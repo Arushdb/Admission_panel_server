@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE sqlMap
-        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
-        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+        
+        
+               <!DOCTYPE sqlMap
+  PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+  "http://www.ibatis.com/dtd/sql-map-2.dtd">
            
         
 
@@ -209,6 +212,20 @@
 		join program_master pm on pm.program_id=pt.program_id
 		join admitcard_table at on at.program_id =pt.program_id
 		where pt.flag_1 in ('Y') order by pt.shift
+
+	</select>
+	
+	<!--  Added by Arush on 29-05-2025 -->
+		<select id="getProgramListunq" resultClass="compute">
+
+
+		select pt.program_id,pt.entity_id,pm.program_name,
+		at.session_start_date as start_date,
+		at.session_end_date as end_date from process_control_table pt
+		join program_master pm on pm.program_id=pt.program_id
+		join admitcard_table at on at.program_id =pt.program_id
+		
+		where  pt.program_id = #program_id# order by pt.shift 
 
 	</select>
 

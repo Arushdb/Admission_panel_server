@@ -12,7 +12,7 @@ public interface computationDao {
 	
 	public String runComputation(ReportInfoGetter input);
 	public transferBean transferApp( transferBean input);
-	public String runComputationforAll(ReportInfoGetter input);
+	public String runComputationforAll(ReportInfoGetter input, String mode);
 	
 	public String finalMeritListProcess(ReportInfoGetter input);
 	public String finalMeritListProcessforAll(ReportInfoGetter input);

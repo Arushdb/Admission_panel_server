@@ -52,10 +52,12 @@ private computationDao computationDao;
 	    
 	   // System.out.println("end-"+input1.getEnd_date());
 		
-	    String val =computationDao.runComputation(input1);
-	    
+	  // Commented by Arush on 29-05-2025  String val =computationDao.runComputation(input1);
+	    String mode = "SINGLE";
+	    //String val =computationDao.runComputation(input1);
 	    //System.out.println(dataList.size());
-	    JSONObject jsonObject = new JSONObject();
+	    String val =computationDao.runComputationforAll(input1,mode);
+	    		JSONObject jsonObject = new JSONObject();
 	jsonObject.put("status", "OK");
 	jsonObject.put("flag", val);
 	    
@@ -98,8 +100,8 @@ private computationDao computationDao;
 	    System.out.println("end-"+input1.getEnd_date());
 	    
 	   // System.out.println("end-"+input1.getEnd_date());
-		
-	    String val =computationDao.runComputationforAll(input1);
+		String mode = "ALL";
+	    String val =computationDao.runComputationforAll(input1,mode );
 	    
 	    //System.out.println(dataList.size());
 	    JSONObject jsonObject = new JSONObject();

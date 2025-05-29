@@ -295,7 +295,10 @@ public class computationImpl extends SqlMapClientDaoSupport implements computati
 	}
 	
 	
-private ReportInfoGetter  getcomponenteligibility1(ReportInfoGetter entity) throws Exception {
+		
+
+	
+	private ReportInfoGetter  getcomponenteligibility1(ReportInfoGetter entity) throws Exception {
 	 	
 	 	ReportInfoGetter obj = new ReportInfoGetter();
 	 	obj.setStatus("Y");
@@ -1267,7 +1270,7 @@ public List<admissionBean> getCustomeGridData(admissionBean input)
 }
 
 
-public String runComputationforAll(ReportInfoGetter input) {
+public String runComputationforAll(ReportInfoGetter input,String mode) {
 	
 
 	
@@ -1281,7 +1284,13 @@ public String runComputationforAll(ReportInfoGetter input) {
 	 List<ReportInfoGetter> li = null;
 	 List<ReportInfoGetter> programWise = null;
 	 
-	 programWise = getSqlMapClientTemplate().queryForList("computation.getProgramList",entityInfo);
+	 if (mode.equalsIgnoreCase("ALL")){
+		 programWise = getSqlMapClientTemplate().queryForList("computation.getProgramList",entityInfo);	 
+	 }else {
+		 
+		 programWise = getSqlMapClientTemplate().queryForList("computation.getProgramListunq",input);	
+	 }
+	 
 	 
 	 for (int PI=0; PI<programWise.size();PI++)
 	 {
