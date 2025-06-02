@@ -146,14 +146,14 @@ private computationDao computationDao;
 	    System.out.println("end-"+input1.getEnd_date());
 	    
 	   // System.out.println("end-"+input1.getEnd_date());
-		if (input1.getFlag().equalsIgnoreCase("SINGLE"))
-		{
-			 val =computationDao.finalMeritListProcess(input1);
-		}
-		else if (input1.getFlag().equalsIgnoreCase("ALL"))
-		{
+		//if (input1.getFlag().equalsIgnoreCase("SINGLE"))
+		//{
+		//	 val =computationDao.finalMeritListProcess(input1);
+		//}
+		//else if (input1.getFlag().equalsIgnoreCase("ALL"))
+		//{
 			val =computationDao.finalMeritListProcessforAll(input1);
-		}
+		//}
 	    
 	     
 	    //System.out.println(dataList.size());

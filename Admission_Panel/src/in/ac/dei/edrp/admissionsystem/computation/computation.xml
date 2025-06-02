@@ -987,6 +987,16 @@
 		update final_candidates set councelling_status='VER',modification_time=now()
 		where registration_number =#registration_number#;
 	</update>
+	
+	<update id="update_final_merit_count">
+		update process_control_table set merit_record = #number_of_times# ,merit_time=now()
+			where program_id= #program_id#
+	</update>
+	
+	<update id="update_computation_count">
+		update process_control_table set comp_record = #number_of_times# ,comp_time=now()
+			where program_id= #program_id#
+	</update>
 
 	<update id="UpdateCouncellingDataINSCL">
 		update student_call_list set modifier_id ='COUNCIL_VER' where

@@ -14,7 +14,7 @@ public interface computationDao {
 	public transferBean transferApp( transferBean input);
 	public String runComputationforAll(ReportInfoGetter input, String mode);
 	
-	public String finalMeritListProcess(ReportInfoGetter input);
+	//public String finalMeritListProcess(ReportInfoGetter input);
 	public String finalMeritListProcessforAll(ReportInfoGetter input);
 	public List<admissionBean> getCustomeGridData(admissionBean input);
 	public admissionBean UpdateSCLMarks(admissionBean input);

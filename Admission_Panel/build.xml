@@ -6,7 +6,7 @@
 	  <property name="build.dir" value="build"/>
 	  <property name="web.dir" value="WebContent"/>
 	  <property name="dist.dir" value="dist"/>
-	  <property name="war.name" value="Admission_Panel.war"/>
+	  <property name="war.name" value="admission_panel_server.war"/>
 
 	  <!-- Define classpath -->
 	  <path id="compile.classpath">

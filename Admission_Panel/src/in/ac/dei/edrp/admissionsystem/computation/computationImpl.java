@@ -614,74 +614,76 @@ public class computationImpl extends SqlMapClientDaoSupport implements computati
  
  
  
- public String finalMeritListProcess(ReportInfoGetter input)
- {
-	 ReportInfoGetter reportBeen=new ReportInfoGetter();
-	 
-	    String message = "";
-	    reportBeen.setUniversity_id("0001");
-		reportBeen.setEntity_id(input.getEntity_id());
-		reportBeen.setProgram_id(input.getProgram_id());
-		reportBeen.setUser_id("");
-		reportBeen.setUniversity_start_date(input.getStart_date());
-		reportBeen.setUniversity_end_date(input.getEnd_date());
-
-		
-		try
-		{
-			getSqlMapClientTemplate().update("computation.deletestudentfinalmeritlist",reportBeen);
-			
-			List<ReportInfoGetter>regList=getSqlMapClientTemplate().queryForList("computation.getRegisteredStudent", reportBeen);
-			System.out.println("regList:"+regList.size());
-			//client.update("computation.updateStudentFinalMarksforMerit",reportBeen);
-			
-			double totalscore =0;
-			
-			if(regList.size()>0)
-			{
-				int totalStudents=regList.size();
-				int recordProcessed=0;
-					for(int i=0;i<regList.size();i++)
-					{
-						totalscore = 0;
-						reportBeen.setRegistration_number(regList.get(i).getRegistration_number());	
-						//List<ReportInfoGetter>compList=client.queryForList("computation.getComponentDetail", reportBeen);
-						
-						List<ReportInfoGetter>Academicscore=getSqlMapClientTemplate().queryForList("computation.getAcademicScoreAll", reportBeen);
-						List<ReportInfoGetter> NonAcademicscore=getSqlMapClientTemplate().queryForList("computation.getNonAcademicScore", reportBeen);
-						
-						if(Academicscore.size()>0)
-						{
-							totalscore= Academicscore.get(0).getTotalscore();
-						}
-						if(NonAcademicscore.size()>0)
-						{
-							totalscore=totalscore+ NonAcademicscore.get(0).getTotalscore();
-						}
-						
-						double totalComponentMarks=0.0;
-						double academicScore=0.0;
-						boolean flag=false;
-						reportBeen.setTest_number(regList.get(i).getTest_number());
-						reportBeen.setCos_value(regList.get(i).getCos_value());							
-						reportBeen.setTotal_marks(totalscore);
-						getSqlMapClientTemplate().insert("computation.insertIntoFinalMeritList", reportBeen);
-						recordProcessed++;
-						
-						
-						
-					}
-					message="success-"+String.valueOf(totalStudents)+"-"+String.valueOf(recordProcessed)+"-"+String.valueOf((totalStudents-recordProcessed));
-			}
-		}
-		catch(Exception e)
-		{
-			System.out.println(e);
-		}
-		return message;
-	 
- }
-
+// public String finalMeritListProcess(ReportInfoGetter input)
+// {
+//	 ReportInfoGetter reportBeen=new ReportInfoGetter();
+//	 
+//	    String message = "";
+//	    reportBeen.setUniversity_id("0001");
+//		reportBeen.setEntity_id(input.getEntity_id());
+//		reportBeen.setProgram_id(input.getProgram_id());
+//		reportBeen.setUser_id("");
+//		reportBeen.setUniversity_start_date(input.getStart_date());
+//		reportBeen.setUniversity_end_date(input.getEnd_date());
+//
+//		
+//		try
+//		{
+//			getSqlMapClientTemplate().update("computation.deletestudentfinalmeritlist",reportBeen);
+//			
+//			List<ReportInfoGetter>regList=getSqlMapClientTemplate().queryForList("computation.getRegisteredStudent", reportBeen);
+//			System.out.println("regList:"+regList.size());
+//			//client.update("computation.updateStudentFinalMarksforMerit",reportBeen);
+//			
+//			double totalscore =0;
+//			
+//			if(regList.size()>0)
+//			{
+//				int totalStudents=regList.size();
+//				int recordProcessed=0;
+//					for(int i=0;i<regList.size();i++)
+//					{
+//						totalscore = 0;
+//						reportBeen.setRegistration_number(regList.get(i).getRegistration_number());	
+//						//List<ReportInfoGetter>compList=client.queryForList("computation.getComponentDetail", reportBeen);
+//						
+//						List<ReportInfoGetter>Academicscore=getSqlMapClientTemplate().queryForList("computation.getAcademicScoreAll", reportBeen);
+//						List<ReportInfoGetter> NonAcademicscore=getSqlMapClientTemplate().queryForList("computation.getNonAcademicScore", reportBeen);
+//						
+//						if(Academicscore.size()>0)
+//						{
+//							totalscore= Academicscore.get(0).getTotalscore();
+//						}
+//						if(NonAcademicscore.size()>0)
+//						{
+//							totalscore=totalscore+ NonAcademicscore.get(0).getTotalscore();
+//						}
+//						
+//						double totalComponentMarks=0.0;
+//						double academicScore=0.0;
+//						boolean flag=false;
+//						reportBeen.setTest_number(regList.get(i).getTest_number());
+//						reportBeen.setCos_value(regList.get(i).getCos_value());							
+//						reportBeen.setTotal_marks(totalscore);
+//						getSqlMapClientTemplate().insert("computation.insertIntoFinalMeritList", reportBeen);
+//						recordProcessed++;
+//						
+//						
+//						
+//					}
+//					message="success-"+String.valueOf(totalStudents)+"-"+String.valueOf(recordProcessed)+"-"+String.valueOf((totalStudents-recordProcessed));
+//			}else {
+//				return "No record found";
+//			}
+//		}
+//		catch(Exception e)
+//		{
+//			System.out.println(e);
+//		}
+//		return message;
+//	 
+// }
+//
 
  
  public String finalMeritListProcessforAll(ReportInfoGetter input)
@@ -689,11 +691,18 @@ public class computationImpl extends SqlMapClientDaoSupport implements computati
 	 ReportInfoGetter reportBeen=new ReportInfoGetter();
 	 
 	 String message = "";
-
-	 
+     String mode="";
+     mode=input.getFlag();
+	 List<ReportInfoGetter> programList = null;
 		try
 		{
-			List<ReportInfoGetter> programList =getSqlMapClientTemplate().queryForList("computation.getProgramList");
+			if (mode.equalsIgnoreCase("ALL")){
+				 programList =getSqlMapClientTemplate().queryForList("computation.getProgramList");	
+			}else {
+				programList =getSqlMapClientTemplate().queryForList("computation.getProgramListunq",input);
+			}
+			int totalStudents=0;
+			int recordProcessed=0;
 			 
 			for (int l1=0;l1<programList.size();l1++)
 			{
@@ -714,10 +723,11 @@ public class computationImpl extends SqlMapClientDaoSupport implements computati
 			
 			double totalscore =0;
 			
+			
 			if(regList.size()>0)
 			{
-				int totalStudents=regList.size();
-				int recordProcessed=0;
+			     totalStudents+=regList.size();
+				 //recordProcessed=0;
 					for(int i=0;i<regList.size();i++)
 					{
 						totalscore = 0;
@@ -767,10 +777,14 @@ public class computationImpl extends SqlMapClientDaoSupport implements computati
 						
 						
 					}
-					message="success-"+String.valueOf(totalStudents)+"-"+String.valueOf(recordProcessed)+"-"+String.valueOf((totalStudents-recordProcessed));
+					
 			}
+			reportBeen.setNumber_of_times(recordProcessed);
+			getSqlMapClientTemplate().insert("computation.update_final_merit_count", reportBeen);
+			
 			
 		}
+			message="Total applicants:"+String.valueOf(totalStudents) +" processed ."+"Total records:"+String.valueOf(recordProcessed)+" Processed";
 		}
 		catch(Exception e)
 		{
@@ -1279,6 +1293,8 @@ public String runComputationforAll(ReportInfoGetter input,String mode) {
 	 String eligibility = "Eligible";
 	 int start = 1 ;
 	 Integer totalstudents = 0;
+	 Integer TTstudents = 0;
+	 
 	 ReportInfoGetter entityInfo = new ReportInfoGetter();  //Bean
 	 ReportInfoGetter lastentity = new  ReportInfoGetter(); //BEAN
 	 List<ReportInfoGetter> li = null;
@@ -1542,9 +1558,13 @@ public String runComputationforAll(ReportInfoGetter input,String mode) {
 		
 		
        getSqlMapClientTemplate().update("computation.updatestudentbycutoffnumber", entityInfo);
+       entityInfo.setNumber_of_times(totalstudents);
+       getSqlMapClientTemplate().update("computation.update_computation_count", entityInfo);
+       TTstudents= TTstudents+totalstudents;
 	 } 
+	  
 	 
-	 
+	
 	 catch (Exception e) 
 	 {
 		e.printStackTrace();
@@ -1553,7 +1573,8 @@ public String runComputationforAll(ReportInfoGetter input,String mode) {
 	 magicmethod(entityInfo.getProgram_id());  //METHOD-7
     EnteranceTestEligibility(entityInfo.getProgram_id()); //METHOD-8
 }
-    return totalstudents.toString();
+	 
+    return TTstudents.toString();
 
 }
 
