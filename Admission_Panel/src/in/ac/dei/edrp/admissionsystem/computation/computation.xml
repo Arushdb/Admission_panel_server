@@ -98,8 +98,8 @@
 		join student_application_status sas
 		on
 		apr.session_start_date=sas.session_start_date
-		and sas.application_status in ('P','D')
-		<!--and sas.verification_status ='REC' added by Atul Dayal 18/06/2015 -->
+		<!--  and sas.application_status in ('P','D')-->
+		and sas.verification_status ='REC' <!-- added by Arush 03/06/2025 -->
 		and apr.session_end_date = sas.session_end_date
 		and apr.application_number = sas.application_number
 		join entity_student es on es.student_id = sr.student_id
@@ -226,6 +226,23 @@
 		join admitcard_table at on at.program_id =pt.program_id
 		
 		where  pt.program_id = #program_id# order by pt.shift 
+
+	</select>
+	<!--  Added by Arush on 02-06-2025 -->
+		<update id="update_final_merit_count">
+		update process_control_table set merit_record = #number_of_times# ,merit_time=now()
+			where program_id= #program_id#
+	</update>
+	<!--  Added by Arush on 02-06-2025 -->
+	<update id="update_computation_count">
+		update process_control_table set comp_record = #number_of_times# ,comp_time=now()
+			where program_id= #program_id#
+	</update>
+	<!--  Added by Arush on 02-06-2025 -->
+	<select id="checkpgmauthority" resultClass="compute">
+				
+		select program_id from user_program 
+		where program_id=#program_id# and user = #user_id# ;
 
 	</select>
 
@@ -831,19 +848,21 @@
 
 	<update id="update_SCL_marks">
 		update student_call_list scl
-		join final_candidates fc on fc.registration_number=scl.registration_number
+	    join final_candidates fc on fc.registration_number=scl.registration_number 
+	    join process_control_table pct on pct.program_id=#program_id#
 		set scl.marks_obtained=#marks_obt#,
 		scl.total_marks=#totalMarks#,
 		scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
 		scl.modification_time = now(),
-		scl.modifier_id ='COUNCIL',
-		scl.creator_id=#user_id#
+		scl.modifier_id =  'COUNCIL',
+		 scl.creator_id=#user_id# ,
 		<!--   Arush on 28-04-2025
 		fc.user_id=#user_id#,
 		fc.modification_time= now(),
 		fc.councelling_status='UPD' -->
+		pct.as_marks_modification_time = now()
 		where scl.component_id=#component_id#
-		and program_id=#program_id#
+		and scl.program_id=#program_id#
 		and fc.councelling_status in ('INS') and  coalesce(scl.modifier_id,"")  !='COUNCIL_VER'
 		and scl.registration_number =#registration_number#;
 	</update>
@@ -851,12 +870,14 @@
 	<update id="update_SCL_marksAll">
 
 		update student_call_list scl
+		join process_control_table pct on pct.program_id=#program_id#
 		set scl.marks_obtained=#marks_obt#,
 		scl.total_marks=#totalMarks#,
 		scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
 		scl.modification_time = now(),
-		scl.modifier_id ='COUNCIL',
-		scl.creator_id=#user_id#
+		scl.modifier_id =  'COUNCIL' ,
+		  scl.creator_id=#user_id# ,
+		pct.as_marks_modification_time = now()
 		where scl.component_id=#component_id#
 		and scl.program_id=#program_id# and scl.modifier_id !='COUNCIL_VER'
 		and scl.registration_number =#registration_number#;
@@ -866,18 +887,20 @@
 
 	<update id="update_SCL_marks_Btech">
 		update student_call_list scl
+		join process_control_table pct on pct.program_id=#program_id#
 		join final_candidates fc on fc.registration_number=scl.registration_number
 		set scl.marks_obtained=#marks_obt#,
 		scl.total_marks=#totalMarks#,
 		scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
 		scl.percentile_n=#JEE_Percetile#,
 		scl.modification_time = now(),
-		scl.modifier_id ='COUNCIL',
-		scl.creator_id=#user_id#
+		scl.modifier_id ='COUNCIL' ,
+		 scl.creator_id=#user_id#,
 		<!--   Arush on 28-04-2025
 		fc.councelling_status='UPD' -->
+		pct.as_marks_modification_time = now()
 		where scl.component_id=#component_id#
-		and program_id=#program_id#
+		and scl.program_id=#program_id#
 		and fc.councelling_status in ('INS','UPD') and scl.modifier_id
 		!='COUNCIL_VER'
 		and scl.registration_number =#registration_number#;
@@ -887,17 +910,19 @@
 	<update id="update_SCL_marks2">
 		update student_call_list scl
 		join final_candidates fc on fc.registration_number=scl.registration_number
+		join process_control_table pct on pct.program_id=#program_id#
 		set scl.marks_obtained=#marks_obt#,
 		scl.total_marks=#totalMarks#,
 		scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
-		scl.modification_time = now(),
-		scl.modifier_id ='COUNCIL',
+		scl.modification_time = now(), scl.modifier_id ='COUNCIL'
+		<!--  scl.modifier_id ='COUNCIL', -->
 		scl.creator_id=#user_id#,
-		fc.user_id=#user_id#,
+		<!--fc.user_id=#user_id#,
 		fc.modification_time= now(),
-		fc.councelling_status='UPD'
+		fc.councelling_status='UPD'-->
+		pct.as_marks_modification_time = now()
 		where scl.component_id=#component_id#
-		and program_id=#program_id#
+		and scl.program_id=#program_id#
 		and fc.councelling_status in ('UPD') and scl.modifier_id !='COUNCIL_VER'
 		and scl.registration_number =#registration_number# and
 		fc.user_id=#user_id#;
@@ -907,18 +932,20 @@
 	<update id="update_SCL_marks2_other">
 		update student_call_list scl
 		join final_candidates fc on fc.registration_number=scl.registration_number
+		join process_control_table pct on pct.program_id=#program_id#
 		set scl.marks_obtained=#marks_obt#,
 		scl.total_marks=#totalMarks#,
 		scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
 		scl.modification_time = now(),
-		scl.modifier_id ='COUNCIL',
-		scl.creator_id=#user_id#,
+		scl.modifier_id ='COUNCIL'  
+		  scl.creator_id=#user_id# ,
 		<!--   Arush on 28-04-2025
 		fc.modification_time= now(),
 		
 		fc.councelling_status='UPD' -->
+		pct.as_marks_modification_time = now()
 		where scl.component_id=#component_id#
-		and program_id=#program_id#
+		and scl.program_id=#program_id#
 		and fc.councelling_status in ('UPD') and scl.modifier_id not in
 		('COUNCIL_VER')
 		and scl.registration_number =#registration_number# ;
@@ -928,12 +955,14 @@
 	<update id="update_SCL_marksAll_other">
 
 		update student_call_list scl
+		join process_control_table pct on pct.program_id=#program_id#
 		set scl.marks_obtained=#marks_obt#,
 		scl.total_marks=#totalMarks#,
 		scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
 		scl.modification_time = now(),
-		scl.modifier_id ='COUNCIL',
-		scl.creator_id=#user_id#
+		scl.modifier_id = 'COUNCIL',  
+		  scl.creator_id=#user_id#,
+		pct.as_marks_modification_time = now()
 		where scl.component_id=#component_id#
 		and scl.program_id=#program_id#
 		and scl.registration_number =#registration_number#
@@ -943,7 +972,7 @@
 	<update id="update_REJECT_Status">
 
 		update final_candidates set
-		councelling_status='REJ',remarks=#remarks#,user_id=#user_id#
+		councelling_status='REJ',remarks=#remarks#,user_id=#user_id#,modification_time =now()
 		where registration_number =#registration_number#;
 
 	</update>
@@ -958,7 +987,7 @@
 
 	<update id="update_VERIFIED_Status">
 		update final_candidates set
-		councelling_status='VER',remarks=#remarks#,user_id=#user_id#
+		councelling_status='VER',remarks=#remarks#,user_id=#user_id#,modification_time=now()
 		where registration_number =#registration_number#;
 	</update>
 
@@ -988,15 +1017,7 @@
 		where registration_number =#registration_number#;
 	</update>
 	
-	<update id="update_final_merit_count">
-		update process_control_table set merit_record = #number_of_times# ,merit_time=now()
-			where program_id= #program_id#
-	</update>
-	
-	<update id="update_computation_count">
-		update process_control_table set comp_record = #number_of_times# ,comp_time=now()
-			where program_id= #program_id#
-	</update>
+
 
 	<update id="UpdateCouncellingDataINSCL">
 		update student_call_list set modifier_id ='COUNCIL_VER' where
@@ -1249,6 +1270,8 @@
 
 	</select>
 
+<!-- Commented by Arush on 02-06-2025 
+
 	<select id="getRoomsforTT" resultClass="admission">
 
 		select * from
@@ -1260,9 +1283,9 @@
 		FROM time_table.room_capacity r
 		join entity_master em on r.entity_id=em.entity_id
 		order by em.entity_name,r.room_code)set1 order by set1.val7 desc;
-		<!-- SELECT em.entity_name as val1,r.room_code as val2, r.capacity as val3,r.f_room_key 
+		 SELECT em.entity_name as val1,r.room_code as val2, r.capacity as val3,r.f_room_key 
 			as val4,r.type as val5,r.fac_name as val6 FROM time_table.room_capacity r 
-			join entity_master em on r.entity_id=em.entity_id order by em.entity_name,r.room_code; -->
+			join entity_master em on r.entity_id=em.entity_id order by em.entity_name,r.room_code; 
 
 	</select>
 
@@ -1281,10 +1304,10 @@
 		on r.entity_id=em.entity_id
 		order by em.entity_id)set1 order by set1.val7 desc;
 
-		<!-- SELECT r.ext as val5 ,em.entity_name as val1,r.name as val2,r.staff 
+		SELECT r.ext as val5 ,em.entity_name as val1,r.name as val2,r.staff 
 			as val3, r.employee_code as val4, concat(r.name,' (',r.ext,')') as val6 FROM 
 			time_table.staff_data r join entity_master em on r.entity_id=em.entity_id 
-			order by em.entity_id; -->
+			order by em.entity_id; 
 
 	</select>
 
@@ -1361,7 +1384,7 @@
 		and sc.semester_end_date =#semester_end_date#
 		and cms.session_start_date=#start_date#
 		and cms.session_end_date=#end_date#
-		<!-- and pch.program_id=#program_id# and pch.semester_code=#semester_code# -->
+		  ### and pch.program_id=#program_id# and pch.semester_code=#semester_code# ###
 		and sc.program_course_key =#pck#
 		and pcd.available ='Y'
 		and pcd.course_category ='REG'
@@ -1401,7 +1424,7 @@
 		cms.session_start_date=concat(mid(#start_date#,1,4)-1,mid(#start_date#,5))
 		and
 		cms.session_end_date=concat(mid(#end_date#,1,4)-1,mid(#end_date#,5))
-		<!-- and pch.program_id=#program_id# and pch.semester_code=#semester_code# -->
+		##### and pch.program_id=#program_id# and pch.semester_code=#semester_code# ###
 		and sc.program_course_key =#pck#
 		and pcd.available ='Y'
 		and pcd.course_category ='REG'
@@ -1414,7 +1437,7 @@
 	</select>
 
 	<select id="getCourseInfoForTTforEdit" resultClass="admission">
-		<!-- select cms.course_code as val1 , cms.course_classification as val4,'0' 
+		select cms.course_code as val1 , cms.course_classification as val4,'0' 
 			as val3,'Y' as val7, cms.course_name as val6, cms.credits, if(cms.course_classification='P',cms.credits*2,cms.credits) 
 			as val2, 'DS' as val5 from student_course sc join course_master_per_session 
 			cms on cms.course_code=sc.course_code join program_course_detail pcd on pcd.program_course_key 
@@ -1423,7 +1446,7 @@
 			cms.session_start_date=#start_date# and cms.session_end_date=#end_date# and 
 			sc.program_course_key =#pck# and pcd.available ='Y' and pcd.course_category 
 			='REG' and cms.course_classification in ('T','P') and sc.entity_id =#entity_id# 
-			group by sc.course_code order by cms.course_classification ; -->
+			group by sc.course_code order by cms.course_classification ; 
 
 		select *from
 		(
@@ -1711,41 +1734,41 @@
 
 	<select id="getCourseInfoForTTforEditGS" resultClass="admission">
 
-		select *from
-		(
-		select
-		sm.gender as val4,
-		cms.course_code as val2,
-		pch.program_course_key as val3,
-		if(sm.gender='M','Male','Female') as val1
-		,count(*) as val5,
-		sm.gender as val7,
-		cms.course_name as val6
-		from student_course sc
-		join course_master_per_session cms on cms.course_code=sc.course_code
-		join program_course_detail pcd on pcd.program_course_key
-		=sc.program_course_key and sc.course_code =pcd.course_code
-		join program_course_header pch
-		on pch.program_course_key=sc.program_course_key
-		join student_program sp on sp.entity_id=sc.entity_id
-		and sp.program_id=pch.program_id
-		and pch.specialization_id=sp.specialization_id
-		and pch.branch_id=sp.branch_id
-		and pch.semester_code =sp.in_semester
-		and sp.roll_number =sc.roll_number
-		join student_master sm on sm.enrollment_number=sp.enrollment_number
-		where sc.semester_start_date =#semester_start_date#
-		and sc.semester_end_date =#semester_end_date#
-		and cms.session_start_date=#start_date#
-		and cms.session_end_date=#end_date#
-		and pch.program_id=#program_id# and pch.semester_code=#semester_code#
-		and pcd.available ='Y' and sc.course_code=#course_code#
-		and pcd.course_category ='REG'
-		and cms.course_classification in ('T','P')
-		and sc.entity_id =#entity_id#
-		group by sc.course_code,sm.gender
-		order by cms.course_classification
-		)set1
+	select *from
+	(
+	select
+	sm.gender as val4,
+	cms.course_code as val2,
+	pch.program_course_key as val3,
+	if(sm.gender='M','Male','Female') as val1
+	,count(*) as val5,
+	sm.gender as val7,
+	cms.course_name as val6
+	from student_course sc
+	join course_master_per_session cms on cms.course_code=sc.course_code
+	join program_course_detail pcd on pcd.program_course_key
+	=sc.program_course_key and sc.course_code =pcd.course_code
+	join program_course_header pch
+	on pch.program_course_key=sc.program_course_key
+	join student_program sp on sp.entity_id=sc.entity_id
+	and sp.program_id=pch.program_id
+	and pch.specialization_id=sp.specialization_id
+	and pch.branch_id=sp.branch_id
+	and pch.semester_code =sp.in_semester
+	and sp.roll_number =sc.roll_number
+	join student_master sm on sm.enrollment_number=sp.enrollment_number
+	where sc.semester_start_date =#semester_start_date#
+	and sc.semester_end_date =#semester_end_date#
+	and cms.session_start_date=#start_date#
+	and cms.session_end_date=#end_date#
+	and pch.program_id=#program_id# and pch.semester_code=#semester_code#
+	and pcd.available ='Y' and sc.course_code=#course_code#
+	and pcd.course_category ='REG'
+	and cms.course_classification in ('T','P')
+	and sc.entity_id =#entity_id#
+	group by sc.course_code,sm.gender
+	order by cms.course_classification
+	)set1
 
 	</select>
 
@@ -2027,7 +2050,7 @@
 		and semester_start_date=#start_date#
 		and semester_end_date=#end_date# and user_id=#user_id#;
 	</delete>
-
+-->
 
 	<resultMap id="applicantsmarksmap"
 		class="in.ac.dei.edrp.admissionsystem.Bean.ReportInfoGetter">

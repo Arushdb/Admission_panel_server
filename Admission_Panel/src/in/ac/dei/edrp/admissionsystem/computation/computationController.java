@@ -434,19 +434,24 @@ private computationDao computationDao;
 	    
 	   // System.out.println("end-"+input1.getEnd_date());
 		
+	    String authority = (String)computationDao.checkpgmauthority(input1); 
+	    JSONObject jsonObject = new JSONObject();
+	    if (authority.equalsIgnoreCase("Y")) {
+	    	admissionBean dataList =computationDao.UpdateFinalStatus(input1); 	
+	    	 
+	         jsonObject.put("val1", dataList.getFlag());
+	         array1.add(jsonObject);
+	         System.out.println(array1.toString());
+	         
+	    }else {
+	    	jsonObject.put("val1", "NOTAUT");
+	         array1.add(jsonObject);
+	        
+	    }
 	    
-	   admissionBean dataList =computationDao.UpdateFinalStatus(input1);
-	    
+	    return new ModelAndView("CreateCourse/hello", "message", array1.toString());
 	   
-	   JSONObject jsonObject = new JSONObject();
-       jsonObject.put("val1", dataList.getFlag());
-       array1.add(jsonObject);
-	      
-	    System.out.println(array1.toString());
-	    
-	    
-		return new ModelAndView("CreateCourse/hello", "message", array1.toString());
-		
+	    	
 	}
 	
 	

@@ -2261,13 +2261,14 @@ public admissionBean UpdateSCLMarks(final admissionBean input) {
 		System.out.println("U"+checkforUPD.size());
 		System.out.println("U1"+checkforUPD_Other.size());
 		System.out.println("comp:"+input.getComponent_id());
+		int count=0;
 		if (checkforINS.size()>0)
 		{
-			getSqlMapClientTemplate().update("computation.update_SCL_marks",input);
+			 count =getSqlMapClientTemplate().update("computation.update_SCL_marks",input);
 			
 			if (input.getComponent_id().equalsIgnoreCase("JM"))
 			{
-				getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech",input);
+				 count =	getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech",input);
 			}
 			
 			for (int j=0;j<checkBinding.size();j++)
@@ -2279,17 +2280,17 @@ public admissionBean UpdateSCLMarks(final admissionBean input) {
 				input1.setTotalMarks(input.getTotalMarks());
 				input1.setMarks_obt(input.getMarks_obt());
 				
-				getSqlMapClientTemplate().update("computation.update_SCL_marksAll",input1);
+				 count = getSqlMapClientTemplate().update("computation.update_SCL_marksAll",input1);
 				
 			}
 		}
 		else if (checkforUPD.size()>0)
 		{
-			getSqlMapClientTemplate().update("computation.update_SCL_marks2",input);
+			 count =getSqlMapClientTemplate().update("computation.update_SCL_marks2",input);
 			
 			if (input.getComponent_id().equalsIgnoreCase("JM"))
 			{
-				getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech",input);
+				 count =	getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech",input);
 			}
 			
 			for (int j=0;j<checkBinding.size();j++)
@@ -2301,17 +2302,17 @@ public admissionBean UpdateSCLMarks(final admissionBean input) {
 				input1.setTotalMarks(input.getTotalMarks());
 				input1.setMarks_obt(input.getMarks_obt());
 				
-				getSqlMapClientTemplate().update("computation.update_SCL_marksAll",input1);
+				count=getSqlMapClientTemplate().update("computation.update_SCL_marksAll",input1);
 				
 			}
 		}
 		else if (checkforUPD_Other.size()>0)
 		{
-			getSqlMapClientTemplate().update("computation.update_SCL_marks2_other",input);
+			count=getSqlMapClientTemplate().update("computation.update_SCL_marks2_other",input);
 			
 			if (input.getComponent_id().equalsIgnoreCase("JM"))
 			{
-				getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech",input);
+				count=getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech",input);
 			}
 			
 			
@@ -2324,7 +2325,7 @@ public admissionBean UpdateSCLMarks(final admissionBean input) {
 				input1.setTotalMarks(input.getTotalMarks());
 				input1.setMarks_obt(input.getMarks_obt());
 				
-				getSqlMapClientTemplate().update("computation.update_SCL_marksAll_other",input1);
+				count=getSqlMapClientTemplate().update("computation.update_SCL_marksAll_other",input1);
 				
 			}
 		}
@@ -2333,6 +2334,7 @@ public admissionBean UpdateSCLMarks(final admissionBean input) {
 		catch(Exception e)
 		{
 			ts.rollbackToSavepoint(savePoint);
+			e.printStackTrace();
 			bean1.setFlag("NOTOK");
 		}
 		
@@ -2506,6 +2508,18 @@ public void distributemarks(String commonpgmObj,ReportInfoGetter applicant,List<
 	//}
 	
 		
+}
+
+@Override
+public String checkpgmauthority(admissionBean input) {
+	// TODO Auto-generated method stub
+	List<ReportInfoGetter> checklist;
+	checklist= getSqlMapClientTemplate().queryForList("computation.checkpgmauthority",input);
+	if (checklist.size()>0) {
+		return "Y" ;
+	}else {
+		return "N" ;
+	}
 }
  
 }

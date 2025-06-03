@@ -22,4 +22,5 @@ public interface computationDao {
 	public admissionBean UpdateFinalStatus(admissionBean input);
 
 	public String distributETMarks() ;
+	public String checkpgmauthority(admissionBean input) ;
 }
