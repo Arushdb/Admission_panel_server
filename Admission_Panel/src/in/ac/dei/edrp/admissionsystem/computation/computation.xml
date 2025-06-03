@@ -2168,4 +2168,18 @@
 		from comp_marks_dist where test_number = #test_number# and
 		program_id=#program_id#;
 	</select>
+	
+	<select id="checkAgeEligibility" resultClass="admission">
+	select if(age_limit>=candidateAge,'Eligible','InEligible') flag from 
+(select age_limit, if(m>0 or d>0,y+1,y) candidateAge from
+(select age_limit,substring(age,1,2) y,substring(age,3,2) m,substring(age,5,2) d from
+(select age_limit,DATE_FORMAT(FROM_DAYS(DATEDIFF(concat_ws('-',substring(sv.value,1,4),substring(sv.value,5,2),substring(sv.value,7,2)),es.date_of_birth)), '%y%m%d') as age from program_age_eligibility pae join applicant_program_registration apr 
+on apr.program_id=pae.program_id
+join entity_student es on apr.application_number=es.application_number 
+and pae.gender=es.gender and es.category_code=pae.category
+join system_values as sv on sv.university_id=es.university_id
+and sv.code='ADMSSN'
+where apr.registration_number=#registration_number# and apr.program_id=#program_id#)set1)set2)set3;
+	</select>
+	
 </sqlMap>

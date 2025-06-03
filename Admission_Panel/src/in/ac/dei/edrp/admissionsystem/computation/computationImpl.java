@@ -315,7 +315,17 @@ public class computationImpl extends SqlMapClientDaoSupport implements computati
 	 	
 	 		
 	 	/////age Eligibility/////////////////////////////////////
-	 	
+	 	// Added by Manpreet on 02-06-2025
+	 	String	ageeligibility = null;
+	 	ageeligibility=checkAgeEligibility(entity);
+	 	if (ageeligibility.equalsIgnoreCase("InEligible")) {
+            obj.setReason_code("Overage");
+            obj.setMessage("InEligible");
+            return obj;
+            
+        }else{
+        	ageeligibility = "Eligible";
+        }
 	 	/* by passed because it is checked at the time of applying 
 	 	List<ReportInfoGetter> ageeligiblity =  client.queryForList("computation.getAgeEligibility",entity);
 	 		if (ageeligiblity.size()>0){
@@ -2522,4 +2532,21 @@ public String checkpgmauthority(admissionBean input) {
 	}
 }
  
+// Added by Manpreet on 02-06-2025
+public String checkAgeEligibility(ReportInfoGetter entity){
+	String eligibility=null;
+	try{
+		
+		List<admissionBean> getData = new ArrayList<admissionBean>();
+		getData=getSqlMapClientTemplate().queryForList("computation.checkAgeEligibility", entity); 
+		eligibility=getData.get(0).getFlag();
+		
+		
+	}catch (Exception e) {
+		System.out.println(e.getMessage());
+	}
+	
+	return eligibility;
+}
+
 }
