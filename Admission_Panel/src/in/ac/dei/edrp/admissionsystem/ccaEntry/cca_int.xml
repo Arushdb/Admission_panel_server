@@ -208,7 +208,7 @@ update marks_entry_panel set cca_marks_flag='PRO',count_update=#count# where app
 update student_final_marks set marks=#marks#,attended='P',
 sub_status='SUB',insert_time=now(),modification_time=now(),creator_id=#creator#,modifier_id=#creator#,
 score=#marks#
-where rollno =#application_number# and evaluation_component=#flag# and attended  ='A'
+where rollno =#application_number# and evaluation_component=#flag# and attended  in ('A','P')
 </update>
 
 <update id="updateRecord1">
