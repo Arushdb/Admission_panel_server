@@ -2260,10 +2260,10 @@ public String runComputationforAll(ReportInfoGetter input,String mode) {
 			bean.setMarks(getApplication.get(i).getMarks());
 			bean.setRegistration_number(getApplication.get(i).getRegistration_number());
 
-			List<ccaBean> checkDatainJEEStudent = getSqlMapClientTemplate()
-					.queryForList("jee.checkDatainJEEStudent", bean);
+			//List<ccaBean> checkDatainJEEStudent = getSqlMapClientTemplate()
+				//	.queryForList("jee.checkDatainJEEStudent", bean);
 			System.out.println("val" + i + "--" + bean.getRegistration_number());
-			if (checkDatainJEEStudent.size() > 0) {
+			//if (checkDatainJEEStudent.size() > 0) {
 				getDataforUpdate = getSqlMapClientTemplate().queryForList("jee.getDataforUpdate", bean);
 				if (getDataforUpdate.size() == 0) {
 					double marks = Double.parseDouble(bean.getMarksObtained()) + 0.3;
@@ -2301,7 +2301,7 @@ public String runComputationforAll(ReportInfoGetter input,String mode) {
 				}
 
 				// getSqlMapClientTemplate().update("jee.UpdateJEEStudent",bean);
-			}
+			//}
 
 		}
 		return bean;
