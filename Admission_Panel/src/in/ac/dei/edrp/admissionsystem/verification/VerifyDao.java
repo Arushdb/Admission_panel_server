@@ -10,5 +10,9 @@ public interface VerifyDao {
 	public List<studentBean>getAcademicMarks(studentBean sbean);
 	public int updatestatus(studentBean sbean);
 	public int validateIWlist(studentBean sbean);
+	public List<studentBean> getUserProgramList(String user); //added by Jyoti on 19 Jun 2025
+	public List<studentBean> getVfyProgramList(studentBean sbean); //added by Jyoti on 19 Jun 2025
+	public List<studentBean> chkliststatus(studentBean sbean); //added by Jyoti on 19 Jun 2025
+	public int updateliststatus(studentBean sbean); //added by Jyoti on 19 Jun 2025
 
 }

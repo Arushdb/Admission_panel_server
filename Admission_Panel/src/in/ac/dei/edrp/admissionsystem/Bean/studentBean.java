@@ -70,6 +70,7 @@ public class studentBean {
 	    private String doc_required;
 	    private String physical_handicap;
 	    private String applicationType;
+	    private String listNum; //added by Jyoti on 20 Jun 2025
 		public String getUniversity_code() {
 			return university_code;
 		}
@@ -465,5 +466,11 @@ public class studentBean {
 		}
 		public void setApplicationType(String applicationType) {
 			this.applicationType = applicationType;
+		}
+		public String getListNum() {
+			return listNum;
+		}
+		public void setListNum(String listNum) {
+			this.listNum = listNum;
 		}
 }

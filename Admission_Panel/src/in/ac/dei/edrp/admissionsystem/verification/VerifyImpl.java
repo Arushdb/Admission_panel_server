@@ -35,7 +35,42 @@ public class VerifyImpl extends SqlMapClientDaoSupport implements VerifyDao {
 		return studentlist.size();
 	}
 	
+	@Override  //added by Jyoti on 19 Jun 2025
+	public List<studentBean> getUserProgramList(String user) {
+		
+		List <studentBean> studentlist = null;
+		
+		studentlist =getSqlMapClientTemplate().queryForList("verifystudent.getUserProgramList",user);
+		
+		return studentlist;
+	}
 
+	@Override  //added by Jyoti on 19 Jun 2025
+	public List<studentBean> getVfyProgramList(studentBean sbean) {
+		
+		List <studentBean> studentlist = null;
+		
+		studentlist =getSqlMapClientTemplate().queryForList("verifystudent.getVfyProgramList",sbean);
+		
+		return studentlist;
+	}
 
+	//chkliststatus added by Jyoti on 19 Jun 2025
+	@Override
+	public List<studentBean> chkliststatus(studentBean sbean) {
+		// TODO Auto-generated method stub
+		List <studentBean> vlist = null;
+		vlist = getSqlMapClientTemplate().queryForList("verifystudent.chkliststatus",sbean);
+		return vlist;
+		
+	} 
 
+	//updateliststatus added by Jyoti on 19 Jun 2025
+	@Override
+	public int updateliststatus(studentBean sbean) {
+		// TODO Auto-generated method stub
+		int count =getSqlMapClientTemplate().update("verifystudent.updateliststatus",sbean);
+		return count;
+		
+	} 
 }
