@@ -91,7 +91,7 @@ private VerifyDao vfyDao;
 			}
 		
 	
-	
+	//user and menu added by Pragya on 26 Jun 2025
 	public ModelAndView validateiwlist(HttpServletRequest request,
 			HttpServletResponse response)throws Exception
 	{
@@ -100,9 +100,13 @@ private VerifyDao vfyDao;
 		JSONArray marksarray = new JSONArray();
 		
 		String  application_number = request.getParameter("application_number");
+		String user = request.getParameter("user");
+	    String menu = request.getParameter("menu");
 		
 		studentBean sbean = new studentBean();
 		sbean.setApplication_number(application_number);
+		sbean.setUser_id(user);
+		    sbean.setMenu(menu); 
 		
 		
 	   	    int count =vfyDao.validateIWlist(sbean);
