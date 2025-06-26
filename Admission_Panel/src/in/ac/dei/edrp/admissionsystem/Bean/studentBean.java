@@ -70,6 +70,7 @@ public class studentBean {
 	    private String doc_required;
 	    private String physical_handicap;
 	    private String applicationType;
+		private String menu;  //added by pragya on 26 Jun 2025
 	    private String listNum; //added by Jyoti on 20 Jun 2025
 		public String getUniversity_code() {
 			return university_code;
@@ -473,4 +474,12 @@ public class studentBean {
 		public void setListNum(String listNum) {
 			this.listNum = listNum;
 		}
+
+		 public String getMenu() {
+		        return menu;
+		    }
+
+		    public void setMenu(String menu) {
+		        this.menu = menu;
+		    }
 }

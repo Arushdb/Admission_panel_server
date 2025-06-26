@@ -49,8 +49,16 @@
 	</update>
 
 	<select id="validateIWlist" resultClass="studentinfo">
-		select application_number from interview_1 where
-		application_number=#application_number#
+		<!--  select application_number from interview_1 where
+		application_number=#application_number#-->
+		
+		select application_number
+    from interview_1 i1
+    join user_program up on up.program_id = i1.program_id
+    join edit_panel_authority epa on epa.user_id = up.user
+    where application_number = #application_number#
+      and up.menu = #menu#
+      and up.user = #user_id#
 
 
 	</select>
