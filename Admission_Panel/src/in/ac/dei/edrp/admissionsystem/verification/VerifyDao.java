@@ -1,5 +1,6 @@
 package in.ac.dei.edrp.admissionsystem.verification;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 
@@ -11,4 +12,5 @@ public interface VerifyDao {
 	public int updatestatus(studentBean sbean);
 	public int validateIWlist(studentBean sbean);
 
+	public BufferedImage VerifySignature(studentBean sbean);
 }

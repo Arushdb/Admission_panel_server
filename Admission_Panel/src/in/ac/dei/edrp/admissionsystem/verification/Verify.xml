@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE sqlMap
-        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
-        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+        
+            <!DOCTYPE sqlMap
+  PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+  "http://www.ibatis.com/dtd/sql-map-2.dtd">
 
 <sqlMap namespace="verifystudent">
 
@@ -54,6 +55,11 @@
 
 
 	</select>
-
+	
+	<select id="getSignaturefile" resultClass="studentinfo">
+	select TestId as docId ,RollNo as application_number ,FileName as file_name  
+	from omr.student_result_info where RollNo=#application_number#
+	group by TestId;
+</select>
 
 </sqlMap>
