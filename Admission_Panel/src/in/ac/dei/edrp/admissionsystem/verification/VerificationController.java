@@ -1,8 +1,11 @@
 package in.ac.dei.edrp.admissionsystem.verification;
 
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -233,4 +236,42 @@ private VerifyDao vfyDao;
 	   	    	
 	    return new ModelAndView("CreateCourse/hello", "message", marksarray.toString());       
 	}
+	public ModelAndView getSignature(HttpServletRequest request,
+			HttpServletResponse response)throws Exception
+	{
+		Gson gson= new Gson();
+		
+		JSONArray marksarray = new JSONArray();
+		
+		String  application_number = request.getParameter("application_number");
+		String  user = request.getParameter("user");
+		studentBean sbean =new studentBean();
+		sbean.setApplication_number(application_number);
+		sbean.setUser_id(user);
+		String rootPath = getServletContext().getRealPath("/");
+		sbean.setTargetPath(rootPath);
+		System.out.println("rootPath:"+rootPath);
+				
+	   	    BufferedImage img = vfyDao.VerifySignature(sbean);
+	   	    
+	   	 // Set the content type
+	   	    response.setContentType("image/bmp");
+
+	   	    // Write image to response output stream
+	   	    OutputStream out = response.getOutputStream();
+	   	 boolean success =ImageIO.write(img, "bmp", out);
+	   	System.out.println("ImageIO success: " + success);
+	   	    response.getOutputStream().flush();
+	   	    out.close();
+	   	 //JSONObject jsonObject = new JSONObject();
+		   //	jsonObject.put("status","success");
+		   	//marksarray.add(jsonObject);
+	   	    
+	  return null;
+	    //return new ModelAndView("CreateCourse/hello", "message", marksarray.toString());       
+			}
+
+
+	
+	
 }

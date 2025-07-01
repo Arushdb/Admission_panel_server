@@ -1,5 +1,6 @@
 package in.ac.dei.edrp.admissionsystem.verification;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 
@@ -14,5 +15,5 @@ public interface VerifyDao {
 	public List<studentBean> getVfyProgramList(studentBean sbean); //added by Jyoti on 19 Jun 2025
 	public List<studentBean> chkliststatus(studentBean sbean); //added by Jyoti on 19 Jun 2025
 	public int updateliststatus(studentBean sbean); //added by Jyoti on 19 Jun 2025
-
+	public BufferedImage VerifySignature(studentBean sbean);
 }

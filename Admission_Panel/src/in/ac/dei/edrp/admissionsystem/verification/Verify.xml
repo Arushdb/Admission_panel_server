@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE sqlMap
-        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
-        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+        
+             <!DOCTYPE sqlMap
+  PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+  "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
 
 <sqlMap namespace="verifystudent">
 
@@ -10,82 +13,108 @@
 
 
 	<select id="getstudentmarks" resultClass="studentinfo">
-	
-	select es.first_name as first_name, apr.application_number as
+
+		select es.first_name as first_name, apr.application_number as
 		application_number,
-		marks_percentage as marksPercentage,marks_obtained as marksObtained,
-		total_marks as totalMarks,percentile_n as score,stt.description as
+		marks_percentage as marksPercentage,marks_obtained
+		as marksObtained,
+		total_marks as totalMarks,percentile_n as
+		score,stt.description as
 		componentID ,
 
 		CASE
-		WHEN sas.marksstatus = 'V' THEN "Verified"
+		WHEN sas.marksstatus = 'V'
+		THEN "Verified"
 		WHEN sas.marksstatus = 'W' THEN "Wrong Marks"
-		ELSE "Not Checked"
+		ELSE "Not
+		Checked"
 		END as verificationStatusCode,
 
 
-		sas.reason as verificationStatusDesc
+		sas.reason as
+		verificationStatusDesc
 		from applicant_program_registration apr
-		join student_call_list scl on
+		join
+		student_call_list scl on
 		apr.registration_number=scl.registration_number
-		join component_description stt on stt.component_id=scl.component_id
-		join entity_student es on es.application_number=apr.application_number
-		join student_application_status sas on
+		join
+		component_description stt on stt.component_id=scl.component_id
+		join
+		entity_student es on es.application_number=apr.application_number
+		join
+		student_application_status sas on
 		sas.application_number=apr.application_number
-		where apr.application_number=#application_number# 
+		where
+		apr.application_number=#application_number#
 		group by scl.component_id;
-	
-	
+
+
 	</select>
-	
+
 	<update id="updatestatus">
 		update student_application_status set marksstatus =
 		#verificationStatusCode#,
 		reason=#verificationStatusDesc#,
 		verifiedby=#user_id# ,verifiedtime = now()
-		where application_number= #application_number#
+		where application_number=
+		#application_number#
 
 
 	</update>
 
 	<select id="validateIWlist" resultClass="studentinfo">
-		<!--  select application_number from interview_1 where
-		application_number=#application_number#-->
-		
+		<!-- select application_number from interview_1 where application_number=#application_number# -->
+
 		select application_number
-    from interview_1 i1
-    join user_program up on up.program_id = i1.program_id
-    join edit_panel_authority epa on epa.user_id = up.user
-    where application_number = #application_number#
-      and up.menu = #menu#
-      and up.user = #user_id#
+		from interview_1 i1
+		join user_program up on up.program_id = i1.program_id
+		join edit_panel_authority epa on epa.user_id = up.user
+		where application_number = #application_number#
+		and up.menu = #menu#
+		and up.user = #user_id#
 
 
 	</select>
-	
+
 	<!-- getUserProgramList and getVfyProgramList added by Jyoti on 19 Jun 2025 -->
-	<select id ="getUserProgramList" resultClass="studentinfo" parameterClass="java.lang.String" >
-		select up.program_id as programId, pm.program_name as program_name
-		from user_program up 
+	<select id="getUserProgramList" resultClass="studentinfo"
+		parameterClass="java.lang.String">
+		select up.program_id as programId,
+		pm.program_name as program_name
+		from user_program up
 		join program_master pm on pm.program_id= up.program_id
-		where user = #user_id#
+		where user =
+		#user_id#
 		order by pm.program_name;
 	</select>
-	
+
 	<select id="getVfyProgramList" resultClass="studentinfo">
-		select fc.councelling_status verificationStatusCode, 
-		apr.application_number as application_number, es.first_name as first_name, 
-		es.category_code as category, es.gender, ep.user_name email, 
+		select
+		fc.councelling_status verificationStatusCode,
+		apr.application_number as application_number, es.first_name as first_name,
+		es.category_code as category, es.gender, ep.user_name email,
 		DATE_FORMAT(fc.modification_time, '%d-%m-%Y %H:%i') insert_time
-		from final_candidates fc 
-		join final_candidates_to_counselled fcc on fcc.registration_number = fc.registration_number
-		join applicant_program_registration apr on apr.registration_number = fc.registration_number
-			 and apr.program_id = fcc.program_id 
+		from
+		final_candidates fc
+		join final_candidates_to_counselled fcc on fcc.registration_number =
+		fc.registration_number
+		join applicant_program_registration apr on
+		apr.registration_number = fc.registration_number
+		and apr.program_id = fcc.program_id
 		join entity_student es on es.application_number = apr.application_number
 		left join edit_panel_authority ep on ep.user_id = fc.user_id
-		where  fcc.program_id = #programId#
-		and fcc.remarks = concat('LIST-', #listNum#)
+		where
+		fcc.program_id = #programId#
+		and fcc.remarks = concat('LIST-',
+		#listNum#)
 		order by fc.councelling_status
 	</select>
+
+	<select id="getSignaturefile" resultClass="studentinfo">
+		select TestId as docId ,RollNo as application_number ,FileName as file_name
+		from omr.student_result_info where RollNo=#application_number#
+		group by TestId;
+	</select>
+
 
 </sqlMap>
