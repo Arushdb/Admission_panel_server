@@ -29,6 +29,12 @@ org.springframework.web.servlet.DispatcherServlet
 <param-value>/WEB-INF/project_service.xml</param-value>
 </context-param>
 
+<servlet>
+    <servlet-name>ConfigServlet</servlet-name>
+    <servlet-class>in.ac.dei.edrp.admissionsystem.security.ConfigServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+</servlet>
+
 <listener>
 <listener-class>
 org.springframework.web.context.ContextLoaderListener
