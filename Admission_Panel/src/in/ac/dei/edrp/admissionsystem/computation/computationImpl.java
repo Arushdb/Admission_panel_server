@@ -1988,12 +1988,12 @@ public String runComputationforAll(ReportInfoGetter input,String mode) {
 					savePoint = new Object();
 					savePoint = ts.createSavepoint();
 
-					List<admissionBean> checkforINS = getSqlMapClientTemplate()
-							.queryForList("computation.viewStudentMarksINS", input);
-					List<admissionBean> checkforUPD = getSqlMapClientTemplate()
-							.queryForList("computation.viewStudentMarksUPD", input);
-					List<admissionBean> checkforUPD_Other = getSqlMapClientTemplate()
-							.queryForList("computation.viewStudentMarksUPD_Other", input);
+//					List<admissionBean> checkforINS = getSqlMapClientTemplate()
+//							.queryForList("computation.viewStudentMarksINS", input);
+//					List<admissionBean> checkforUPD = getSqlMapClientTemplate()
+//							.queryForList("computation.viewStudentMarksUPD", input);
+//					List<admissionBean> checkforUPD_Other = getSqlMapClientTemplate()
+//							.queryForList("computation.viewStudentMarksUPD_Other", input);
 
 					cca_intBean input1 = new cca_intBean();
 					input1.setApplication_number(input.getApplication_number());
@@ -2001,67 +2001,34 @@ public String runComputationforAll(ReportInfoGetter input,String mode) {
 					List<cca_intBean> checkBinding = getSqlMapClientTemplate()
 							.queryForList("ccaint.getBindedApplicationforCouncelling", input1);
 
-					System.out.println("C" + checkforINS.size());
-					System.out.println("U" + checkforUPD.size());
-					System.out.println("U1" + checkforUPD_Other.size());
+//					System.out.println("C" + checkforINS.size());
+//					System.out.println("U" + checkforUPD.size());
+//					System.out.println("U1" + checkforUPD_Other.size());
 					System.out.println("comp:" + input.getComponent_id());
 					int count = 0;
-					if (checkforINS.size() > 0) {
-						count = getSqlMapClientTemplate().update("computation.update_SCL_marks", input);
+					
+					/// Arush ///////////////////////////////////////////////
+					
+					
+					count = getSqlMapClientTemplate().update("computation.update_SCL_marks_new", input);
 
-						if (input.getComponent_id().equalsIgnoreCase("JM")) {
-							count = getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech", input);
-						}
+					if (input.getComponent_id().equalsIgnoreCase("JM")) {
+						count = getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech", input);
+					}
 
-						for (int j = 0; j < checkBinding.size(); j++) {
-							input1.setRegistration_number(checkBinding.get(j).getRegistration_number());
-							input1.setComponent_id(input.getComponent_id());
-							input1.setProgram_id(checkBinding.get(j).getProgram_id());
-							input1.setUser_id(input.getUser_id());
-							input1.setTotalMarks(input.getTotalMarks());
-							input1.setMarks_obt(input.getMarks_obt());
+					for (int j = 0; j < checkBinding.size(); j++) {
+						input1.setRegistration_number(checkBinding.get(j).getRegistration_number());
+						input1.setComponent_id(input.getComponent_id());
+						input1.setProgram_id(checkBinding.get(j).getProgram_id());
+						input1.setUser_id(input.getUser_id());
+						input1.setTotalMarks(input.getTotalMarks());
+						input1.setMarks_obt(input.getMarks_obt());
 
-							count = getSqlMapClientTemplate().update("computation.update_SCL_marksAll", input1);
+						count = getSqlMapClientTemplate().update("computation.update_SCL_marksAll", input1);
 
-						}
-					} else if (checkforUPD.size() > 0) {
-						count = getSqlMapClientTemplate().update("computation.update_SCL_marks2", input);
-
-						if (input.getComponent_id().equalsIgnoreCase("JM")) {
-							count = getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech", input);
-						}
-
-						for (int j = 0; j < checkBinding.size(); j++) {
-							input1.setRegistration_number(checkBinding.get(j).getRegistration_number());
-							input1.setComponent_id(input.getComponent_id());
-							input1.setProgram_id(checkBinding.get(j).getProgram_id());
-							input1.setUser_id(input.getUser_id());
-							input1.setTotalMarks(input.getTotalMarks());
-							input1.setMarks_obt(input.getMarks_obt());
-
-							count = getSqlMapClientTemplate().update("computation.update_SCL_marksAll", input1);
-
-						}
-					} else if (checkforUPD_Other.size() > 0) {
-						count = getSqlMapClientTemplate().update("computation.update_SCL_marks2_other", input);
-
-						if (input.getComponent_id().equalsIgnoreCase("JM")) {
-							count = getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech", input);
-						}
-
-						for (int j = 0; j < checkBinding.size(); j++) {
-							input1.setRegistration_number(checkBinding.get(j).getRegistration_number());
-							input1.setComponent_id(input.getComponent_id());
-							input1.setProgram_id(checkBinding.get(j).getProgram_id());
-							input1.setUser_id(input.getUser_id());
-							input1.setTotalMarks(input.getTotalMarks());
-							input1.setMarks_obt(input.getMarks_obt());
-
-							count = getSqlMapClientTemplate().update("computation.update_SCL_marksAll_other", input1);
-
-						}
 					}
 					bean1.setFlag("OK");
+					
 				} catch (Exception e) {
 					ts.rollbackToSavepoint(savePoint);
 					e.printStackTrace();
@@ -2069,6 +2036,73 @@ public String runComputationforAll(ReportInfoGetter input,String mode) {
 				}
 
 				return bean1;
+					
+					
+					//////////////////////////////////////////////////////
+					
+//					if (checkforINS.size() > 0) {
+//						count = getSqlMapClientTemplate().update("computation.update_SCL_marks", input);
+//
+//						if (input.getComponent_id().equalsIgnoreCase("JM")) {
+//							count = getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech", input);
+//						}
+//
+//						for (int j = 0; j < checkBinding.size(); j++) {
+//							input1.setRegistration_number(checkBinding.get(j).getRegistration_number());
+//							input1.setComponent_id(input.getComponent_id());
+//							input1.setProgram_id(checkBinding.get(j).getProgram_id());
+//							input1.setUser_id(input.getUser_id());
+//							input1.setTotalMarks(input.getTotalMarks());
+//							input1.setMarks_obt(input.getMarks_obt());
+//
+//							count = getSqlMapClientTemplate().update("computation.update_SCL_marksAll", input1);
+//
+//						}
+//					} else if (checkforUPD.size() > 0) {
+//						count = getSqlMapClientTemplate().update("computation.update_SCL_marks2", input);
+//
+//						if (input.getComponent_id().equalsIgnoreCase("JM")) {
+//							count = getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech", input);
+//						}
+//
+//						for (int j = 0; j < checkBinding.size(); j++) {
+//							input1.setRegistration_number(checkBinding.get(j).getRegistration_number());
+//							input1.setComponent_id(input.getComponent_id());
+//							input1.setProgram_id(checkBinding.get(j).getProgram_id());
+//							input1.setUser_id(input.getUser_id());
+//							input1.setTotalMarks(input.getTotalMarks());
+//							input1.setMarks_obt(input.getMarks_obt());
+//
+//							count = getSqlMapClientTemplate().update("computation.update_SCL_marksAll", input1);
+//
+//						}
+//					} else if (checkforUPD_Other.size() > 0) {
+//						count = getSqlMapClientTemplate().update("computation.update_SCL_marks2_other", input);
+//
+//						if (input.getComponent_id().equalsIgnoreCase("JM")) {
+//							count = getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech", input);
+//						}
+//
+//						for (int j = 0; j < checkBinding.size(); j++) {
+//							input1.setRegistration_number(checkBinding.get(j).getRegistration_number());
+//							input1.setComponent_id(input.getComponent_id());
+//							input1.setProgram_id(checkBinding.get(j).getProgram_id());
+//							input1.setUser_id(input.getUser_id());
+//							input1.setTotalMarks(input.getTotalMarks());
+//							input1.setMarks_obt(input.getMarks_obt());
+//
+//							count = getSqlMapClientTemplate().update("computation.update_SCL_marksAll_other", input1);
+//
+//						}
+//					}
+//					bean1.setFlag("OK");
+//				} catch (Exception e) {
+//					ts.rollbackToSavepoint(savePoint);
+//					e.printStackTrace();
+//					bean1.setFlag("NOTOK");
+//				}
+//
+//				return bean1;
 			}
 
 		});

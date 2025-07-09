@@ -866,6 +866,26 @@
 		and fc.councelling_status in ('INS') and  coalesce(scl.modifier_id,"")  !='COUNCIL_VER'
 		and scl.registration_number =#registration_number#;
 	</update>
+	<!--  Arush on 09-07-2025 -->
+	<update id="update_SCL_marks_new">
+		
+		update student_call_list scl
+	    set scl.marks_obtained=#marks_obt#,
+		scl.total_marks=#totalMarks#,
+		scl.marks_percentage= coalesce(round((#marks_obt#/#totalMarks#)*100,2),0),
+		scl.modification_time = now(),
+		scl.modifier_id =  'COUNCIL',
+		scl.creator_id=#user_id# 
+		
+		where scl.component_id=#component_id#
+		        
+		 and  coalesce(scl.modifier_id,"")  !='COUNCIL_VER'
+		and scl.registration_number 
+		in (select registration_number from applicant_program_registration where application_number=#application_number#	
+		);
+		
+			</update>
+	
 
 	<update id="update_SCL_marksAll">
 
