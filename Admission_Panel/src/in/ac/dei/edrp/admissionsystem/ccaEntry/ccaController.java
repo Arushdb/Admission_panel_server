@@ -250,6 +250,8 @@ private ccaDao ccaDao;
 			    
 			    List <cca_intBean> CandidateInfo =ccaDao.getCandidateInfo(input1);
 			    List <cca_intBean> coucenllingStatus =ccaDao.getCouncellingStatus(input1);
+			    String mode = input1.getCalled();
+			    System.out.println("Called in mode:"+mode);
 			    
 			    if(CandidateInfo.size()>0)
 			    {
@@ -267,8 +269,12 @@ private ccaDao ccaDao;
 			    		jsonObject.put("registration_number", coucenllingStatus.get(0).getRegistration_number());
 			    	}
 			    	else
-			    	{
+			    	{  
+			    		// Arush on 10-07-2025 Only needed when Verification is being done
+			    		if (mode.equalsIgnoreCase("V")) 
 			    		jsonObject.put("eligibility_status", "NON");
+			    		else
+			    			jsonObject.put("eligibility_status", "INS");
 			    	}
 			    	
 			    	array1.add(jsonObject);
