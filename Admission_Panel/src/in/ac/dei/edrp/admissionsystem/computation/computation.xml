@@ -404,8 +404,8 @@
 		coalesce(t4.totalactual,0)+coalesce(t5.totalactual,0) as finaltotalactual
 		from(select t2.* from (
 		select component_group,pc.program_id
-		,registration_number,sum(computed_marks) as
-		totalscore,sum(actual_computed_marks) as
+		,registration_number,round(sum(computed_marks),3) as
+		totalscore,round(sum(actual_computed_marks),3) as
 		totalactual from program_components pc
 		join student_call_list scl on pc.program_id = scl.program_id and
 		pc.component_id = scl.component_id
@@ -413,10 +413,10 @@
 		group by registration_number,component_group)t2
 		join
 		(
-		select registration_number,component_group,max(totalscore) as maxscore from
+		select registration_number,component_group,round(max(totalscore),3) as maxscore from
 		(
-		select scl.registration_number,component_group,sum(computed_marks) as
-		totalscore,sum(actual_computed_marks) as
+		select scl.registration_number,component_group,round(sum(computed_marks),3) as
+		totalscore,round(sum(actual_computed_marks),3) as
 		totalactual from program_components pc
 		join student_call_list scl on pc.program_id = scl.program_id and
 		pc.component_id = scl.component_id
@@ -434,8 +434,8 @@
 		left join
 		(
 		select
-		pc.program_id,registration_number,component_group,coalesce(sum(computed_marks),0)
-		as totalscore,coalesce(sum(actual_computed_marks),0) as
+		pc.program_id,registration_number,component_group,round(coalesce(sum(computed_marks),0),3)
+		as totalscore,round(coalesce(sum(actual_computed_marks),0),3) as
 		totalactual from program_components pc
 		join student_call_list scl on pc.program_id = scl.program_id and
 		pc.component_id = scl.component_id
@@ -464,8 +464,8 @@
 		coalesce(t4.totalactual,0)+coalesce(t5.totalactual,0) as finaltotalactual
 		from(select t2.* from (
 		select component_group,pc.program_id
-		,registration_number,sum(computed_marks_roundoff) as
-		totalscore,sum(actual_computed_marks_roundoff) as
+		,registration_number,round(sum(computed_marks_roundoff),3) as
+		totalscore,round(sum(actual_computed_marks_roundoff),3) as
 		totalactual from program_components pc
 		join student_call_list scl on pc.program_id = scl.program_id and
 		pc.component_id = scl.component_id
@@ -473,10 +473,10 @@
 		group by registration_number,component_group)t2
 		join
 		(
-		select registration_number,component_group,max(totalscore) as maxscore from
+		select registration_number,component_group,round(max(totalscore),3) as maxscore from
 		(
-		select scl.registration_number,component_group,sum(computed_marks_roundoff)
-		as totalscore,sum(actual_computed_marks_roundoff) as
+		select scl.registration_number,component_group,round(sum(computed_marks_roundoff),3)
+		as totalscore,round(sum(actual_computed_marks_roundoff),3) as
 		totalactual from program_components pc
 		join student_call_list scl on pc.program_id = scl.program_id and
 		pc.component_id = scl.component_id
@@ -494,7 +494,7 @@
 		(
 		select
 		pc.program_id,registration_number,component_group,coalesce(sum(computed_marks_roundoff),0)
-		as totalscore,coalesce(sum(actual_computed_marks_roundoff),0) as
+		as totalscore,round(coalesce(sum(actual_computed_marks_roundoff),0),3) as
 		totalactual from program_components pc
 		join student_call_list scl on pc.program_id = scl.program_id and
 		pc.component_id = scl.component_id
@@ -522,8 +522,8 @@
 		coalesce(t4.totalactual,0)+coalesce(t5.totalactual,0) as finaltotalactual
 		from(select t2.* from (
 		select component_group,pc.program_id
-		,registration_number,sum(computed_marks) as
-		totalscore,sum(actual_computed_marks) as
+		,registration_number,round(sum(computed_marks),3) as
+		totalscore,round(sum(actual_computed_marks),3) as
 		totalactual from program_components pc
 		join student_call_list scl on pc.program_id = scl.program_id and
 		pc.component_id = scl.component_id
@@ -533,10 +533,10 @@
 		group by registration_number,component_group)t2
 		join
 		(
-		select registration_number,component_group,max(totalscore) as maxscore from
+		select registration_number,component_group,round(max(totalscore),3) as maxscore from
 		(
 		select scl.registration_number,component_group,sum(computed_marks) as
-		totalscore,sum(actual_computed_marks) as
+		totalscore,round(sum(actual_computed_marks),3) as
 		totalactual from program_components pc
 		join student_call_list scl on pc.program_id = scl.program_id and
 		pc.component_id = scl.component_id
@@ -558,8 +558,8 @@
 		left join
 		(
 		select
-		pc.program_id,registration_number,component_group,coalesce(sum(computed_marks),0)
-		as totalscore,coalesce(sum(actual_computed_marks),0) as
+		pc.program_id,registration_number,component_group,round(coalesce(sum(computed_marks),0),3)
+		as totalscore,round(coalesce(sum(actual_computed_marks),0),3) as
 		totalactual from program_components pc
 		join student_call_list scl on pc.program_id = scl.program_id and
 		pc.component_id = scl.component_id
