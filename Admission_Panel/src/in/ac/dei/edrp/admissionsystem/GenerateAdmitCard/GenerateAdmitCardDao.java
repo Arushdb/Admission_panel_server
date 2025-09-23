@@ -18,5 +18,7 @@ public interface GenerateAdmitCardDao {
     void setAdmitCardPublished(String programId);
  // Fetch current session year from university_master
     GenerateAdmitCardBean getSessionYear();
+    GenerateAdmitCardBean getRetMonthYear();
+    
     
 }

@@ -12,6 +12,12 @@ public class generateAdmitCardImpl extends SqlMapClientDaoSupport implements Gen
     public List<GenerateAdmitCardBean> getPrograms() {
         return getSqlMapClientTemplate().queryForList("generateAdmitCard.getPrograms");
     }
+    
+    @Override
+    public GenerateAdmitCardBean getRetMonthYear() {
+        return (GenerateAdmitCardBean) getSqlMapClientTemplate().queryForObject("generateAdmitCard.getRetMonthYear");
+    }
+   
 
     @SuppressWarnings("unchecked")
     public List<GenerateAdmitCardBean> getApplicantsEntrance(String programId) {

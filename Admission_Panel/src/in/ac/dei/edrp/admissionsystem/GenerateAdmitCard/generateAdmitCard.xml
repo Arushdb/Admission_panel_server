@@ -18,10 +18,30 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
         JOIN admitcard_table at ON pm.program_id = at.program_id order by pm.program_name
     </select>
     
-    <select id="getsessiondate" resultClass="admitcardInfo">
+   <!--  <select id="getsessiondate" resultClass="admitcardInfo">
 		SELECT  concat(substring(start_date,1,4),'-',substring(end_date,1,4)) sessionYear FROM university_master where current_status=1;
 
-  </select>
+  </select>--> 
+  
+  <!-- RET month-year for PH -->
+<select id="getRetMonthYear" resultClass="admitcardInfo">
+    SELECT CONCAT('RET,', sv.value, '-', SUBSTRING(um.start_date, 1, 4)) AS retMonthYear
+    FROM system_values sv
+    JOIN university_master um ON sv.university_id = um.university_code
+    WHERE sv.code = 'ADMMON'
+      AND um.current_status = 1
+</select>
+
+<!-- Normal session year -->
+<select id="getsessiondate" resultClass="admitcardInfo">
+    SELECT CONCAT(SUBSTRING(start_date,1,4), '-', SUBSTRING(end_date,1,4)) 
+    AS sessionYear
+    FROM university_master
+    WHERE current_status = 1
+</select>
+  
+  
+
   
   <select id="getOtherPrograms" parameterClass="admitcardInfo" resultClass="admitcardInfo">
    SELECT eec.application_number AS applicationNumber,
@@ -52,7 +72,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
                es.date_of_birth AS dob,
                CONCAT_WS(',', aam.address_line1,aam.address_line2,aam.city,aam.state,aam.pincode) AS address,
                CONCAT(pm.program_code,'-',eec.application_number,'-25') AS rollNumber,eec.registration_number registrationNumber,
-               pm.program_name AS programName,
+               pm.program_name AS programName,pm.tencodes AS tencodes,
                pm.program_id AS programId,
                abc2.venue AS venue,
                DATE_FORMAT(at.date,'%d %M %Y') AS testdate,
@@ -84,7 +104,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
                CONCAT_WS(',', aam.address_line1,aam.address_line2,aam.city,aam.state,aam.pincode) AS address,
                CONCAT(pm.program_code,'-',stn.test_number,'-25') AS rollNumber,stn.registration_number registrationNumber,
                pm.program_name AS programName,pm.entrance_test_exist AS entranceTestExist,
-               pm.program_id AS programId,
+               pm.program_id AS programId,pm.tencodes AS tencodes,
                abc2.venue AS venue,sas.application_document_path as docpath
         FROM student_test_number stn
         JOIN entity_student es ON es.application_number=stn.test_number

@@ -139,6 +139,8 @@ public class generateAdmitCardController extends MultiActionController {
         System.out.println("DEBUG >> subjects = " + applicant.getSubjects());
         System.out.println("DEBUG >> entranceTestExist = " + applicant.getEntranceTestExist());
         System.out.println("Session Year     : " + applicant.getSessionYear());
+       // System.out.println("Ret Session Year     : " + applicant.getRetMonthYear());
+        System.out.println("Tencodes: " + applicant.getTencodes());
         System.out.println("=============================");
 
       //  String basePath = System.getProperty("user.home") + File.separator + "AdmitCards" + File.separator + programId;
@@ -217,17 +219,43 @@ public class generateAdmitCardController extends MultiActionController {
             System.err.println("Logo load failed: " + e.getMessage());
         }
 
+       // Paragraph headerText = new Paragraph(
+       //         "DAYALBAGH EDUCATIONAL INSTITUTE, DAYALBAGH, AGRA \n\n" +
+       //         "                            ADMIT CARD : " + (applicant.getSessionYear() != null ? applicant.getSessionYear() : ""),
+       //         FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)
+      //  );
+      //  headerText.setAlignment(Element.ALIGN_CENTER);
+      //  headerText.setSpacingAfter(10f); // extra spacing under title
+      //  PdfPCell headerCell = new PdfPCell(headerText);
+      //  headerCell.setBorder(Rectangle.NO_BORDER);
+      //  headerCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+      //  headerTable.addCell(headerCell);
+        
+        String headerSession;
+        if ("PH".equalsIgnoreCase(applicant.getTencodes())) {
+            GenerateAdmitCardBean retBean = generateAdmitCardDao.getRetMonthYear();
+            System.out.println("RET Month-Year from DB: " + (retBean != null ? retBean.getRetMonthYear() : "NULL"));
+            headerSession = (retBean != null && retBean.getRetMonthYear() != null) 
+                              ? retBean.getRetMonthYear() : "";
+        } else {
+            GenerateAdmitCardBean sessionBean = generateAdmitCardDao.getSessionYear();
+            headerSession = (sessionBean != null && sessionBean.getSessionYear() != null) 
+                              ? sessionBean.getSessionYear() : "";
+        }
+
         Paragraph headerText = new Paragraph(
-                "DAYALBAGH EDUCATIONAL INSTITUTE, DAYALBAGH, AGRA \n\n" +
-                "                            ADMIT CARD : " + (applicant.getSessionYear() != null ? applicant.getSessionYear() : ""),
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)
+            "DAYALBAGH EDUCATIONAL INSTITUTE, DAYALBAGH, AGRA \n\n" +
+            "                            ADMIT CARD : " + headerSession,
+            FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)
         );
         headerText.setAlignment(Element.ALIGN_CENTER);
-        headerText.setSpacingAfter(10f); // extra spacing under title
+        headerText.setSpacingAfter(10f);
+
         PdfPCell headerCell = new PdfPCell(headerText);
         headerCell.setBorder(Rectangle.NO_BORDER);
         headerCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         headerTable.addCell(headerCell);
+
 
         document.add(headerTable);
       //  document.add(Chunk.NEWLINE);
@@ -237,7 +265,8 @@ public class generateAdmitCardController extends MultiActionController {
 
         // --- APPLICANT INFO (Left: details, Right: photo/signature) ---
         PdfPTable infoTable = new PdfPTable(2);
-        infoTable.setWidthPercentage(100);
+       // infoTable.setWidthPercentage(100);
+        infoTable.setWidthPercentage(80);
         infoTable.setWidths(new float[]{70, 30});
 
         // Left side: Program, Name, Father, Address
@@ -373,7 +402,9 @@ public class generateAdmitCardController extends MultiActionController {
         Font smallFont = FontFactory.getFont(FontFactory.HELVETICA, 8, Font.NORMAL);
         // --- DETAILS TABLE ---
         PdfPTable details = new PdfPTable(2);
-        details.setWidthPercentage(100);
+       // details.setWidthPercentage(100);
+        
+        details.setWidthPercentage(80);
         details.setWidths(new float[]{20, 80});
 
         addCell(details, "Application No.", safe(applicant.getApplicationNumber()), smallFont);
@@ -389,7 +420,7 @@ public class generateAdmitCardController extends MultiActionController {
         }
 
         // Check program tencodes for Interview On/Time
-        if ("PH".equalsIgnoreCase(applicant.getTencodes())) {
+        if ("PF".equalsIgnoreCase(applicant.getTencodes())) {
             addCell(details, "Personal Interview On", safe(applicant.getInterviewdate()), smallFont);
             addCell(details, "Interview Time", safe(applicant.getInterviewtime()), smallFont);
         } else {
@@ -431,7 +462,7 @@ public class generateAdmitCardController extends MultiActionController {
      // --- QR CODE + OTHER PROGRAMS ---
         PdfPTable qrTable = new PdfPTable(2);
         qrTable.setWidthPercentage(60);
-        qrTable.setWidths(new float[]{20, 40});
+        qrTable.setWidths(new float[]{10, 30});
 
         // Left: QR Code
         PdfPCell qrCell = new PdfPCell();
