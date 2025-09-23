@@ -35,6 +35,11 @@ public class GenerateAdmitCardBean implements Serializable {
     private Date startDate;
     private Date endDate;
     private String subjects;
+    
+    private String retMonthYear;
+    
+    public String getRetMonthYear() { return retMonthYear; }
+    public void setRetMonthYear(String retMonthYear) { this.retMonthYear = retMonthYear; }
 
     public String getSubjects() {
         return subjects;
@@ -67,10 +72,10 @@ public class GenerateAdmitCardBean implements Serializable {
 
 
     public String getSessionYear() {
-        return sessionYear;
+       return sessionYear;
     }
 
-    public void setSessionYear(String sessionYear) {
+   public void setSessionYear(String sessionYear) {
         this.sessionYear = sessionYear;
     }
 
