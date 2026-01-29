@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+  PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="QrAttendance">
+
+    <typeAlias
+        alias="qrBean"
+        type="in.ac.dei.edrp.admissionsystem.Bean.QrAttendanceBean"/>
+
+    <!-- FETCH STUDENT -->
+    <select id="getStudentByQr"
+            parameterClass="qrBean"
+            resultClass="qrBean">
+
+        SELECT
+            es.application_number               AS application_number,
+            stn.program_id                      AS program_id,
+            sas.application_document_path       AS photo_path,
+            sas.application_document_path         AS signature_path,
+            es.first_name                       AS student_name,
+            es.date_of_birth AS dob,
+            pm.program_name                     AS program_name
+        FROM entity_student es
+        JOIN student_application_status sas
+             ON es.application_number = sas.application_number
+        JOIN student_test_number stn
+             ON stn.test_number = es.application_number
+        LEFT JOIN program_master pm
+             ON pm.program_id = stn.program_id
+        WHERE es.application_number = #application_number#
+          AND sas.verification_status = 'REC'
+
+    </select>
+
+    <!-- INSERT ATTENDANCE -->
+    <insert id="insertAttendance" parameterClass="qrBean">
+        INSERT INTO qr_attendance
+        (
+            application_number,
+            program_id,
+            attendance_time,
+            status,
+            reason,
+            userName
+        )
+        VALUES
+        (
+            #application_number#,
+            #program_id#,
+            NOW(),
+            #status#,
+            #reason#,
+            #userName#
+        )
+    </insert>
+
+    <!-- LOGIN -->
+    <select id="checkLogin"
+            parameterClass="qrBean"
+            resultClass="int">
+        SELECT COUNT(*)
+        FROM edit_panel_authority
+        WHERE user_name = #userName#
+          AND password = SHA1(#password#)
+          AND panel_authority = 'QR01'
+    </select>
+
+</sqlMap>
