@@ -18,6 +18,9 @@ http://www.springframework.org/schema/context
 <!-- 
 <bean class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping"/>
  -->
+ 
+ <bean class="org.springframework.web.servlet.mvc.multiaction.InternalPathMethodNameResolver"/>
+ 
 
      
 <bean name="/login/*.htm" class="in.ac.dei.edrp.admissionsystem.login.loginController" >
@@ -45,6 +48,48 @@ http://www.springframework.org/schema/context
 </bean>
 
 
+
+<!-- DAO Bean -->
+<bean id="generateAdmitCardDao"
+      class="in.ac.dei.edrp.admissionsystem.GenerateAdmitCard.generateAdmitCardImpl">
+    <property name="sqlMapClient" ref="sqlMapClient"/>
+</bean>
+
+<!-- Controller Bean -->
+<bean name="/generateAdmitCard/*.htm"
+      class="in.ac.dei.edrp.admissionsystem.GenerateAdmitCard.generateAdmitCardController">
+    <property name="generateAdmitCardDao" ref="generateAdmitCardDao"/>
+</bean>
+
+<!--  <bean id="qrVerifyDao" 
+      class="in.ac.dei.edrp.admissionsystem.qrVerify.qrVerifyImpl">
+    <property name="sqlMapClient" ref="sqlMapClient"/>
+</bean>
+ 
+ <bean name="/qrVerify/*.htm"
+      class="in.ac.dei.edrp.admissionsystem.qrVerify.qrVerifyController">
+    <property name="qrVerifyDao" ref="qrVerifyDao"/>
+</bean> -->
+ 
+
+ <!-- DAO -->
+    <bean id="qrAttendanceDao"
+          class="in.ac.dei.edrp.admissionsystem.QrAttendence.QrAttendanceDaoImpl">
+        <property name="sqlMapClient" ref="sqlMapClient"/>
+    </bean>
+
+    <!-- Controller  -->
+    <bean name="/qrAttendance/*.htm"
+          class="in.ac.dei.edrp.admissionsystem.QrAttendence.QrAttendanceController">
+        <property name="qrAttendanceDao" ref="qrAttendanceDao"/>
+        
+    </bean> 
+    
+    
+   
+
+
+    
 
 
 
