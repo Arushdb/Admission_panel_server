@@ -496,7 +496,7 @@ response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
             System.out.println("===== generateExcel() COMPLETED =====");
 
-        } catch (org.apache.catalina.connector.ClientAbortException e) {
+        } catch (IOException e) {
             // Normal when user cancels download
             System.out.println("Client aborted download.");
 
