@@ -49,17 +49,17 @@ http://www.springframework.org/schema/context
 
 
 
-<!-- DAO Bean -->
+<!-- DAO Bean 
 <bean id="generateAdmitCardDao"
       class="in.ac.dei.edrp.admissionsystem.GenerateAdmitCard.generateAdmitCardImpl">
     <property name="sqlMapClient" ref="sqlMapClient"/>
-</bean>
+</bean> -->
 
-<!-- Controller Bean -->
+<!-- Controller Bean 
 <bean name="/generateAdmitCard/*.htm"
       class="in.ac.dei.edrp.admissionsystem.GenerateAdmitCard.generateAdmitCardController">
     <property name="generateAdmitCardDao" ref="generateAdmitCardDao"/>
-</bean>
+</bean> -->
 
 <!--  <bean id="qrVerifyDao" 
       class="in.ac.dei.edrp.admissionsystem.qrVerify.qrVerifyImpl">
