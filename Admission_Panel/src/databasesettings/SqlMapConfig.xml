@@ -22,7 +22,7 @@
 
 <sqlMap resource="in/ac/dei/edrp/admissionsystem/verification/Verify.xml"/>
 <!--<sqlMap resource="in/ac/dei/edrp/admissionsystem/GenerateAdmitCard/generateAdmitCard.xml"/> -->
-<sqlMap resource="in/ac/dei/edrp/admissionsystem/qrVerify/qrVerify.xml"/>
+<!--<sqlMap resource="in/ac/dei/edrp/admissionsystem/qrVerify/qrVerify.xml"/>-->
 <sqlMap resource="in/ac/dei/edrp/admissionsystem/QrAttendence/qr_attendence.xml"/>
 <!--  
 <sqlMap resource="elloraBranch/ellora.xml"/>
