@@ -62,7 +62,7 @@
     FROM application_attendance
     WHERE application_number = #application_number#
     AND program_id = #program_id#
-    AND attendance_type_id = #attendance_type#
+    AND attendance_type_id = #attendance_type# AND status in ('VERIFIED','UNVERIFIED')
 </select>
 
 <select id="checkAttendanceAuthority"
