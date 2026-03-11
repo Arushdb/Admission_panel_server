@@ -206,6 +206,27 @@ public class QrAttendanceController extends MultiActionController {
                 writeResponse(response, obj);
                 return;
             }
+            
+            System.out.println("Checking duplicate attendance...");
+
+            QrAttendanceBean dupBean = new QrAttendanceBean();
+            dupBean.setApplication_number(dbData.getApplication_number());
+            dupBean.setProgram_id(dbData.getProgram_id());
+            dupBean.setAttendance_type(input.getAttendance_type());
+
+            int duplicate = qrAttendanceDao.checkAttendance(dupBean);
+
+            System.out.println("Duplicate result: " + duplicate);
+
+            if (duplicate > 0) {
+                System.out.println("Attendance already marked");
+
+                obj.put("status", "ATTENDANCE_EXISTS");
+                obj.put("message", "Attendance already marked");
+
+                writeResponse(response, obj);
+                return;
+            }
 
             String baseUrl = request.getScheme() + "://" +
                     request.getServerName() + ":" +
@@ -403,8 +424,9 @@ response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         writeResponse(response, obj);
     }
 
-
-
+    
+   
+   
     /* ================= GENERATE EXCEL ================= */
     public void generateExcel(HttpServletRequest request,
                               HttpServletResponse response) {

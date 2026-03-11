@@ -17,6 +17,8 @@ public interface QrAttendanceDao {
     Integer checkAttendanceAuthority(QrAttendanceBean input);
     
     List<QrAttendanceBean> getExcelReport(String userName);
+    
+   
 
 
 }

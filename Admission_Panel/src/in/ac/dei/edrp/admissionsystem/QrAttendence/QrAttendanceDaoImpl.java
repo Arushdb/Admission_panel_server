@@ -54,7 +54,9 @@ public class QrAttendanceDaoImpl extends SqlMapClientDaoSupport
 
         return 1;       // inserted
     }
-
+    
+    
+    
     
     @Override
     public Integer checkAttendanceAuthority(QrAttendanceBean input) {
