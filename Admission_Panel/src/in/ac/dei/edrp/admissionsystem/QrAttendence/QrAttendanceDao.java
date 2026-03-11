@@ -9,16 +9,13 @@ public interface QrAttendanceDao {
 
     int saveAttendance(QrAttendanceBean input);
 
+    Integer checkAttendance(QrAttendanceBean input);
+
+    Integer checkAttendanceAuthority(QrAttendanceBean input);
+
+    Integer checkAdmissionConfig(QrAttendanceBean input);
+
     int checkLogin(QrAttendanceBean input);
 
-    // NEW
-    Integer checkAdmissionConfig(QrAttendanceBean input);
-    
-    Integer checkAttendanceAuthority(QrAttendanceBean input);
-    
     List<QrAttendanceBean> getExcelReport(String userName);
-    
-   
-
-
 }
