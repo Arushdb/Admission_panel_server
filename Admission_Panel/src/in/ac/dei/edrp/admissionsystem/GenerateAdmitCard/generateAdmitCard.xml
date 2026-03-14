@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="generateAdmitCard">
+
+    <typeAlias alias="admitcardInfo" type="in.ac.dei.edrp.admissionsystem.Bean.GenerateAdmitCardBean"/>
+    <typeAlias alias="entrancePaper" type="in.ac.dei.edrp.admissionsystem.Bean.EntranceTestPaper"/>
+
+    <!-- Step 1: Get Programs -->
+    <select id="getPrograms" resultClass="admitcardInfo">
+        SELECT pm.program_id AS programId,
+               pm.program_name AS programName,
+               pm.tencodes,
+               pm.entrance_test_exist AS entranceTestExist
+        FROM program_master pm
+        JOIN admitcard_table at ON pm.program_id = at.program_id order by pm.program_name
+    </select>
+    
+   <!--  <select id="getsessiondate" resultClass="admitcardInfo">
+		SELECT  concat(substring(start_date,1,4),'-',substring(end_date,1,4)) sessionYear FROM university_master where current_status=1;
+
+  </select>--> 
+  
+  <!-- RET month-year for PH -->
+<select id="getRetMonthYear" resultClass="admitcardInfo">
+    SELECT CONCAT('RET,', sv.value, '-', SUBSTRING(um.start_date, 1, 4)) AS retMonthYear
+    FROM system_values sv
+    JOIN university_master um ON sv.university_id = um.university_code
+    WHERE sv.code = 'ADMMON'
+      AND um.current_status = 1
+</select>
+
+<!-- Normal session year -->
+<select id="getsessiondate" resultClass="admitcardInfo">
+    SELECT CONCAT(SUBSTRING(start_date,1,4), '-', SUBSTRING(end_date,1,4)) 
+    AS sessionYear
+    FROM university_master
+    WHERE current_status = 1
+</select>
+  
+  
+
+  
+  <select id="getOtherPrograms" parameterClass="admitcardInfo" resultClass="admitcardInfo">
+   SELECT eec.application_number AS applicationNumber,
+          eec.program_name       AS programName,
+          eec.program_id         AS programId
+   FROM entrance_eligible_candidates eec
+   JOIN student_application_status sas 
+     ON eec.application_number = sas.application_number
+   WHERE (
+            (eec.program_id != #programId#
+             AND eec.application_number = #applicationNumber#)
+         OR (
+             eec.application_number IN (
+                 SELECT binded_application_number 
+                 FROM student_application_status 
+                 WHERE application_number = #applicationNumber#
+             )
+             AND eec.program_id != #programId#
+         )
+         )
+</select>
+
+    <!-- Step 2a: Applicants if entrance_test_exist = 'Y' -->
+    <select id="getApplicantsEntrance" resultClass="admitcardInfo" parameterClass="string">
+        SELECT eec.application_number AS applicationNumber,
+               es.first_name AS name,
+               es.father_first_name AS fatherName,
+               es.date_of_birth AS dob,
+               CONCAT_WS(',', aam.address_line1,aam.address_line2,aam.city,aam.state,aam.pincode) AS address,
+               CONCAT(pm.program_code,'-',eec.application_number,'-25') AS rollNumber,eec.registration_number registrationNumber,
+               pm.program_name AS programName,pm.tencodes AS tencodes,
+               pm.program_id AS programId,
+               abc2.venue AS venue,
+               DATE_FORMAT(at.date,'%d %M %Y') AS testdate,
+               DATE_FORMAT(at.date,'%r') AS testtime ,
+               sas.application_document_path as docpath,pm.entrance_test_exist AS entranceTestExist,
+               CONCAT(paper1,' ',paper2, ' ',paper3,' ',paper4) AS subjects
+        FROM entrance_eligible_candidates eec
+        JOIN program_master pm ON eec.program_id=pm.program_id
+        JOIN entity_student es ON es.application_number=eec.application_number
+        JOIN admission_addresses_master aam ON aam.user_id=es.student_id AND aam.address_key='PER'
+        JOIN student_application_status sas on sas.application_number = es.application_number
+        JOIN admitcard_table at ON at.program_id=pm.program_id
+        LEFT JOIN (
+            SELECT av.application_number, av.program_id,
+                   IF(bc.ext='', CONCAT(bc.building_name,',',bc.location),
+                                CONCAT(bc.building_name,',',bc.location,',',bc.ext)) AS venue
+            FROM admitcard_vanue av
+            JOIN building_codes bc ON av.center_code=bc.building_code
+        ) abc2 ON eec.application_number=abc2.application_number AND eec.program_id=abc2.program_id
+        WHERE eec.program_id=#value#
+    </select>
+
+    <!-- Step 2b: Applicants if entrance_test_exist = 'N' -->
+    <select id="getApplicantsDirect" resultClass="admitcardInfo" parameterClass="string">
+        SELECT stn.test_number AS applicationNumber,
+               es.first_name AS name,
+               es.father_first_name AS fatherName,
+               es.date_of_birth AS dob,
+               CONCAT_WS(',', aam.address_line1,aam.address_line2,aam.city,aam.state,aam.pincode) AS address,
+               CONCAT(pm.program_code,'-',stn.test_number,'-25') AS rollNumber,stn.registration_number registrationNumber,
+               pm.program_name AS programName,pm.entrance_test_exist AS entranceTestExist,
+               pm.program_id AS programId,pm.tencodes AS tencodes,
+               abc2.venue AS venue,sas.application_document_path as docpath
+        FROM student_test_number stn
+        JOIN entity_student es ON es.application_number=stn.test_number
+        JOIN admission_addresses_master aam ON aam.user_id=es.student_id AND aam.address_key='PER'
+        JOIN student_application_status sas on sas.application_number = es.application_number
+        JOIN program_master pm ON pm.program_id=stn.program_id
+        LEFT JOIN (
+            SELECT av.application_number, av.program_id,
+                   IF(bc.ext='', CONCAT(bc.building_name,',',bc.location),
+                                CONCAT(bc.building_name,',',bc.location,',',bc.ext)) AS venue
+            FROM admitcard_vanue av
+            JOIN building_codes bc ON av.center_code=bc.building_code
+        ) abc2 ON stn.test_number=abc2.application_number AND stn.program_id=abc2.program_id
+        WHERE stn.program_id=#value# AND stn.called='Y'
+    </select>
+
+    <!-- Entrance Test Papers -->
+    <select id="getETForAdmCard" resultClass="entrancePaper" parameterClass="admitcardInfo">
+        SELECT stt.component_description AS paperName,
+               sp.paper_code AS paperCode
+        FROM applicant_program_registration apr
+        JOIN student_paper sp ON sp.registration_number=apr.registration_number
+            AND sp.program_id=apr.program_id
+        JOIN system_table_two stt ON stt.component_code=sp.paper_code
+            AND stt.group_code='PAPCOD'
+        WHERE apr.application_number=#applicationNumber#
+          AND apr.program_id=#programId#
+    </select>
+
+    <!-- Updates -->
+    <update id="updateAdmitCardPath" parameterClass="admitcardInfo">
+        UPDATE student_registration
+        SET document_path=#admitCardPath#
+        WHERE registration_number=#registrationNumber#
+    </update>
+
+    <update id="setAdmitCardAvailable" parameterClass="string">
+        UPDATE applicant_program_registration
+        SET admit_card_available='X'
+        WHERE registration_number=#value#
+    </update>
+
+    <update id="setAdmitCardPublished" parameterClass="string">
+        UPDATE program_master
+        SET admit_card_published='Y'
+        WHERE program_id=#value#
+    </update>
+
+</sqlMap>

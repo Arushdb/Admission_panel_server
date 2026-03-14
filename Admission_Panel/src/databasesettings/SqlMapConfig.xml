@@ -21,6 +21,7 @@
 
 
 <sqlMap resource="in/ac/dei/edrp/admissionsystem/verification/Verify.xml"/>
+<sqlMap resource="in/ac/dei/edrp/admissionsystem/GenerateAdmitCard/generateAdmitCard.xml"/>
 <!--  
 <sqlMap resource="elloraBranch/ellora.xml"/>
 -->
