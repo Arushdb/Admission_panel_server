@@ -169,9 +169,9 @@ public class QrAttendanceController extends MultiActionController {
                 return;
             }
 
-            String user = (String)session.getAttribute("userName");
+            String userName = (String)session.getAttribute("username");
 
-            if(user == null){
+            if(userName == null){
                 response.setStatus(401);
                 return;
             }
@@ -225,9 +225,9 @@ public class QrAttendanceController extends MultiActionController {
                 return;
             }
 
-            String user = (String)session.getAttribute("userName");
+           String userName = (String)session.getAttribute("username");
 
-            if(user == null){
+            if(userName == null){
                 response.setStatus(401);
                 return;
             }
