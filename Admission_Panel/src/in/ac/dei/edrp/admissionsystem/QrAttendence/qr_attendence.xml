@@ -57,6 +57,53 @@
         )
     </insert>
     
+    
+     <insert id="insertUnverifiedAttendance" parameterClass="qrBean">
+        INSERT INTO application_attendance
+        (
+            application_number,
+            program_id,
+            attendance_time,
+            status,
+            reason,
+            userName,attendance_type_id
+        )
+        VALUES
+        (
+            #application_number#,
+            #program_id#,
+            NOW(),
+            #status#,
+            #reason#,
+            #userName#,
+            #attendance_type#
+        )
+    </insert>
+    
+    
+    
+    <insert id="insertVerifiedAttendance" parameterClass="qrBean">
+        INSERT INTO application_attendance
+        (
+            application_number,
+            program_id,
+            attendance_time,
+            status,
+             reason,
+            userName,attendance_type_id
+        )
+        VALUES
+        (
+            #application_number#,
+            #program_id#,
+            NOW(),
+            #status#,
+            'NULL',
+            #userName#,
+            #attendance_type#
+        )
+    </insert>
+    
     <select id="checkAttendanceDuplicate" parameterClass="qrBean" resultClass="int">
     SELECT COUNT(*)
     FROM application_attendance
