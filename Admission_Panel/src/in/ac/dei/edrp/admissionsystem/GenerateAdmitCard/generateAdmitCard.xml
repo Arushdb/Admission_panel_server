@@ -5,7 +5,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 <sqlMap namespace="generateAdmitCard">
 
-    <typeAlias alias="admitcardInfo" type="in.ac.dei.edrp.admissionsystem.Bean.GenerateAdmitCardBean"/>
+    <typeAlias alias="admitcardInfo" type="in.ac.dei.edrp.admissionsystem.Bean.GenerateAdmitCardBeanNew"/>
     <typeAlias alias="entrancePaper" type="in.ac.dei.edrp.admissionsystem.Bean.EntranceTestPaper"/>
 
     <!-- Step 1: Get Programs -->

@@ -11,7 +11,7 @@ import com.lowagie.text.pdf.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
-import in.ac.dei.edrp.admissionsystem.Bean.GenerateAdmitCardBean;
+import in.ac.dei.edrp.admissionsystem.Bean.GenerateAdmitCardBeanNew;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -35,7 +35,7 @@ public class generateAdmitCardController extends MultiActionController {
      */
     public ModelAndView getProgramList(HttpServletRequest request, HttpServletResponse response) {
         try {
-            List<GenerateAdmitCardBean> programs = generateAdmitCardDao.getPrograms();
+            List<GenerateAdmitCardBeanNew> programs = generateAdmitCardDao.getPrograms();
             String json = gson.toJson(programs);
 
             response.setContentType("application/json");
@@ -71,8 +71,8 @@ public class generateAdmitCardController extends MultiActionController {
             String programId = json.get("programId").getAsString();
 
             // Fetch program info
-            List<GenerateAdmitCardBean> programs = generateAdmitCardDao.getPrograms();
-            GenerateAdmitCardBean program = programs.stream()
+            List<GenerateAdmitCardBeanNew> programs = generateAdmitCardDao.getPrograms();
+            GenerateAdmitCardBeanNew program = programs.stream()
                     .filter(p -> p.getProgramId().equals(programId))
                     .findFirst()
                     .orElse(null);
@@ -84,7 +84,7 @@ public class generateAdmitCardController extends MultiActionController {
 
             
             // Fetch applicants
-            List<GenerateAdmitCardBean> applicants;
+            List<GenerateAdmitCardBeanNew> applicants;
             if ("Y".equalsIgnoreCase(program.getEntranceTestExist())) {
                 applicants = generateAdmitCardDao.getApplicantsEntrance(programId);
             } else {
@@ -96,10 +96,10 @@ public class generateAdmitCardController extends MultiActionController {
                 return null;
             }
             
-            GenerateAdmitCardBean sessionBean = generateAdmitCardDao.getSessionYear();
+            GenerateAdmitCardBeanNew sessionBean = generateAdmitCardDao.getSessionYear();
             String sessionYear = (sessionBean != null) ? sessionBean.getSessionYear() : "";
             // Generate PDF for each applicant
-            for (GenerateAdmitCardBean applicant : applicants) {
+            for (GenerateAdmitCardBeanNew applicant : applicants) {
             	applicant.setSessionYear(sessionYear);
             	generateAdmitCardPdf(request, applicant, programId, program.getEntranceTestExist());
                 generateAdmitCardDao.updateAdmitCardPath(applicant.getRegistrationNumber(), applicant.getAdmitCardPath());
@@ -124,7 +124,7 @@ public class generateAdmitCardController extends MultiActionController {
      * details table, QR, instructions and disclaimer.
      */
     private void generateAdmitCardPdf
-    (HttpServletRequest request, GenerateAdmitCardBean applicant,
+    (HttpServletRequest request, GenerateAdmitCardBeanNew applicant,
             String programId, String entranceTestExist) throws Exception {
         System.out.println("=== Generating Admit Card ===");
         System.out.println("Program ID       : " + programId);
@@ -233,12 +233,12 @@ public class generateAdmitCardController extends MultiActionController {
         
         String headerSession;
         if ("PH".equalsIgnoreCase(applicant.getTencodes())) {
-            GenerateAdmitCardBean retBean = generateAdmitCardDao.getRetMonthYear();
+        	GenerateAdmitCardBeanNew retBean = generateAdmitCardDao.getRetMonthYear();
             System.out.println("RET Month-Year from DB: " + (retBean != null ? retBean.getRetMonthYear() : "NULL"));
             headerSession = (retBean != null && retBean.getRetMonthYear() != null) 
                               ? retBean.getRetMonthYear() : "";
         } else {
-            GenerateAdmitCardBean sessionBean = generateAdmitCardDao.getSessionYear();
+        	GenerateAdmitCardBeanNew sessionBean = generateAdmitCardDao.getSessionYear();
             headerSession = (sessionBean != null && sessionBean.getSessionYear() != null) 
                               ? sessionBean.getSessionYear() : "";
         }
@@ -501,7 +501,7 @@ public class generateAdmitCardController extends MultiActionController {
         // Fetch other programs from DB
         String applicationNumber = applicant.getApplicationNumber();
         String selectedProgramId = applicant.getProgramId(); 
-        List<GenerateAdmitCardBean> otherPrograms = generateAdmitCardDao.getOtherPrograms(applicant.getApplicationNumber(), programId);
+        List<GenerateAdmitCardBeanNew> otherPrograms = generateAdmitCardDao.getOtherPrograms(applicant.getApplicationNumber(), programId);
 
      //   if (otherPrograms != null && !otherPrograms.isEmpty()) {
        //     PdfPTable progTable = new PdfPTable(1);
@@ -527,7 +527,7 @@ public class generateAdmitCardController extends MultiActionController {
 
             int slNo = 1; // serial number counter
 
-            for (GenerateAdmitCardBean prog : otherPrograms) {
+            for (GenerateAdmitCardBeanNew prog : otherPrograms) {
                 // Sl. No. + Application Number + Program Name
                 String progInfo = slNo + ". " + safe(prog.getApplicationNumber()) + " - " + safe(prog.getProgramName());
 
