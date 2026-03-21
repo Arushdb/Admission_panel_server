@@ -9,7 +9,7 @@
 <settings useStatementNamespaces="true"/>  
 
 <sqlMap resource="in/ac/dei/edrp/admissionsystem/login/Login.xml"/>
-<sqlMap resource="in/ac/dei/edrp/admissionsystem/admitcard/AdmitCard.xml"/>
+<!--<sqlMap resource="in/ac/dei/edrp/admissionsystem/admitcard/AdmitCard.xml"/> -->
 <sqlMap resource="in/ac/dei/edrp/admissionsystem/ccaEntry/cca_int.xml"/>
 <sqlMap resource="in/ac/dei/edrp/admissionsystem/computation/btech_jee.xml"/>
 <sqlMap resource="in/ac/dei/edrp/admissionsystem/computation/computation.xml"/>

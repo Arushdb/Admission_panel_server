@@ -482,7 +482,7 @@ public class generateAdmitCardController extends MultiActionController {
                     safe(applicant.getTestdate()) + "|" +
                     safe(applicant.getTesttime());
         	Image qrImage = generateQRCode(qrData);
-            qrImage.scaleAbsolute(30, 30);
+            qrImage.scaleAbsolute(50, 50);
             qrImage.setAlignment(Image.ALIGN_LEFT);
             qrCell.addElement(qrImage);
         } catch (Exception e) {
@@ -651,7 +651,7 @@ public class generateAdmitCardController extends MultiActionController {
 
 
 private Image generateQRCode(String text) throws Exception {
-    int size = 120;
+    int size = 140;
     QRCodeWriter qrCodeWriter = new QRCodeWriter();
     BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, size, size);
 
@@ -670,7 +670,7 @@ private Image generateQRCode(String text) throws Exception {
     byte[] pngData = baos.toByteArray();
 
     Image qrImage = Image.getInstance(pngData);
-    qrImage.scaleAbsolute(100, 100);
+    qrImage.scaleAbsolute(120, 120);
     return qrImage;
 }
 
