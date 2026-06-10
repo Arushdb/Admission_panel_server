@@ -15,7 +15,7 @@ public interface GenerateAdmitCardDao {
     void updateAdmitCardPath(String registrationNumber, String admitCardPath);
     
     void setAdmitCardAvailable(String registrationNumber);
-    void setAdmitCardPublished(String programId);
+   // void setAdmitCardPublished(String programId);
  // Fetch current session year from university_master
     GenerateAdmitCardBeanNew getSessionYear();
     GenerateAdmitCardBeanNew getRetMonthYear();

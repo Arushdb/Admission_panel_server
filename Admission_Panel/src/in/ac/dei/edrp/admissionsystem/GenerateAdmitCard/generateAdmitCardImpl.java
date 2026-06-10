@@ -53,9 +53,9 @@ public class generateAdmitCardImpl extends SqlMapClientDaoSupport implements Gen
         getSqlMapClientTemplate().update("generateAdmitCard.setAdmitCardAvailable", registrationNumber);
     }
 
-    public void setAdmitCardPublished(String programId) {
-        getSqlMapClientTemplate().update("generateAdmitCard.setAdmitCardPublished", programId);
-    }
+   // public void setAdmitCardPublished(String programId) {
+   //     getSqlMapClientTemplate().update("generateAdmitCard.setAdmitCardPublished", programId);
+  //  }
 
     // --- Get Session Year ---
     public GenerateAdmitCardBeanNew getSessionYear() {
