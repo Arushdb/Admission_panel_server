@@ -162,7 +162,7 @@ public class generateAdmitCardController extends MultiActionController {
         if (!dir.exists()) dir.mkdirs();
 
         // File name for PDF
-        String pdfPath = basePath + File.separator + applicant.getApplicationNumber() + "_AdmitCard.pdf";
+        String pdfPath = basePath + File.separator + applicant.getApplicationNumber() + ".pdf";
 
         // Save only folder path (till program_id) in applicant object
         applicant.setAdmitCardPath(basePath);
