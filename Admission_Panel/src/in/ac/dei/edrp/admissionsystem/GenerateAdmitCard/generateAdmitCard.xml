@@ -87,7 +87,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
         JOIN admitcard_table at ON at.program_id=pm.program_id
         LEFT JOIN (
             SELECT av.application_number, av.program_id,
-                    IF(bc.ext='', CONCAT(bc.building_name,if(bc.location !='',CONCAT(',',bc.location),'')),
+                     IF(bc.ext='', CONCAT(bc.building_name,if(bc.location =''or bc.location is null,'',CONCAT(',',bc.location))),
                                 CONCAT(bc.building_name,',',bc.location,',',bc.ext)) AS venue
             FROM admitcard_vanue av
             JOIN building_codes bc ON av.center_code=bc.building_code
@@ -113,7 +113,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
         JOIN program_master pm ON pm.program_id=stn.program_id
         LEFT JOIN (
             SELECT av.application_number, av.program_id,
-                   IF(bc.ext='', CONCAT(bc.building_name,if(bc.location !='',CONCAT(',',bc.location),'')),
+                    IF(bc.ext='', CONCAT(bc.building_name,if(bc.location =''or bc.location is null,'',CONCAT(',',bc.location))),
                                 CONCAT(bc.building_name,',',bc.location,',',bc.ext)) AS venue
             FROM admitcard_vanue av
             JOIN building_codes bc ON av.center_code=bc.building_code
