@@ -147,10 +147,10 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
         WHERE registration_number=#value#
     </update>
 
-    <update id="setAdmitCardPublished" parameterClass="string">
+    <!-- <update id="setAdmitCardPublished" parameterClass="string">
         UPDATE program_master
         SET admit_card_published='Y'
         WHERE program_id=#value#
-    </update>
+    </update> -->
 
 </sqlMap>

@@ -106,7 +106,7 @@ public class generateAdmitCardController extends MultiActionController {
                 generateAdmitCardDao.setAdmitCardAvailable(applicant.getRegistrationNumber());
             }
 
-            generateAdmitCardDao.setAdmitCardPublished(programId);
+           // generateAdmitCardDao.setAdmitCardPublished(programId);
             writeJsonResponse(response, "Admit Cards generated successfully");
             return null;
 
