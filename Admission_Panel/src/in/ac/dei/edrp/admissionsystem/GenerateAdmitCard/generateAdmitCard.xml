@@ -44,7 +44,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
   
   <select id="getOtherPrograms" parameterClass="admitcardInfo" resultClass="admitcardInfo">
-   SELECT eec.application_number AS applicationNumber,
+    <!--   SELECT eec.application_number AS applicationNumber,
           eec.program_name       AS programName,
           eec.program_id         AS programId
    FROM entrance_eligible_candidates eec
@@ -61,7 +61,25 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
              )
              AND eec.program_id != #programId#
          )
-         )
+         )-->
+         
+          SELECT sas.application_number AS applicationNumber,
+          pm.program_name       AS programName,
+          stn.program_id         AS programId
+   FROM student_test_number stn
+   JOIN student_application_status sas 
+     ON stn.test_number = sas.application_number
+     join program_master pm on pm.program_id = stn.program_id
+   WHERE       
+        
+             stn.test_number IN 
+             (select application_number from student_application_status
+             where binded_application_number = (
+                 SELECT binded_application_number 
+                 FROM student_application_status 
+                 WHERE application_number = #applicationNumber# limit 1
+             ))
+             AND stn.program_id != #programId# and verification_status="REC" group by stn.program_id;
 </select>
 
     <!-- Step 2a: Applicants if entrance_test_exist = 'Y' -->
