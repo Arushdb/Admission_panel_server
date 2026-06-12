@@ -89,7 +89,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
                es.father_first_name AS fatherName,
                es.date_of_birth AS dob,
                CONCAT_WS(',', aam.address_line1,aam.address_line2,aam.city,aam.state,aam.pincode) AS address,
-               CONCAT(pm.program_code,'-',eec.application_number,'-25') AS rollNumber,eec.registration_number registrationNumber,
+               CONCAT(pm.program_code,'-',eec.application_number,concat('-',substring(YEAR(NOW()),3,2))) AS rollNumber,eec.registration_number registrationNumber,
                pm.program_name AS programName,pm.tencodes AS tencodes,
                pm.program_id AS programId,
                abc2.venue AS venue,
@@ -120,7 +120,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
                es.father_first_name AS fatherName,
                es.date_of_birth AS dob,
                CONCAT_WS(',', aam.address_line1,aam.address_line2,aam.city,aam.state,aam.pincode) AS address,
-               CONCAT(pm.program_code,'-',stn.test_number,'-25') AS rollNumber,stn.registration_number registrationNumber,
+               CONCAT(pm.program_code,'-',stn.test_number,concat('-',substring(YEAR(NOW()),3,2))) AS rollNumber,stn.registration_number registrationNumber,
                pm.program_name AS programName,pm.entrance_test_exist AS entranceTestExist,
                pm.program_id AS programId,pm.tencodes AS tencodes,
                abc2.venue AS venue,sas.application_document_path as docpath
