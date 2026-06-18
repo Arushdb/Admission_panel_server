@@ -145,7 +145,7 @@
     WHERE program_id = #program_id#
       AND attendance_type_id = #attendance_type#
       AND status = 1
-      AND CURDATE() BETWEEN date_from AND date_to
+      AND NOW() BETWEEN date_from AND date_to
 
 </select>
 
