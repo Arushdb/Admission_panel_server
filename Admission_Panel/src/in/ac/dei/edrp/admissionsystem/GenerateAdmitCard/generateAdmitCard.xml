@@ -126,6 +126,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
                abc2.venue AS venue,sas.application_document_path as docpath
         FROM student_test_number stn
         JOIN entity_student es ON es.application_number=stn.test_number
+         join interview_1  iv on iv.application_number = stn.test_number and iv.program_id = stn.program_id
         JOIN admission_addresses_master aam ON aam.user_id=es.student_id AND aam.address_key='PER'
         JOIN student_application_status sas on sas.application_number = es.application_number
         JOIN program_master pm ON pm.program_id=stn.program_id
