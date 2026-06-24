@@ -115,6 +115,20 @@
 		from omr.student_result_info where RollNo=#application_number#
 		group by TestId;
 	</select>
-
-
+	<!-- chkliststatus and updateliststatus added by Jyoti on 17 Jul 2025 -->
+	<select id="chkliststatus" resultClass="studentinfo">
+		select ep.user_name email, DATE_FORMAT(verified_time, '%d-%m-%Y %H:%i')  insert_time
+		from list_cutoff lc join edit_panel_authority ep on ep.user_id = lc.verified_by
+		where program_id= #programId#
+		and LIST = concat('LIST-', #listNum#)
+		and list_status = "VFY";
+	</select>
+	
+	<update id="updateliststatus">
+		update list_cutoff set list_status = #verificationStatusCode#,
+		verified_by=#user_id# ,verified_time = now()
+		where program_id= #programId#
+		and LIST = concat('LIST-', #listNum#)
+	</update>
+	
 </sqlMap>
