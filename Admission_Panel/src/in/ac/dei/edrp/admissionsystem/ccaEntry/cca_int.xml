@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<!--  
 <!DOCTYPE sqlMap
         PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
-        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">   
+        -->    
+        
+  <!DOCTYPE sqlMap
+  PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+  "http://www.ibatis.com/dtd/sql-map-2.dtd">
         
 <sqlMap namespace="ccaint" >
 
@@ -80,12 +85,13 @@ and rollno=#application_number#
 
  <select id="getBindedApplication" resultClass="cca_int_info">
 select set1.entity_id,set1.app_number,
-set1.registration_number,set1.program_id from
+set1.registration_number,set1.program_id ,sub_status from
 (
 select sas.application_number as app_number,
-stn.registration_number,stn.program_id,stn.entity_id
+stn.registration_number,stn.program_id,stn.entity_id,pm.Interview_level as sub_status
 from student_application_status sas
 join student_test_number stn on sas.application_number=stn.test_number
+join program_master pm on pm.program_id =stn.program_id
 where sas.binded_application_number in
 (
 select binded_application_number from student_application_status
@@ -605,7 +611,10 @@ or mep.interview = '-1'  group by mep.application_number)set1 ;
 
 	</select>
 	
-	
+	<select id="getInterviewLevel" resultClass="cca_int_info">
+select Interview_level as sub_status from program_master where program_id= #program_id#;
+
+</select>
 
 	
 	

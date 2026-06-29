@@ -3,6 +3,7 @@ package in.ac.dei.edrp.admissionsystem.verification;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -174,5 +175,55 @@ public class VerifyImpl extends SqlMapClientDaoSupport implements VerifyDao {
 		
 		
     }
+	
+	@Override
+	public List<studentBean> getApplicantPrograms(studentBean sbean) {
+		// TODO Auto-generated method stub
+		List <studentBean> programList = null;
+		// TODO Auto-generated method stub
+		programList =getSqlMapClientTemplate().queryForList("verifystudent.getApplicantPrograms",sbean);
+		
+		return programList;
+	}
+
+	@Override
+	public List<studentBean> getUserPrograms(studentBean sbean) {
+		List <studentBean> programList = null;
+		// TODO Auto-generated method stub
+		programList =getSqlMapClientTemplate().queryForList("verifystudent.getUserPrograms",sbean);
+		
+		return programList;
+	}
+
+	@Override
+	public List<studentBean> getAttendance(studentBean sbean) {
+		List <studentBean> attendanceList = null;
+		// TODO Auto-generated method stub
+		attendanceList =getSqlMapClientTemplate().queryForList("verifystudent.getAttendance",sbean);
+		
+		return attendanceList;
+	}
+
+	@Override
+	public List<studentBean> checkIWcalled(studentBean sbean) {
+		// TODO Auto-generated method stub
+		List <studentBean> iwcalledList = null;
+		// TODO Auto-generated method stub
+		iwcalledList =getSqlMapClientTemplate().queryForList("verifystudent.getIWcalled",sbean);
+		
+		return iwcalledList;
+	}
+
+	@Override
+	public List<studentBean> checkComponentmarks(studentBean sbean) {
+		List <studentBean> iwmarks = null;
+		// TODO Auto-generated method stub
+		String date = LocalDate.of(LocalDate.now().getYear(), 7, 1).toString();
+		sbean.setStartdate(date);
+		iwmarks =getSqlMapClientTemplate().queryForList("verifystudent.getComponentmarks",sbean);
+		
+		return iwmarks;
+	}
+	
 
 }

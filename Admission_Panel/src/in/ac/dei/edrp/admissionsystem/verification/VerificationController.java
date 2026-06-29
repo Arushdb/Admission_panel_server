@@ -2,6 +2,7 @@ package in.ac.dei.edrp.admissionsystem.verification;
 
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -271,6 +272,141 @@ private VerifyDao vfyDao;
 	    //return new ModelAndView("CreateCourse/hello", "message", marksarray.toString());       
 			}
 
+	public ModelAndView getApplicantPrograms(HttpServletRequest request,
+			HttpServletResponse response)throws Exception
+	{
+		Gson gson= new Gson();
+		
+		JSONArray pgmarray = new JSONArray();
+		
+		String  application_number = request.getParameter("application_number");
+		String  user = request.getParameter("user");
+		studentBean sbean =new studentBean();
+		sbean.setApplication_number(application_number);
+		sbean.setUser_id(user);
+		
+		
+	   	    List <studentBean> ProgramList =vfyDao.getApplicantPrograms(sbean);
+	
+	   	    for  (studentBean pglist:ProgramList) {
+	   	    	JSONObject jsonObject = new JSONObject();
+	   	    	jsonObject.put("programId", pglist.getProgramId());
+	   	    	jsonObject.put("programName", pglist.getProgram_name());
+	   	    	
+	   	    	pgmarray.add(jsonObject);
+	   	    	
+	   	    }
+	   	    
+	  
+	    return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());       
+			}
+	
+	public ModelAndView getUserPrograms(HttpServletRequest request,
+			HttpServletResponse response)throws Exception
+	{
+		Gson gson= new Gson();
+		
+		JSONArray pgmarray = new JSONArray();
+		
+		String  userId = request.getParameter("userId");
+		//String  user = request.getParameter("user");
+		studentBean sbean =new studentBean();
+		//sbean.setApplication_number(userId);
+		sbean.setUser_id(userId);
+		
+		
+	   	    List <studentBean> ProgramList =vfyDao.getUserPrograms(sbean);
+	
+	   	    for  (studentBean pglist:ProgramList) {
+	   	    	JSONObject jsonObject = new JSONObject();
+	   	    	jsonObject.put("programId", pglist.getProgramId());
+	   	    	jsonObject.put("programName", pglist.getProgram_name());
+	   	    	
+	   	    	pgmarray.add(jsonObject);
+	   	    	
+	   	    }
+	   	    
+	  
+	    return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());       
+			}
+
+	
+	public ModelAndView validateInterview(HttpServletRequest request,
+			HttpServletResponse response)throws Exception
+	{
+		JSONArray pgmarray = new JSONArray();
+		Gson gson= new Gson();
+		
+		
+		
+		String  programid = request.getParameter("programid");
+		String  appno = request.getParameter("appno");
+		String  comp = request.getParameter("comp");
+		studentBean sbean =new studentBean();
+		//sbean.setApplication_number(userId);
+		sbean.setProgramId(programid);
+		sbean.setApplication_number(appno);
+		sbean.setComponentID(comp);
+		
+		int currentYear = LocalDate.now().getYear();
+
+        String startDate = currentYear + "-07-01";
+        sbean.setStartdate(startDate);
+		
+        // check attendance for Interview only for PW component
+		
+					
+	   	    List <studentBean> attendanceList =vfyDao.getAttendance(sbean);
+	   	    if(attendanceList.size()==0) {
+	   	    	JSONObject jsonObject = new JSONObject();
+	   	    	jsonObject.put("status", false);
+	   	    	jsonObject.put("message", "Attendance not marked");
+	   	    	pgmarray.add(jsonObject);
+	   	    	return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString()); 
+	   	    }else {
+	   	    	if(!attendanceList.get(0).getVerificationStatusCode().equalsIgnoreCase("VERIFIED"))	
+	   	    	{
+	   	    		JSONObject jsonObject = new JSONObject();
+	   	    		jsonObject.put("status", false);
+		   	    	jsonObject.put("message", "Attendance is rejected");
+		   	    	pgmarray.add(jsonObject);
+		   	    	return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());
+	   	    	}
+	   	    }
+	   	    	
+		
+	   	    // check if component  marks are already entered
+	   	 List <studentBean> iwmarks =vfyDao.checkComponentmarks(sbean);
+	   	  if(iwmarks.size()>0) {
+	    	JSONObject jsonObject = new JSONObject();
+	    		jsonObject.put("status", false);
+   	    	jsonObject.put("message", iwmarks.get(0).getTotalMarks()+ ":Interview marks are already entered ");
+   	    	pgmarray.add(jsonObject);
+   	    	return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());
+	    }
+	   	    
+	   	  // check if applicant is called for interview
+	   	List <studentBean> iwList =vfyDao.checkIWcalled(sbean);
+	    if(iwList.size()==0) {
+	    	JSONObject jsonObject = new JSONObject();
+	    		jsonObject.put("status", false);
+   	    	jsonObject.put("message", "Candidate is not called for interview");
+   	    	pgmarray.add(jsonObject);
+   	    	return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());
+	    }else {
+	    	JSONObject jsonObject = new JSONObject();
+    		jsonObject.put("status", true);
+	    	jsonObject.put("message", "Success");
+	    	pgmarray.add(jsonObject);
+	    	return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());
+	    	
+	    }
+   	    	
+	   	 
+	   	    
+	  
+	         
+			}
 
 	
 	

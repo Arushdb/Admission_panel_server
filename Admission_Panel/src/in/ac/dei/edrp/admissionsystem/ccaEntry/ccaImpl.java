@@ -252,6 +252,9 @@ public class ccaImpl extends SqlMapClientDaoSupport implements ccaDao {
 		List<cca_intBean> checkUnBinding=new ArrayList<cca_intBean>();
 		List<String> checkRecord=new ArrayList<String>();
 		
+		List<cca_intBean> iwlevellist=getSqlMapClientTemplate().queryForList("ccaint.getInterviewLevel",input);
+		String iwlevel=iwlevellist.get(0).getSub_status();
+		
 		System.out.println("getBindedApplication"+checkBinding.size());
 		cca_intBean input1 = new cca_intBean();
 		input1.setStart_date(getsessionDate.get(0).getStart_date());
@@ -261,7 +264,9 @@ public class ccaImpl extends SqlMapClientDaoSupport implements ccaDao {
 			input1.setCount(String.valueOf(checkBinding.size()));
 			for (int j=0;j<checkBinding.size();j++)
 			{
-				
+				String status = checkBinding.get(j).getSub_status();
+				if(!(iwlevel.equalsIgnoreCase(status)))
+					continue;
 				input1.setRegistration_number(checkBinding.get(j).getRegistration_number());
 				input1.setApplication_number(checkBinding.get(j).getApp_number());
 				//input1.setInterview(input.getInterview());

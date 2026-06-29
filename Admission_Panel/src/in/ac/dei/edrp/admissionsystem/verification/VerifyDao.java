@@ -16,4 +16,11 @@ public interface VerifyDao {
 	public List<studentBean> chkliststatus(studentBean sbean); //added by Jyoti on 19 Jun 2025
 	public int updateliststatus(studentBean sbean); //added by Jyoti on 19 Jun 2025
 	public BufferedImage VerifySignature(studentBean sbean);
+	
+	public List<studentBean> getApplicantPrograms(studentBean sbean);
+	public List<studentBean> getUserPrograms(studentBean sbean);
+	public List<studentBean> getAttendance(studentBean sbean);
+	public List<studentBean> checkIWcalled(studentBean sbean);
+	
+	public List<studentBean> checkComponentmarks(studentBean sbean);
 }

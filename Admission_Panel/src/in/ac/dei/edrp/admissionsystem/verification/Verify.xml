@@ -115,6 +115,49 @@
 		from omr.student_result_info where RollNo=#application_number#
 		group by TestId;
 	</select>
+<select id="getApplicantPrograms" resultClass="studentinfo">
+
+		select pm.program_id as programId,pm.program_name from applicant_program_registration apr
+		join program_master pm on pm.program_id = apr.program_id
+		where application_number in (
+		select binded_application_number from student_application_status
+		where application_number =#application_number#);
+
+
+	</select>
+	
+	<select id="getUserPrograms" resultClass="studentinfo">
+
+		select pm.program_id as programId,pm.program_name from user_program up
+		join program_master pm on pm.program_id = up.program_id and menu="PW"
+		and user = #user_id#
+		
+
+
+	</select>
+	
+	<select id="getAttendance" resultClass="studentinfo">
+
+		select status  as verificationStatusCode from application_attendance
+where application_number=#application_number# and program_id=#programId#
+and attendance_type_id= "PW" and status="VERIFIED";
+		
+
+
+	</select>
+	
+	<select id="getIWcalled" resultClass="studentinfo">
+
+		select application_number from interview_1 where application_number=#application_number#
+and program_id=#programId#;
+
+
+	</select>
+	<select id="getComponentmarks" resultClass="studentinfo">
+select rollno as application_number,marks as totalMarks from student_final_marks 
+where rollno=#application_number# and evaluation_component= #componentID# 
+and program_id=#programId# and attended="P" and start_date=#startdate#;
+</select>
 
 
 </sqlMap>
