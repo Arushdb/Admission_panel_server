@@ -159,5 +159,10 @@ where rollno=#application_number# and evaluation_component= #componentID#
 and program_id=#programId# and attended="P" and start_date=#startdate#;
 </select>
 
+	<select id="getInterviewLevel" resultClass="studentinfo">
+       select Interview_level as category from program_master where program_id= #programId#;
+
+</select>
+
 
 </sqlMap>

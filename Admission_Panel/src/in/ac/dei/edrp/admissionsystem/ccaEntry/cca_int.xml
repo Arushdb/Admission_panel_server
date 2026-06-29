@@ -144,7 +144,9 @@ and stn.called in ('Y','N') and stn.registration_number not in (#registration_nu
 
  <select id="getUnBindedApplication" resultClass="cca_int_info">
 select test_number as application_number,registration_number,program_id, 
-entity_id from student_test_number where test_number =#application_number# and called in ('Y','N');
+entity_id ,pm.Interview_level as sub_status from student_test_number stn
+join program_master pm on pm.program_id =stn.program_id
+where test_number =#application_number# and called in ('Y','N');
 </select>
 
  <select id="getUnBindedApplication_GD" resultClass="cca_int_info">

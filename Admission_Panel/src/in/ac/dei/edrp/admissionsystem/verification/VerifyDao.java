@@ -3,7 +3,7 @@ package in.ac.dei.edrp.admissionsystem.verification;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-
+import in.ac.dei.edrp.admissionsystem.Bean.cca_intBean;
 import in.ac.dei.edrp.admissionsystem.Bean.studentBean;
 
 public interface VerifyDao {
@@ -23,4 +23,5 @@ public interface VerifyDao {
 	public List<studentBean> checkIWcalled(studentBean sbean);
 	
 	public List<studentBean> checkComponentmarks(studentBean sbean);
+	public List<studentBean> getInterviewLevel(studentBean sbean);
 }

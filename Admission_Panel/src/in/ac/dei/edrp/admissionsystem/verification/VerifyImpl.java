@@ -224,6 +224,17 @@ public class VerifyImpl extends SqlMapClientDaoSupport implements VerifyDao {
 		
 		return iwmarks;
 	}
+
+	@Override
+	public List<studentBean> getInterviewLevel(studentBean sbean) {
+		// TODO Auto-generated method stub
+		
+		List<studentBean> iwlevellist=null;
+		// TODO Auto-generated method stub
+		iwlevellist =getSqlMapClientTemplate().queryForList("verifystudent.getInterviewLevel",sbean);
+		
+		return iwlevellist;
+	}
 	
 
 }

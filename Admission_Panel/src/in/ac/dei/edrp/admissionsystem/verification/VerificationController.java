@@ -347,6 +347,7 @@ private VerifyDao vfyDao;
 		sbean.setProgramId(programid);
 		sbean.setApplication_number(appno);
 		sbean.setComponentID(comp);
+		String comonentdesc = comp.equalsIgnoreCase("PW")?"Interview":"CCA";
 		
 		int currentYear = LocalDate.now().getYear();
 
@@ -380,10 +381,23 @@ private VerifyDao vfyDao;
 	   	  if(iwmarks.size()>0) {
 	    	JSONObject jsonObject = new JSONObject();
 	    		jsonObject.put("status", false);
-   	    	jsonObject.put("message", iwmarks.get(0).getTotalMarks()+ ":Interview marks are already entered ");
+   	    	jsonObject.put("message", iwmarks.get(0).getTotalMarks()+ comonentdesc + ":marks are already entered");
    	    	pgmarray.add(jsonObject);
    	    	return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());
 	    }
+	   	  
+	   	  // check if interview level is defined
+	   	List <studentBean> iwlevellist =vfyDao.getInterviewLevel(sbean);
+	   	if (iwlevellist == null
+	   	        || iwlevellist.isEmpty()
+	   	        || iwlevellist.get(0).getCategory() == null
+	   	        || iwlevellist.get(0).getCategory().trim().isEmpty()){
+	   		    	JSONObject jsonObject = new JSONObject();
+		    		jsonObject.put("status", false);
+	   	    	jsonObject.put("message", "Please contact  EdRP,Interview level mising for program:"+programid );
+	   	    	pgmarray.add(jsonObject);
+	   	    	return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());
+	   		    }
 	   	    
 	   	  // check if applicant is called for interview
 	   	List <studentBean> iwList =vfyDao.checkIWcalled(sbean);
