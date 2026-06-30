@@ -129,8 +129,8 @@
 	<select id="getUserPrograms" resultClass="studentinfo">
 
 		select pm.program_id as programId,pm.program_name from user_program up
-		join program_master pm on pm.program_id = up.program_id and menu="PW"
-		and user = #user_id#
+		join program_master pm on pm.program_id = up.program_id and menu=#componentID#
+		and user = #user_id#;
 		
 
 

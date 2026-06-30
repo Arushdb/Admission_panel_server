@@ -309,10 +309,12 @@ private VerifyDao vfyDao;
 		JSONArray pgmarray = new JSONArray();
 		
 		String  userId = request.getParameter("userId");
-		//String  user = request.getParameter("user");
+		String  component = request.getParameter("component");
 		studentBean sbean =new studentBean();
+		
 		//sbean.setApplication_number(userId);
 		sbean.setUser_id(userId);
+		sbean.setComponentID(component);
 		
 		
 	   	    List <studentBean> ProgramList =vfyDao.getUserPrograms(sbean);
