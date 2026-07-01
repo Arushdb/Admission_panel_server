@@ -24,4 +24,5 @@ public interface VerifyDao {
 	
 	public List<studentBean> checkComponentmarks(studentBean sbean);
 	public List<studentBean> getInterviewLevel(studentBean sbean);
+	public List<studentBean> getEnteredCandidates(studentBean sbean);
 }

@@ -383,7 +383,7 @@ private VerifyDao vfyDao;
 	   	  if(iwmarks.size()>0) {
 	    	JSONObject jsonObject = new JSONObject();
 	    		jsonObject.put("status", false);
-   	    	jsonObject.put("message", iwmarks.get(0).getTotalMarks()+ comonentdesc + ":marks are already entered");
+   	    	jsonObject.put("message", "Marks are already entered");
    	    	pgmarray.add(jsonObject);
    	    	return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());
 	    }
@@ -411,8 +411,11 @@ private VerifyDao vfyDao;
    	    	return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());
 	    }else {
 	    	JSONObject jsonObject = new JSONObject();
+	    	
     		jsonObject.put("status", true);
 	    	jsonObject.put("message", "Success");
+	    	jsonObject.put("firstname", iwList.get(0).getFirst_name());
+	    	
 	    	pgmarray.add(jsonObject);
 	    	return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());
 	    	
@@ -422,6 +425,43 @@ private VerifyDao vfyDao;
 	   	    
 	  
 	         
+			}
+	                    
+	public ModelAndView getEnteredCandidates(HttpServletRequest request,
+			HttpServletResponse response)throws Exception
+	{
+		Gson gson= new Gson();
+		
+		JSONArray pgmarray = new JSONArray();
+		
+		String  userId = request.getParameter("userId");
+		String  component = request.getParameter("component");
+
+		String  programid = request.getParameter("programId");
+		
+		
+		studentBean sbean =new studentBean();
+		
+		//sbean.setApplication_number(userId);
+		sbean.setUser_id(userId);
+		sbean.setComponentID(component);
+		sbean.setProgramId(programid);
+		
+		
+	   	    List <studentBean> enteredCanidatesList =vfyDao.getEnteredCandidates(sbean);
+	
+	   	    for  (studentBean clist:enteredCanidatesList) {
+	   	    	JSONObject jsonObject = new JSONObject();
+	   	    	jsonObject.put("applicationNo", clist.getApplication_number());
+	   	    	jsonObject.put("applicantName", clist.getFirst_name());
+	   	    	jsonObject.put("score", clist.getScore());
+	   	    	
+	   	    	pgmarray.add(jsonObject);
+	   	    	
+	   	    }
+	   	    
+	  
+	    return new ModelAndView("CreateCourse/hello", "message", pgmarray.toString());       
 			}
 
 	

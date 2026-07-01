@@ -14,7 +14,8 @@
 
 	<select id="getstudentmarks" resultClass="studentinfo">
 
-		select es.first_name as first_name, apr.application_number as
+		select es.first_name as
+		first_name, apr.application_number as
 		application_number,
 		marks_percentage as marksPercentage,marks_obtained
 		as marksObtained,
@@ -25,15 +26,18 @@
 		CASE
 		WHEN sas.marksstatus = 'V'
 		THEN "Verified"
-		WHEN sas.marksstatus = 'W' THEN "Wrong Marks"
+		WHEN
+		sas.marksstatus = 'W' THEN "Wrong Marks"
 		ELSE "Not
 		Checked"
-		END as verificationStatusCode,
+		END as
+		verificationStatusCode,
 
 
 		sas.reason as
 		verificationStatusDesc
-		from applicant_program_registration apr
+		from
+		applicant_program_registration apr
 		join
 		student_call_list scl on
 		apr.registration_number=scl.registration_number
@@ -67,8 +71,10 @@
 
 		select application_number
 		from interview_1 i1
-		join user_program up on up.program_id = i1.program_id
-		join edit_panel_authority epa on epa.user_id = up.user
+		join user_program up on
+		up.program_id = i1.program_id
+		join edit_panel_authority epa on
+		epa.user_id = up.user
 		where application_number = #application_number#
 		and up.menu = #menu#
 		and up.user = #user_id#
@@ -80,28 +86,37 @@
 	<select id="getUserProgramList" resultClass="studentinfo"
 		parameterClass="java.lang.String">
 		select up.program_id as programId,
-		pm.program_name as program_name
+		pm.program_name as
+		program_name
 		from user_program up
-		join program_master pm on pm.program_id= up.program_id
+		join program_master pm on
+		pm.program_id= up.program_id
 		where user =
 		#user_id#
-		order by pm.program_name;
+		order by
+		pm.program_name;
 	</select>
 
 	<select id="getVfyProgramList" resultClass="studentinfo">
 		select
 		fc.councelling_status verificationStatusCode,
-		apr.application_number as application_number, es.first_name as first_name,
-		es.category_code as category, es.gender, ep.user_name email,
+		apr.application_number as
+		application_number, es.first_name as first_name,
+		es.category_code as
+		category, es.gender, ep.user_name email,
 		DATE_FORMAT(fc.modification_time, '%d-%m-%Y %H:%i') insert_time
 		from
 		final_candidates fc
-		join final_candidates_to_counselled fcc on fcc.registration_number =
+		join final_candidates_to_counselled fcc on
+		fcc.registration_number =
 		fc.registration_number
-		join applicant_program_registration apr on
-		apr.registration_number = fc.registration_number
+		join
+		applicant_program_registration apr on
+		apr.registration_number =
+		fc.registration_number
 		and apr.program_id = fcc.program_id
-		join entity_student es on es.application_number = apr.application_number
+		join
+		entity_student es on es.application_number = apr.application_number
 		left join edit_panel_authority ep on ep.user_id = fc.user_id
 		where
 		fcc.program_id = #programId#
@@ -111,58 +126,91 @@
 	</select>
 
 	<select id="getSignaturefile" resultClass="studentinfo">
-		select TestId as docId ,RollNo as application_number ,FileName as file_name
-		from omr.student_result_info where RollNo=#application_number#
-		group by TestId;
+		select TestId as docId
+		,RollNo as application_number ,FileName as file_name
+		from
+		omr.student_result_info where RollNo=#application_number#
+		group by
+		TestId;
 	</select>
-<select id="getApplicantPrograms" resultClass="studentinfo">
+	<select id="getApplicantPrograms" resultClass="studentinfo">
 
-		select pm.program_id as programId,pm.program_name from applicant_program_registration apr
-		join program_master pm on pm.program_id = apr.program_id
+		select
+		pm.program_id as programId,pm.program_name from
+		applicant_program_registration apr
+		join program_master pm on
+		pm.program_id = apr.program_id
 		where application_number in (
-		select binded_application_number from student_application_status
-		where application_number =#application_number#);
+		select
+		binded_application_number from student_application_status
+		where
+		application_number =#application_number#);
 
 
 	</select>
-	
+
 	<select id="getUserPrograms" resultClass="studentinfo">
 
-		select pm.program_id as programId,pm.program_name from user_program up
-		join program_master pm on pm.program_id = up.program_id and menu=#componentID#
-		and user = #user_id#;
-		
+		select pm.program_id as
+		programId,pm.program_name from user_program up
+		join program_master pm
+		on pm.program_id = up.program_id and menu=#componentID#
+		and user =
+		#user_id#;
+
 
 
 	</select>
-	
+	<select id="getEnteredCandidates" resultClass="studentinfo">
+		select es.application_number,es.first_name,score from student_final_marks
+		sfm
+		join entity_student es on es.application_number= sfm.rollno
+		where 
+		 program_id=#programId#
+		and evaluation_component=#componentID# and sfm.creator_id= #user_id#
+		order by rollno;
+	</select>
+
 	<select id="getAttendance" resultClass="studentinfo">
 
-		select status  as verificationStatusCode from application_attendance
-where application_number=#application_number# and program_id=#programId#
-and attendance_type_id= "PW" and status="VERIFIED";
-		
+		select status as
+		verificationStatusCode from application_attendance
+		where
+		application_number=#application_number# and program_id=#programId#
+		and
+		attendance_type_id= "PW" and status="VERIFIED";
+
 
 
 	</select>
-	
+
 	<select id="getIWcalled" resultClass="studentinfo">
 
-		select application_number from interview_1 where application_number=#application_number#
-and program_id=#programId#;
-
+		select
+		a.application_number,b.first_name from interview_1 a
+		join
+		entity_student b on b.application_number=a.application_number
+		where
+		a.application_number=#application_number#
+		and program_id=#programId# ;
 
 	</select>
 	<select id="getComponentmarks" resultClass="studentinfo">
-select rollno as application_number,marks as totalMarks from student_final_marks 
-where rollno=#application_number# and evaluation_component= #componentID# 
-and program_id=#programId# and attended="P" and start_date=#startdate#;
-</select>
+		select rollno as
+		application_number,marks as totalMarks from
+		student_final_marks
+		where
+		rollno=#application_number# and evaluation_component= #componentID#
+		and program_id=#programId# and attended="P" and
+		start_date=#startdate#;
+	</select>
 
 	<select id="getInterviewLevel" resultClass="studentinfo">
-       select Interview_level as category from program_master where program_id= #programId#;
+		select
+		Interview_level as category from program_master where program_id=
+		#programId#;
 
-</select>
+	</select>
 
 
 </sqlMap>
