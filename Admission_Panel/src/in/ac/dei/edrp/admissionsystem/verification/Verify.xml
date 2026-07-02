@@ -162,11 +162,12 @@
 
 	</select>
 	<select id="getEnteredCandidates" resultClass="studentinfo">
-		select es.application_number,es.first_name,score from student_final_marks
-		sfm
+		select es.application_number,es.first_name,score,date(sfm.insert_time) as insert_time
+		 from student_final_marks sfm 
+		
 		join entity_student es on es.application_number= sfm.rollno
-		where 
-		 program_id=#programId#
+		join interview_1 a on a.application_number=sfm.rollno and a.program_id
+		=sfm.program_id where sfm.program_id=#programId#
 		and evaluation_component=#componentID# and sfm.creator_id= #user_id#
 		order by rollno;
 	</select>

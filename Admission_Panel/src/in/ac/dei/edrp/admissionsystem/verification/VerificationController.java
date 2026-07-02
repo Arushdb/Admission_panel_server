@@ -455,6 +455,7 @@ private VerifyDao vfyDao;
 	   	    	jsonObject.put("applicationNo", clist.getApplication_number());
 	   	    	jsonObject.put("applicantName", clist.getFirst_name());
 	   	    	jsonObject.put("score", clist.getScore());
+	   	    	jsonObject.put("dateEntered", clist.getInsert_time());
 	   	    	
 	   	    	pgmarray.add(jsonObject);
 	   	    	
