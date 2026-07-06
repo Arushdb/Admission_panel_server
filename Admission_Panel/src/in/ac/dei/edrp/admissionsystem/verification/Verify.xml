@@ -179,7 +179,7 @@
 		where
 		application_number=#application_number# and program_id=#programId#
 		and
-		attendance_type_id= "PW" and status="VERIFIED";
+		attendance_type_id= #category# and status="VERIFIED";
 
 
 

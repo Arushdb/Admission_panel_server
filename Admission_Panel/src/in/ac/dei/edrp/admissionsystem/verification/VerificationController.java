@@ -349,6 +349,11 @@ private VerifyDao vfyDao;
 		sbean.setProgramId(programid);
 		sbean.setApplication_number(appno);
 		sbean.setComponentID(comp);
+		if(comp.equalsIgnoreCase("GD")){
+			sbean.setCategory(comp);
+		}else {
+			sbean.setCategory("PW");
+		}
 		String comonentdesc = comp.equalsIgnoreCase("PW")?"Interview":"CCA";
 		
 		int currentYear = LocalDate.now().getYear();
