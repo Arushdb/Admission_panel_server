@@ -755,8 +755,21 @@ public class computationImpl extends SqlMapClientDaoSupport implements computati
 			if (input.getProgram_id().equalsIgnoreCase("0001067")) {
 				getData = getSqlMapClientTemplate().queryForList("computation.viewStudentMarksforCounselling_btech",
 						input);
+				
+				for(int i=0;i<getData.size();i++) {
+					if (getData.get(i).getVal5().equalsIgnoreCase("JM")) {
+						admissionBean obj = new admissionBean();
+						obj=getData.get(i);
+						obj.setVal6("");
+						obj.setVal7("");
+						obj.setVal8(getData.get(i).getVal3());
+						
+						getData.set(i, obj);
+					}
+				}
 			} else {
 				getData = getSqlMapClientTemplate().queryForList("computation.viewStudentMarksforCounselling", input);
+			
 			}
 
 		}
@@ -2010,10 +2023,19 @@ public String runComputationforAll(ReportInfoGetter input,String mode) {
 					/// Arush ///////////////////////////////////////////////
 					
 					
-					count = getSqlMapClientTemplate().update("computation.update_SCL_marks_new", input);
+					
 
 					if (input.getComponent_id().equalsIgnoreCase("JM")) {
+						float mrks =toFloat(input.getMarks_obt());
+					    if(mrks==0.0)  
+						input.setMarks_obt("0.0");
+					    mrks =toFloat(input.getTotalMarks());
+					    if(mrks==0.0)  
+							input.setTotalMarks("0.0");
+						
 						count = getSqlMapClientTemplate().update("computation.update_SCL_marks_Btech", input);
+					}else {
+						count = getSqlMapClientTemplate().update("computation.update_SCL_marks_new", input);
 					}
 
 					for (int j = 0; j < checkBinding.size(); j++) {
@@ -2107,6 +2129,13 @@ public String runComputationforAll(ReportInfoGetter input,String mode) {
 
 		});
 		return bean1;
+	}
+	
+	public static float toFloat(String value) {
+	    if (value == null || value.trim().isEmpty()) {
+	        return 0.0f;
+	    }
+	    return Float.parseFloat(value.trim());
 	}
 
 	public admissionBean UpdateFinalStatus(admissionBean input) {
