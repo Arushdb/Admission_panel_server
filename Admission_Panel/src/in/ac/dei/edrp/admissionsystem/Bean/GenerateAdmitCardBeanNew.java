@@ -37,6 +37,10 @@ public class GenerateAdmitCardBeanNew implements Serializable {
     private String subjects;
     
     private String retMonthYear;
+
+    private String writtenTestTimeVenue;
+    private String innovationTestTimeVenue;
+    private String interviewTimeVenue;
     
     public String getRetMonthYear() { return retMonthYear; }
     public void setRetMonthYear(String retMonthYear) { this.retMonthYear = retMonthYear; }
@@ -222,5 +226,31 @@ public class GenerateAdmitCardBeanNew implements Serializable {
 
     public void setInstructions(String instructions) {
         this.instructions = instructions;
+    }
+
+     public String getWrittenTestTimeVenue() {
+        return writtenTestTimeVenue;
+    }
+
+    public void setWrittenTestTimeVenue(String writtenTestTimeVenue) {
+        this.writtenTestTimeVenue = writtenTestTimeVenue;
+    }
+
+
+    public String getInnovationTestTimeVenue() {
+        return innovationTestTimeVenue;
+    }
+
+    public void setInnovationTestTimeVenue(String innovationTestTimeVenue) {
+        this.innovationTestTimeVenue = innovationTestTimeVenue;
+    }
+
+
+    public String getInterviewTimeVenue() {
+        return interviewTimeVenue;
+    }
+
+    public void setInterviewTimeVenue(String interviewTimeVenue) {
+        this.interviewTimeVenue = interviewTimeVenue;
     }
 }

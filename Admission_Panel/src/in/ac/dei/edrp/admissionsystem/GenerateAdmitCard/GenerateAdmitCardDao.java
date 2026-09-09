@@ -7,6 +7,8 @@ import in.ac.dei.edrp.admissionsystem.Bean.EntranceTestPaper;
 public interface GenerateAdmitCardDao {
     List<GenerateAdmitCardBeanNew> getPrograms();
     List<GenerateAdmitCardBeanNew> getApplicantsEntrance(String programId);
+    List<GenerateAdmitCardBeanNew> getPhdApplicantsEntrance(String programId);
+
     List<GenerateAdmitCardBeanNew> getOtherPrograms(String applicationNumber, String programId);
 
 
