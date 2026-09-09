@@ -25,6 +25,11 @@ public class generateAdmitCardImpl extends SqlMapClientDaoSupport implements Gen
     }
 
     @SuppressWarnings("unchecked")
+    public List<GenerateAdmitCardBeanNew> getPhdApplicantsEntrance(String programId) {
+        return getSqlMapClientTemplate().queryForList("generateAdmitCard.getPhdApplicantsEntrance", programId);
+    }
+
+    @SuppressWarnings("unchecked")
     public List<GenerateAdmitCardBeanNew> getApplicantsDirect(String programId) {
         return getSqlMapClientTemplate().queryForList("generateAdmitCard.getApplicantsDirect", programId);
     }

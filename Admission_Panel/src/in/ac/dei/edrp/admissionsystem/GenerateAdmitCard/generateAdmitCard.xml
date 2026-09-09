@@ -96,7 +96,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
                DATE_FORMAT(at.date,'%d %M %Y') AS testdate,
                DATE_FORMAT(at.date,'%r') AS testtime ,
                sas.application_document_path as docpath,pm.entrance_test_exist AS entranceTestExist,
-               CONCAT(paper1,' ',paper2, ' ',paper3,' ',paper4) AS subjects
+               CONCAT(paper1,' ; ',paper2, if(paper3='','',' ; '),paper3,if(paper4='','',' ; '),paper4) AS subjects
         FROM entrance_eligible_candidates eec
         JOIN program_master pm ON eec.program_id=pm.program_id
         JOIN entity_student es ON es.application_number=eec.application_number
@@ -111,6 +111,32 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
             JOIN building_codes bc ON av.center_code=bc.building_code
         ) abc2 ON eec.application_number=abc2.application_number AND eec.program_id=abc2.program_id
         WHERE eec.program_id=#value#
+    </select>
+
+     <!-- Step 2c: Ph.D. Applicants if entrance_test_exist = 'Y' -->
+    <select id="getPhdApplicantsEntrance" resultClass="admitcardInfo" parameterClass="string">
+    SELECT eec.application_number AS applicationNumber,
+               es.first_name AS name,
+               es.father_first_name AS fatherName,
+               es.date_of_birth AS dob,
+               CONCAT_WS(',', aam.address_line1,aam.address_line2,aam.city,aam.state,aam.pincode) AS address,
+               CONCAT(pm.program_code,'-',eec.application_number,concat('-',substring(YEAR(NOW()),3,2))) AS rollNumber,eec.registration_number registrationNumber,
+               pm.program_name AS programName,pm.tencodes AS tencodes,
+               pm.program_id AS programId,
+               concat(TIME(atp1.date),' at ', atp1.venue) AS writtenTestTimeVenue,concat(TIME(atp2.date),' at ', atp2.venue) AS interviewTimeVenue,
+               concat(TIME(atp3.date),' at ', atp3.venue) AS innovationTestTimeVenue,
+               DATE_FORMAT(atp1.date,'%d %M %Y') AS testdate,
+               sas.application_document_path as docpath,pm.entrance_test_exist AS entranceTestExist,
+               CONCAT(paper1,' ; ',paper2, if(paper3='','',' ; '),paper3,if(paper4='','',' ; '),paper4) AS subjects
+        FROM entrance_eligible_candidates eec
+        JOIN program_master pm ON eec.program_id=pm.program_id
+        JOIN entity_student es ON es.application_number=eec.application_number
+        JOIN admission_addresses_master aam ON aam.user_id=es.student_id AND aam.address_key='PER'
+        JOIN student_application_status sas on sas.application_number = es.application_number
+        JOIN admitcard_table_phd  atp1 ON atp1.program_id=pm.program_id and atp1.type = 'ET'
+        JOIN admitcard_table_phd  atp2 ON atp2.program_id=pm.program_id and atp2.type = 'IN'
+        JOIN admitcard_table_phd  atp3 ON atp3.program_id=pm.program_id and atp3.type = 'IV'
+       WHERE eec.program_id=#value#
     </select>
 
     <!-- Step 2b: Applicants if entrance_test_exist = 'N' -->
